@@ -1,0 +1,8 @@
+{
+  "name": "code-suggester",
+  "name_pretty": "GitHub Code Suggester",
+  "release_level": "alpha",
+  "language": "nodejs",
+  "repo": "googleapis/code-suggester",
+  "distribution_name": "@google-cloud/code-suggester"
+}

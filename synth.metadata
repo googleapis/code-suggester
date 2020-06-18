@@ -1,0 +1,18 @@
+{
+  "sources": [
+    {
+      "git": {
+        "name": ".",
+        "remote": "sso://devrel/cloud/libraries/code-suggester",
+        "sha": "7595259e7f0e47b45bbccea29b309c1e1a4f4230"
+      }
+    },
+    {
+      "git": {
+        "name": "synthtool",
+        "remote": "https://github.com/googleapis/synthtool.git",
+        "sha": "8e7edfbb4f9db7a86a1c61b46bde7c8e0782abca"
+      }
+    }
+  ]
+}
