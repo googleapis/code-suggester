@@ -36,10 +36,12 @@
   },
   "dependencies": {
     "@octokit/rest": "^18.0.0",
+    "@types/chai": "^4.2.11",
     "@types/node": "^14.0.13",
     "@types/pino": "^6.3.0",
     "@types/supports-color": "^5.3.0",
     "@types/yargs": "^15.0.5",
+    "chai": "^4.2.0",
     "google-gax": "^1.14.1",
     "pino": "^6.3.2",
     "protobufjs": "^6.8.0",
@@ -47,7 +49,7 @@
     "yargs": "^15.3.1"
   },
   "devDependencies": {
-    "@types/mocha": "^7.0.0",
+    "@types/mocha": "^7.0.2",
     "@types/node": "^12.0.0",
     "c8": "^7.0.1",
     "codecov": "^3.0.4",
