@@ -34,8 +34,7 @@ module.exports = {
   source: {
     excludePattern: '(^|\\/|\\\\)[._]',
     include: [
-      'build/src',
-      'protos'
+      'build/src'
     ],
     includePattern: '\\.js$'
   },
@@ -43,7 +42,7 @@ module.exports = {
     copyright: 'Copyright 2020 Google, LLC.',
     includeDate: false,
     sourceFiles: false,
-    systemName: '@google-cloud/asset',
+    systemName: '@google-cloud/code-suggester',
     theme: 'lumen',
     default: {
       outputSourceFiles: false
