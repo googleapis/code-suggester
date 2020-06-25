@@ -12,29 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Suggester} from '../application';
+import {GitHubContext, Logger} from '../types';
+import {Octokit} from '@octokit/rest';
 
 /**
  * Create a GitHub PR on the main organization's repo
- * @param app the Suggester instance
+ * @param gitHubContext The configuration for interacting with GitHub
+ * @param logger The logger instance
+ * @param octokit The authenticated octokit instance
  * @param workerBranchName the branch name that contains the changes
  */
-async function makePR(app: Suggester, workerBranchName: string) {
+async function makePR(
+  gitHubContext: GitHubContext,
+  logger: Logger,
+  octokit: Octokit,
+  workerBranchName: string
+) {
   // TODO - handle when there is no fork instance
-  if (!app.gitHubContext.workerRepo) {
-    app.log.error('PR is not made because there is no working repo');
+  if (!gitHubContext.workerRepo) {
+    logger.error('PR is not made because there is no working repo');
     return;
   }
   const isForkOutOfDate = false;
   if (isForkOutOfDate) {
-    app.log.debug('Fork is out of synch');
+    logger.debug('Fork is out of synch');
     // TODO - autosync fork, update branch, and re-apply changes
   }
-  await app.octokit.pulls.create({
-    owner: app.gitHubContext.mainOwner,
-    repo: app.gitHubContext.workerRepo,
-    title: app.gitHubContext.prTitle,
-    head: `${app.gitHubContext.workerOwner}:${workerBranchName}`,
+  await octokit.pulls.create({
+    owner: gitHubContext.mainOwner,
+    repo: gitHubContext.workerRepo,
+    title: gitHubContext.prTitle,
+    head: `${gitHubContext.workerOwner}:${workerBranchName}`,
     base: 'master',
   });
 }

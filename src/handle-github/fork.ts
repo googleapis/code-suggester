@@ -12,22 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Suggester} from '../application';
+import {GitHubContext, Logger} from '../types';
+import {Octokit} from '@octokit/rest';
 
 /**
  * Fork the GitHub owner's repository
  * If fork already exists no new fork is created and no error occurs
- * @param app the Suggester instance
+ * @param gitHubContext The configuration for interacting with GitHub
+ * @param logger The logger instance
+ * @param octokit The authenticated octokit instance
  * @returns the forked repository name, as well as the owner of that fork
  */
-async function fork(app: Suggester) {
+async function fork(
+  gitHubContext: GitHubContext,
+  logger: Logger,
+  octokit: Octokit
+) {
   const forkedRepo = (
-    await app.octokit.repos.createFork({
-      owner: app.gitHubContext.mainOwner,
-      repo: app.gitHubContext.mainRepo,
+    await octokit.repos.createFork({
+      owner: gitHubContext.mainOwner,
+      repo: gitHubContext.mainRepo,
     })
   ).data;
-  app.log.debug('Fork was either successful, or fork already exists');
+  logger.debug('Fork was either successful, or fork already exists');
   // TODO autosync
   return {
     newRepo: forkedRepo.name,

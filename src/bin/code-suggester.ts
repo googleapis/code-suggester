@@ -14,33 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Suggester, CLISuggester} from '../application';
-import {Parameters} from '../types';
-import * as fs from 'fs';
+import {logger as defaultLogger, Logger} from '../logger';
+import {Octokit} from '@octokit/rest';
+import {Credentials, Parameters} from '../types';
+import {runGitHub} from '../handle-github';
 
-function hasWriteAccess() {
-  try {
-    fs.accessSync('.', fs.constants.R_OK | fs.constants.W_OK);
-    return true;
-  } catch (err) {
-    return false;
+function initOctokit(): Octokit {
+  const token: Credentials.ACCESS_TOKEN = process.env[
+    Credentials.ACCESS_TOKEN
+  ] as Credentials.ACCESS_TOKEN;
+  if (!token) {
+    throw new Error(
+      `process.env[\"${Credentials.ACCESS_TOKEN}\"] is null or undefined`
+    );
   }
-}
-
-function isNullOrUndefined<T>(value: T) {
-  return value === null || value === undefined;
+  return new Octokit({auth: token});
 }
 
 async function suggest(params: Parameters) {
-  let sugggester: Suggester;
-  params.writePermissions = isNullOrUndefined(params.writePermissions)
-    ? hasWriteAccess()
-    : params.writePermissions;
-
-  sugggester = new CLISuggester(params);
-  await sugggester.run();
+  if (!params.logger) {
+    params.logger = defaultLogger;
+  }
+  const octokit: Octokit = initOctokit();
+  await runGitHub(params.changes, params.gitHubContext, params.logger, octokit);
 }
-
-suggest({});
 
 export {suggest};

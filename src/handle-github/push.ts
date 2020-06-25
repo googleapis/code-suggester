@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Suggester} from '../application';
-import {Files} from '../types';
+import {Files, GitHubContext, Logger} from '../types';
+import {Octokit} from '@octokit/rest';
 
 declare interface GitCreateTreeParamsTree {
   path?: string;
@@ -30,11 +30,11 @@ declare interface GitCreateTreeParamsTree {
  * @param repoName
  */
 async function createTree(
-  app: Suggester,
+  branchHeadSHA: string,
   changes: Files,
+  octokit: Octokit,
   owner: string,
-  repoName: string,
-  branchHeadSHA: string
+  repoName: string
 ): Promise<string> {
   const tree: GitCreateTreeParamsTree[] = [];
   for (const path in changes) {
@@ -47,14 +47,14 @@ async function createTree(
     });
   }
   const oldTreeSHA = (
-    await app.octokit.git.getCommit({
+    await octokit.git.getCommit({
       owner,
       repo: repoName,
       commit_sha: branchHeadSHA,
     })
   ).data.tree.sha;
   const treeSHA = (
-    await app.octokit.git.createTree({
+    await octokit.git.createTree({
       owner,
       repo: repoName,
       tree,
@@ -65,14 +65,15 @@ async function createTree(
 }
 
 async function commitToBranch(
-  app: Suggester,
   branchHead: string,
-  treeSHA: string,
+  logger: Logger,
+  octokit: Octokit,
   owner: string,
-  repoName: string
+  repoName: string,
+  treeSHA: string
 ) {
   const commitData = (
-    await app.octokit.git.createCommit({
+    await octokit.git.createCommit({
       owner,
       repo: repoName,
       message: 'Third-Party Changes',
@@ -80,69 +81,76 @@ async function commitToBranch(
       parents: [branchHead],
     })
   ).data;
-  app.log.info(`Successfully updated commit. See commit at ${commitData.url}`);
+  logger.info(`Successfully updated commit. See commit at ${commitData.url}`);
   return commitData.sha;
 }
 
 async function updateBranchReference(
-  app: Suggester,
-  newSHA: string,
   branchName: string,
+  octokit: Octokit,
+  logger: Logger,
+  newSHA: string,
   owner: string,
   repo: string
 ) {
   const refData = (
-    await app.octokit.git.updateRef({
+    await octokit.git.updateRef({
       owner,
       repo,
       ref: `heads/${branchName}`,
       sha: newSHA,
     })
   ).data;
-  app.log.info(`Successfully updated reference. See ref at ${refData.url}`);
+  logger.info(`Successfully updated reference. See ref at ${refData.url}`);
 }
 
 /**
  * Given a set of changes, apply the commit(s) on top of the given branch's head and upload it to GitHub
- * @param app the Suggester instance
- * @param changes the set of repository changes
  * @param branchHeadSHA the base of the new commit(s)
+ * @param changes the set of repository changes
+ * @param gitHubContext The configuration for interacting with GitHub
+ * @param logger The logger instance
+ * @param octokit The authenticated octokit instance
  * @param workerBranchName the branch that will contain the new changes
  * @returns null
  */
 async function commitAndPush(
-  app: Suggester,
-  changes: Files,
   branchHeadSHA: string,
+  changes: Files,
+  gitHubContext: GitHubContext,
+  logger: Logger,
+  octokit: Octokit,
   workerBranchName: string
 ) {
-  const owner = app.gitHubContext.workerOwner;
-  const repoName = app.gitHubContext.workerRepo;
+  const owner = gitHubContext.workerOwner;
+  const repoName = gitHubContext.workerRepo;
   if (!(owner && repoName)) {
-    app.log.error(
+    logger.error(
       `Aborting commit because owner is ${owner} and the repository is ${repoName}`
     );
     return;
   }
   const treeSHA = await createTree(
-    app,
-    changes,
-    owner,
-    repoName,
-    branchHeadSHA
-  );
-  if (!treeSHA) return;
-  const commitSHA = await commitToBranch(
-    app,
     branchHeadSHA,
-    treeSHA,
+    changes,
+    octokit,
     owner,
     repoName
   );
+  if (!treeSHA) return;
+  const commitSHA = await commitToBranch(
+    branchHeadSHA,
+    logger,
+    octokit,
+    owner,
+    repoName,
+    treeSHA
+  );
   await updateBranchReference(
-    app,
-    commitSHA,
     workerBranchName,
+    octokit,
+    logger,
+    commitSHA,
     owner,
     repoName
   );

@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {describe, it} from "mocha";
-import {assert} from "chai";
+import {describe, it} from 'mocha';
+import {assert} from 'chai';
 
-describe("Test Suite", () => {
-  describe("Test", () => {
-    it("should pass", async () => {
-        assert.isTrue(true);
+describe('Test Suite', () => {
+  describe('Test', () => {
+    it('should pass', async () => {
+      assert.isTrue(true);
     });
   });
 });

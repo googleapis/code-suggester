@@ -13,21 +13,15 @@
 // limitations under the License.
 
 import {Level, Logger} from '../logger';
+import {Octokit} from '@octokit/rest';
 
 // a flat object of the path of the file as the key, and the text contents as a value
 interface Files {
   [index: string]: string;
 }
 
-enum Flavour {
-  Probot = 'Probot',
-  CLI = 'CLI',
-  Action = 'Action',
-}
-
 // Env variable names
 enum Credentials {
-  BOT_INSTALLATION_ID = 'BOT_INSTALLATION_ID',
   ACCESS_TOKEN = 'ACCESS_TOKEN',
 }
 
@@ -46,8 +40,10 @@ interface GitHubContext {
 }
 
 interface Parameters {
-  writePermissions?: boolean;
+  changes: Files;
+  gitHubContext: GitHubContext;
+  octokit: Octokit;
   logger?: Logger;
 }
 
-export {Credentials, Files, Flavour, GitHubContext, Level, Parameters};
+export {Credentials, Files, GitHubContext, Level, Logger, Parameters};
