@@ -55,7 +55,7 @@
     "mocha": "^8.0.0",
     "null-loader": "^4.0.0",
     "pack-n-play": "^1.0.0-2",
-    "prettier": "^1.13.7",
+    "prettier": "^2.0.0",
     "ts-loader": "^7.0.0",
     "typescript": "~3.6.4",
     "webpack": "^4.41.2",
