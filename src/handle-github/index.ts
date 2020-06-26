@@ -26,7 +26,7 @@ import {Octokit} from '@octokit/rest';
  * @param logger The logger instance
  * @param octokit The authenticated octokit instance
  */
-async function runGitHub(
+async function proposeChanges(
   changes: Files,
   gitHubContext: GitHubContext,
   logger: Logger,
@@ -34,14 +34,14 @@ async function runGitHub(
 ) {
   logger.debug('Starting github workflow');
   const {newRepo, newOwner} = await fork(gitHubContext, logger, octokit);
-  gitHubContext.workerOwner = newOwner;
-  gitHubContext.workerRepo = newRepo;
-  const {mainHeadSHA, workerBranchName} = await branch(
+  gitHubContext.forkedOwner = newOwner;
+  gitHubContext.forkedRepo = newRepo;
+  const {mainHeadSHA, forkedBranchName} = await branch(
     gitHubContext,
     logger,
     octokit
   );
-  if (!(mainHeadSHA && workerBranchName)) {
+  if (!(mainHeadSHA && forkedBranchName)) {
     return;
   }
   await commitAndPush(
@@ -50,9 +50,9 @@ async function runGitHub(
     gitHubContext,
     logger,
     octokit,
-    workerBranchName
+    forkedBranchName
   );
-  await makePR(gitHubContext, logger, octokit, workerBranchName);
+  await makePR(gitHubContext, logger, octokit, forkedBranchName);
 }
 
-export {runGitHub};
+export {proposeChanges};

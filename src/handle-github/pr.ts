@@ -20,16 +20,16 @@ import {Octokit} from '@octokit/rest';
  * @param gitHubContext The configuration for interacting with GitHub
  * @param logger The logger instance
  * @param octokit The authenticated octokit instance
- * @param workerBranchName the branch name that contains the changes
+ * @param forkedBranchName the branch name that contains the changes
  */
 async function makePR(
   gitHubContext: GitHubContext,
   logger: Logger,
   octokit: Octokit,
-  workerBranchName: string
+  forkedBranchName: string
 ) {
   // TODO - handle when there is no fork instance
-  if (!gitHubContext.workerRepo) {
+  if (!gitHubContext.forkedRepo) {
     logger.error('PR is not made because there is no working repo');
     return;
   }
@@ -40,9 +40,9 @@ async function makePR(
   }
   await octokit.pulls.create({
     owner: gitHubContext.mainOwner,
-    repo: gitHubContext.workerRepo,
+    repo: gitHubContext.forkedRepo,
     title: gitHubContext.prTitle,
-    head: `${gitHubContext.workerOwner}:${workerBranchName}`,
+    head: `${gitHubContext.forkedOwner}:${forkedBranchName}`,
     base: 'master',
   });
 }

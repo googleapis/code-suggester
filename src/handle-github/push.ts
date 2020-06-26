@@ -111,7 +111,7 @@ async function updateBranchReference(
  * @param gitHubContext The configuration for interacting with GitHub
  * @param logger The logger instance
  * @param octokit The authenticated octokit instance
- * @param workerBranchName the branch that will contain the new changes
+ * @param forkedBranchName the branch that will contain the new changes
  * @returns null
  */
 async function commitAndPush(
@@ -120,10 +120,10 @@ async function commitAndPush(
   gitHubContext: GitHubContext,
   logger: Logger,
   octokit: Octokit,
-  workerBranchName: string
+  forkedBranchName: string
 ) {
-  const owner = gitHubContext.workerOwner;
-  const repoName = gitHubContext.workerRepo;
+  const owner = gitHubContext.forkedOwner;
+  const repoName = gitHubContext.forkedRepo;
   if (!(owner && repoName)) {
     logger.error(
       `Aborting commit because owner is ${owner} and the repository is ${repoName}`
@@ -147,7 +147,7 @@ async function commitAndPush(
     treeSHA
   );
   await updateBranchReference(
-    workerBranchName,
+    forkedBranchName,
     octokit,
     logger,
     commitSHA,

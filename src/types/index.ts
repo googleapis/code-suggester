@@ -20,11 +20,6 @@ interface Files {
   [index: string]: string;
 }
 
-// Env variable names
-enum Credentials {
-  ACCESS_TOKEN = 'ACCESS_TOKEN',
-}
-
 /**
  * GitHub data needed for creating a PR
  */
@@ -33,17 +28,9 @@ interface GitHubContext {
   prTitle: string;
   mainRepo: string;
   mainOwner: string;
-  writePermissions: boolean;
   branchName: string;
-  workerRepo?: string;
-  workerOwner?: string;
+  forkedRepo?: string;
+  forkedOwner?: string;
 }
 
-interface Parameters {
-  changes: Files;
-  gitHubContext: GitHubContext;
-  octokit: Octokit;
-  logger?: Logger;
-}
-
-export {Credentials, Files, GitHubContext, Level, Logger, Parameters};
+export {Files, GitHubContext, Level, Logger};

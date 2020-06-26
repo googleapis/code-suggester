@@ -16,27 +16,29 @@
 
 import {logger as defaultLogger, Logger} from '../logger';
 import {Octokit} from '@octokit/rest';
-import {Credentials, Parameters} from '../types';
-import {runGitHub} from '../handle-github';
+import {proposeChanges} from '../handle-github';
+import {Files, GitHubContext} from '../types';
+
+const ACCESS_TOKEN = 'ACCESS_TOKEN';
 
 function initOctokit(): Octokit {
-  const token: Credentials.ACCESS_TOKEN = process.env[
-    Credentials.ACCESS_TOKEN
-  ] as Credentials.ACCESS_TOKEN;
+  const token = process.env[ACCESS_TOKEN];
   if (!token) {
-    throw new Error(
-      `process.env[\"${Credentials.ACCESS_TOKEN}\"] is null or undefined`
-    );
+    throw new Error(`process.env[\"${ACCESS_TOKEN}\"] is null or undefined`);
   }
   return new Octokit({auth: token});
 }
 
-async function suggest(params: Parameters) {
-  if (!params.logger) {
-    params.logger = defaultLogger;
+async function suggest(
+  changes: Files,
+  gitHubContext: GitHubContext,
+  logger: Logger
+) {
+  if (!logger) {
+    logger = defaultLogger;
   }
   const octokit: Octokit = initOctokit();
-  await runGitHub(params.changes, params.gitHubContext, params.logger, octokit);
+  await proposeChanges(changes, gitHubContext, logger, octokit);
 }
 
 export {suggest};

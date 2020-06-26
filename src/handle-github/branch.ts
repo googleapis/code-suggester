@@ -45,15 +45,15 @@ async function branch(
   logger: Logger,
   octokit: Octokit
 ) {
-  if (!(gitHubContext.workerOwner && gitHubContext.workerRepo)) {
+  if (!(gitHubContext.forkedOwner && gitHubContext.forkedRepo)) {
     return {mainHeadSHA: undefined, branchName: undefined};
   }
   let mainHeadSHA: string | undefined;
 
   const branches = (
     await octokit.repos.listBranches({
-      owner: gitHubContext.workerOwner,
-      repo: gitHubContext.workerRepo,
+      owner: gitHubContext.forkedOwner,
+      repo: gitHubContext.forkedRepo,
     })
   ).data;
 
@@ -73,16 +73,16 @@ async function branch(
   if (mainHeadSHA) {
     const newBranch = (
       await octokit.git.createRef({
-        owner: gitHubContext.workerOwner,
-        repo: gitHubContext.workerRepo,
+        owner: gitHubContext.forkedOwner,
+        repo: gitHubContext.forkedRepo,
         ref: `refs/heads/${uniqueName}`,
         sha: mainHeadSHA,
       })
     ).data;
     logger.info(`Created branch. See ${newBranch.url} for more details`);
-    return {mainHeadSHA, workerBranchName: getBranchFromRef(newBranch.ref)};
+    return {mainHeadSHA, forkedBranchName: getBranchFromRef(newBranch.ref)};
   }
-  return {mainHeadSHA, workerBranchName: undefined};
+  return {mainHeadSHA, forkedBranchName: undefined};
 }
 
 export {branch};
