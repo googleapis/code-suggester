@@ -3,8 +3,8 @@
     {
       "git": {
         "name": ".",
-        "remote": "sso://devrel/cloud/libraries/code-suggester",
-        "sha": "7595259e7f0e47b45bbccea29b309c1e1a4f4230"
+        "remote": "https://github.com/googleapis/code-suggester.git",
+        "sha": "900b4920694588f53b1fc1894a806d6d13056ba7"
       }
     },
     {
