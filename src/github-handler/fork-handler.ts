@@ -12,12 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Logger, Octokit} from '../types';
-
-interface ForkData {
-  forkOwner: string;
-  forkRepo: string;
-}
+import {Logger, Octokit, RepoDomain} from '../types';
 
 /**
  * Fork the GitHub owner's repository.
@@ -27,28 +22,26 @@ interface ForkData {
  * with the `updated_at` + any historical repo changes.
  * @param {Logger} logger The logger instance
  * @param {Octokit} octokit The authenticated octokit instance
- * @param {string} upstreamOwner The owner of the target repo to fork
- * @param {string} upstreamRepo The name of the target repository to fork
- * @returns {Promise<ForkData>} the forked repository name, as well as the owner of that fork
+ * @param {RepoDomain} upstream upstream repository information
+ * @returns {Promise<RepoDomain>} the forked repository name, as well as the owner of that fork
  */
 async function fork(
   logger: Logger,
   octokit: Octokit,
-  upstreamOwner: string,
-  upstreamRepo: string
-): Promise<ForkData> {
+  upstream: RepoDomain
+): Promise<RepoDomain> {
   try {
     const forkedRepo = (
       await octokit.repos.createFork({
-        owner: upstreamOwner,
-        repo: upstreamRepo,
+        owner: upstream.owner,
+        repo: upstream.repo,
       })
     ).data;
-    logger.info(`Fork successfully exists on ${upstreamRepo}`);
+    logger.info(`Fork successfully exists on ${upstream.repo}`);
     // TODO autosync
     return {
-      forkRepo: forkedRepo.name,
-      forkOwner: forkedRepo.owner.login,
+      repo: forkedRepo.name,
+      owner: forkedRepo.owner.login,
     };
   } catch (err) {
     logger.error('Error when forking');
