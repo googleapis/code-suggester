@@ -62,7 +62,7 @@
     "pack-n-play": "^1.0.0-2",
     "prettier": "^2.0.0",
     "sinon": "^9.0.2",
-    "ts-loader": "^7.0.0",
+    "ts-loader": "^8.0.0",
     "typescript": "^3.9.5",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10"
