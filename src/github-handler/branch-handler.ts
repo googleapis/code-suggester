@@ -15,7 +15,7 @@
 import {Logger, Octokit, RepoDomain} from '../types';
 
 const refPrefix = 'refs/heads/';
-const masterBranch = 'master';
+const DEFAULT_PRIMARY_BRANCH = 'master';
 
 /**
  * Create a new branch reference with the ref prefix
@@ -26,77 +26,63 @@ function createRef(branchName: string) {
 }
 
 /**
- * Return the length of the GitHub reference prefix
- */
-function refPrefixLen() {
-  return refPrefix.length;
-}
-
-/**
- * get primary branch commit HEAD SHA of a repository
- * Throws an error if the repository cannot be found
- * or if the primary branch is invalid
+ * get branch commit HEAD SHA of a repository
+ * Throws an error if the branch cannot be found
  * @param {Logger} logger The logger instance
  * @param {Octokit} octokit The authenticated octokit instance
  * @param {RepoDomain} origin The domain information of the remote origin repository
- * @param {string} originBranchName The branch name to create on the origin repository
- * @param {string} primaryBranch the name of the primary branch
- * @returns {Promise<string>} primary branch commit HEAD SHA
+ * @param {string} branch the name of the branch
+ * @returns {Promise<string>} branch commit HEAD SHA
  */
-async function getPrimaryBranchSHA(
+async function getBranchHead(
   logger: Logger,
   octokit: Octokit,
   origin: RepoDomain,
-  primaryBranch: string
+  branch: string
 ): Promise<string> {
-  const branch = (
+  const branchData = (
     await octokit.repos.getBranch({
       owner: origin.owner,
       repo: origin.repo,
-      branch: primaryBranch,
+      branch: branch,
     })
   ).data;
   logger.info('Successfully found primary branch HEAD sha.');
-  return branch.commit.sha;
+  return branchData.commit.sha;
 }
 
 /**
  * Create a GitHub branch given a remote origin.
- * Throws an exception if octokit fails, or if the primary branch is invalid
+ * Throws an exception if octokit fails, or if the base branch is invalid
  * @param {Logger} logger The logger instance
  * @param {Octokit} octokit The authenticated octokit instance
  * @param {RepoDomain} origin The domain information of the remote origin repository
- * @param {string} originBranchName The branch name to create on the origin repository
- * @param {string} primaryBranch the name of the primary branch. Default is master
+ * @param {string} name The branch name to create on the origin repository
+ * @param {string} baseBranch the name of the branch to base the new branch off of. Default is master
  * @returns {Promise<string>} the base SHA for subsequent commits to be based off for the origin branch
  */
 async function branch(
   logger: Logger,
   octokit: Octokit,
   origin: RepoDomain,
-  originBranchName: string,
-  primaryBranch: string = masterBranch
+  name: string,
+  baseBranch: string = DEFAULT_PRIMARY_BRANCH
 ): Promise<string> {
   // create branch from primary branch HEAD SHA
   try {
-    const upstreamHeadSHA = await getPrimaryBranchSHA(
-      logger,
-      octokit,
-      origin,
-      primaryBranch
-    );
+    const baseSHA = await getBranchHead(logger, octokit, origin, baseBranch);
     await octokit.git.createRef({
       owner: origin.owner,
       repo: origin.repo,
-      ref: createRef(originBranchName),
-      sha: upstreamHeadSHA,
+      ref: createRef(name),
+      sha: baseSHA,
     });
     logger.info('Successfully created branch');
-    return upstreamHeadSHA;
+    return baseSHA;
   } catch (err) {
     logger.error('Error when creating branch');
     throw Error(err.toString());
   }
 }
 
-export {branch, getPrimaryBranchSHA, refPrefixLen, createRef};
+export {branch, getBranchHead, createRef};

@@ -18,8 +18,7 @@ import {logger, octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {
   branch,
-  getPrimaryBranchSHA,
-  refPrefixLen,
+  getBranchHead,
   createRef,
 } from '../src/github-handler/branch-handler';
 
@@ -47,7 +46,7 @@ describe('Branch module', async () => {
         .stub(octokit.repos, 'getBranch')
         .resolves(branchResponse);
       // // tests
-      await getPrimaryBranchSHA(logger, octokit, origin, 'master');
+      await getBranchHead(logger, octokit, origin, 'master');
       sinon.assert.calledOnce(getBranchStub);
       sinon.assert.calledOnceWithExactly(getBranchStub, {
         owner: origin.owner,
@@ -109,7 +108,7 @@ describe('Branch module', async () => {
         .stub(octokit.repos, 'getBranch')
         .resolves(branchResponse);
       // // tests
-      const SHA = await getPrimaryBranchSHA(logger, octokit, origin, 'master');
+      const SHA = await getBranchHead(logger, octokit, origin, 'master');
       expect(SHA).equals('7fd1a60b01f91b314f59955a4e4d4e80d8edf11d');
 
       // restore
@@ -190,9 +189,6 @@ describe('Branch module', async () => {
   });
 
   describe('Reference string parsing function', () => {
-    it('correctly calculates the reference prefix for branches', () => {
-      assert.equal(refPrefixLen(), 11);
-    });
     it('correctly appends branch name to reference prefix', () => {
       assert.equal(createRef('master'), 'refs/heads/master');
       assert.equal(createRef('foo/bar/baz'), 'refs/heads/foo/bar/baz');
