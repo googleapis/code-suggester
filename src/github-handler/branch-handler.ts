@@ -49,24 +49,15 @@ async function getPrimaryBranchSHA(
   origin: RepoDomain,
   primaryBranch: string
 ): Promise<string> {
-  const branches = (
-    await octokit.repos.listBranches({owner: origin.owner, repo: origin.repo})
+  const branch = (
+    await octokit.repos.getBranch({
+      owner: origin.owner,
+      repo: origin.repo,
+      branch: primaryBranch,
+    })
   ).data;
-
-  const primaryBranchData = branches.find(
-    branch => branch.name === primaryBranch
-  );
-
-  // GitHub should always at least have a main branch
-  // this check is needed so main branch data can be accessed
-  if (!primaryBranchData) {
-    logger.error("Error in listing origin repository's branches.");
-    throw Error(
-      `No default branch named: ${primaryBranch} found on repo ${origin.owner}/${origin.repo}`
-    );
-  }
   logger.info('Successfully found primary branch HEAD sha.');
-  return primaryBranchData.commit.sha;
+  return branch.commit.sha;
 }
 
 /**

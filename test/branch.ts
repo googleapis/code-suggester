@@ -27,82 +27,42 @@ before(() => {
   setup();
 });
 
-describe('Branch module', () => {
+describe('Branch module', async () => {
   const origin = {owner: 'octocat', repo: 'HelloWorld'};
   const branchName = 'test-branch';
+  const branchResponseBody = await import(
+    './fixtures/create-branch-response.json'
+  );
+  const branchResponse = {
+    headers: {},
+    status: 200,
+    url: 'http://fake-url.com',
+    data: branchResponseBody,
+  };
 
   describe('Octokit list branch function', () => {
     it('is passed the correct parameters', async () => {
       // setup
-      const listBranchesResponse = {
-        headers: {},
-        status: 200,
-        url: 'http://fake-url.com',
-        data: [
-          {
-            name: 'master',
-            commit: {
-              sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-              url:
-                'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-            },
-            protected: true,
-            protection: {
-              enabled: true,
-              required_status_checks: {
-                enforcement_level: 'non_admins',
-                contexts: ['ci-test', 'linter'],
-              },
-            },
-            protection_url:
-              'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
-          },
-        ],
-      };
-      const listBranchStub = sinon
-        .stub(octokit.repos, 'listBranches')
-        .resolves(listBranchesResponse);
+      const getBranchStub = sinon
+        .stub(octokit.repos, 'getBranch')
+        .resolves(branchResponse);
       // // tests
       await getPrimaryBranchSHA(logger, octokit, origin, 'master');
-      sinon.assert.calledOnce(listBranchStub);
-      sinon.assert.calledOnceWithExactly(listBranchStub, {
+      sinon.assert.calledOnce(getBranchStub);
+      sinon.assert.calledOnceWithExactly(getBranchStub, {
         owner: origin.owner,
         repo: origin.repo,
+        branch: 'master',
       });
 
       // restore
-      listBranchStub.restore();
+      getBranchStub.restore();
     });
   });
 
   describe('Octokit create ref function', () => {
     it('Is passed the correct values', async () => {
       // setup
-      const listBranchesResponse = {
-        headers: {},
-        status: 200,
-        url: 'http://fake-url.com',
-        data: [
-          {
-            name: 'master',
-            commit: {
-              sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-              url:
-                'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-            },
-            protected: true,
-            protection: {
-              enabled: true,
-              required_status_checks: {
-                enforcement_level: 'non_admins',
-                contexts: ['ci-test', 'linter'],
-              },
-            },
-            protection_url:
-              'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
-          },
-        ],
-      };
       const createRefResponse = {
         headers: {},
         status: 200,
@@ -120,9 +80,9 @@ describe('Branch module', () => {
           },
         },
       };
-      const listBranchStub = sinon
-        .stub(octokit.repos, 'listBranches')
-        .resolves(listBranchesResponse);
+      const getBranchStub = sinon
+        .stub(octokit.repos, 'getBranch')
+        .resolves(branchResponse);
       const createRefStub = sinon
         .stub(octokit.git, 'createRef')
         .resolves(createRefResponse);
@@ -133,61 +93,35 @@ describe('Branch module', () => {
         owner: origin.owner,
         repo: origin.repo,
         ref: `refs/heads/${branchName}`,
-        sha: listBranchesResponse.data[0].commit.sha,
+        sha: branchResponse.data.commit.sha,
       });
 
       // restore
       createRefStub.restore();
-      listBranchStub.restore();
+      getBranchStub.restore();
     });
   });
 
   describe('The create branch function', () => {
     it('Returns the correct primary SHA when branching is successful', async () => {
       // setup
-      const primarySHA = 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc';
-      const listBranchesResponse = {
-        headers: {},
-        status: 200,
-        url: 'http://fake-url.com',
-        data: [
-          {
-            name: 'master',
-            commit: {
-              sha: primarySHA,
-              url:
-                'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-            },
-            protected: true,
-            protection: {
-              enabled: true,
-              required_status_checks: {
-                enforcement_level: 'non_admins',
-                contexts: ['ci-test', 'linter'],
-              },
-            },
-            protection_url:
-              'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
-          },
-        ],
-      };
-      const listBranchStub = sinon
-        .stub(octokit.repos, 'listBranches')
-        .resolves(listBranchesResponse);
+      const getBranchStub = sinon
+        .stub(octokit.repos, 'getBranch')
+        .resolves(branchResponse);
       // // tests
       const SHA = await getPrimaryBranchSHA(logger, octokit, origin, 'master');
-      expect(SHA).equals(primarySHA);
+      expect(SHA).equals('7fd1a60b01f91b314f59955a4e4d4e80d8edf11d');
 
       // restore
-      listBranchStub.restore();
+      getBranchStub.restore();
     });
   });
 
   describe('Branching fails when', () => {
     const testErrorMessage = 'test-error-message';
-    it('Octokit list branches fails', async () => {
-      const listBranchStub = sinon
-        .stub(octokit.repos, 'listBranches')
+    it('Octokit get branch fails', async () => {
+      const getBranchStub = sinon
+        .stub(octokit.repos, 'getBranch')
         .rejects(testErrorMessage);
       try {
         await branch(logger, octokit, origin, branchName, 'master');
@@ -195,38 +129,13 @@ describe('Branch module', () => {
       } catch (err) {
         expect(err.message).to.equal(testErrorMessage);
       } finally {
-        listBranchStub.restore();
+        getBranchStub.restore();
       }
     });
     it('Octokit create ref fails', async () => {
-      const listBranchesResponse = {
-        headers: {},
-        status: 200,
-        url: 'http://fake-url.com',
-        data: [
-          {
-            name: 'master',
-            commit: {
-              sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-              url:
-                'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-            },
-            protected: true,
-            protection: {
-              enabled: true,
-              required_status_checks: {
-                enforcement_level: 'non_admins',
-                contexts: ['ci-test', 'linter'],
-              },
-            },
-            protection_url:
-              'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
-          },
-        ],
-      };
-      const listBranchStub = sinon
-        .stub(octokit.repos, 'listBranches')
-        .resolves(listBranchesResponse);
+      const getBranchStub = sinon
+        .stub(octokit.repos, 'getBranch')
+        .resolves(branchResponse);
       const createRefStub = sinon
         .stub(octokit.git, 'createRef')
         .rejects(testErrorMessage);
@@ -236,7 +145,7 @@ describe('Branch module', () => {
       } catch (err) {
         expect(err.message).to.equal(testErrorMessage);
       } finally {
-        listBranchStub.restore();
+        getBranchStub.restore();
         createRefStub.restore();
       }
     });
@@ -266,7 +175,7 @@ describe('Branch module', () => {
           },
         ],
       };
-      const listBranchStub = sinon
+      const getBranchStub = sinon
         .stub(octokit.repos, 'listBranches')
         .resolves(listBranchesResponse);
       try {
@@ -275,7 +184,7 @@ describe('Branch module', () => {
       } catch (err) {
         assert.isOk(true);
       } finally {
-        listBranchStub.restore();
+        getBranchStub.restore();
       }
     });
   });
