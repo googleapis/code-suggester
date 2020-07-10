@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@octokit/rest": "^18.0.0",
-    "google-gax": "^1.14.1",
+    "google-gax": "^2.0.0",
     "pino": "^6.3.2",
     "protobufjs": "^6.8.0"
   },
