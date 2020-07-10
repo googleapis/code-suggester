@@ -33,13 +33,17 @@
     "prelint": "cd samples; npm link ../; npm i"
   },
   "dependencies": {
+    "@octokit/rest": "^18.0.0",
     "google-gax": "^1.14.1",
+    "pino": "^6.3.2",
     "protobufjs": "^6.8.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
-    "@types/node": "^12.0.0",
+    "@types/node": "^14.0.20",
+    "@types/pino": "^6.3.0",
+    "@types/sinon": "^9.0.4",
     "c8": "^7.0.1",
     "chai": "^4.2.0",
     "codecov": "^3.0.4",
@@ -47,17 +51,19 @@
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-prettier": "^3.0.0",
-    "gts": "^1.0.0",
-    "jsdoc": "^3.6.2",
+    "gts": "^1.1.2",
+    "jsdoc": "^3.6.4",
     "jsdoc-fresh": "^1.0.1",
     "jsdoc-region-tag": "^1.0.2",
     "linkinator": "^2.0.0",
     "mocha": "^8.0.0",
+    "nock": "^13.0.2",
     "null-loader": "^4.0.0",
     "pack-n-play": "^1.0.0-2",
     "prettier": "^2.0.0",
-    "ts-loader": "^7.0.0",
-    "typescript": "~3.6.4",
+    "sinon": "^9.0.2",
+    "ts-loader": "^8.0.0",
+    "typescript": "^3.9.5",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10"
   }
