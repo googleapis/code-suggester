@@ -88,7 +88,7 @@ describe('Branch module', async () => {
         .resolves(createRefResponse);
       // tests
       const sha = await branch(logger, octokit, origin, branchName, 'master');
-      expect(sha).to.equal(branchResponse.data.commit.sha)
+      expect(sha).to.equal(branchResponse.data.commit.sha);
       sinon.assert.calledOnce(createRefStub);
       sinon.assert.calledOnceWithExactly(createRefStub, {
         owner: origin.owner,

@@ -47,7 +47,9 @@ async function getBranchHead(
       branch,
     })
   ).data;
-  logger.info(`Successfully found primary branch HEAD sha \"${branchData.commit.sha}\".`);
+  logger.info(
+    `Successfully found primary branch HEAD sha \"${branchData.commit.sha}\".`
+  );
   return branchData.commit.sha;
 }
 
@@ -71,12 +73,14 @@ async function branch(
   // create branch from primary branch HEAD SHA
   try {
     const baseSHA = await getBranchHead(logger, octokit, origin, baseBranch);
-    const refData = (await octokit.git.createRef({
-      owner: origin.owner,
-      repo: origin.repo,
-      ref: createRef(name),
-      sha: baseSHA,
-    })).data;
+    const refData = (
+      await octokit.git.createRef({
+        owner: origin.owner,
+        repo: origin.repo,
+        ref: createRef(name),
+        sha: baseSHA,
+      })
+    ).data;
     logger.info(`Successfully created branch at ${refData.url}`);
     return baseSHA;
   } catch (err) {
