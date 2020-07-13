@@ -44,7 +44,7 @@ async function getBranchHead(
     await octokit.repos.getBranch({
       owner: origin.owner,
       repo: origin.repo,
-      branch: branch,
+      branch,
     })
   ).data;
   logger.info('Successfully found primary branch HEAD sha.');
