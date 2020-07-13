@@ -39,14 +39,15 @@ describe('Branch module', async () => {
     data: branchResponseBody,
   };
 
-  describe('Octokit list branch function', () => {
-    it('is passed the correct parameters', async () => {
+  describe('Get branch head', () => {
+    it('is passed the correct parameters, invokes octokit correctly, and returns the HEAD sha', async () => {
       // setup
       const getBranchStub = sinon
         .stub(octokit.repos, 'getBranch')
         .resolves(branchResponse);
       // // tests
-      await getBranchHead(logger, octokit, origin, 'master');
+      const headSHA = await getBranchHead(logger, octokit, origin, 'master');
+      expect(headSHA).to.equal(branchResponse.data.commit.sha);
       sinon.assert.calledOnce(getBranchStub);
       sinon.assert.calledOnceWithExactly(getBranchStub, {
         owner: origin.owner,
@@ -59,8 +60,8 @@ describe('Branch module', async () => {
     });
   });
 
-  describe('Octokit create ref function', () => {
-    it('Is passed the correct values', async () => {
+  describe('The create branch function', () => {
+    it('Returns the primary SHA when branching is successful', async () => {
       // setup
       const createRefResponse = {
         headers: {},
@@ -86,7 +87,8 @@ describe('Branch module', async () => {
         .stub(octokit.git, 'createRef')
         .resolves(createRefResponse);
       // tests
-      await branch(logger, octokit, origin, branchName, 'master');
+      const sha = await branch(logger, octokit, origin, branchName, 'master');
+      expect(sha).to.equal(branchResponse.data.commit.sha)
       sinon.assert.calledOnce(createRefStub);
       sinon.assert.calledOnceWithExactly(createRefStub, {
         owner: origin.owner,
@@ -97,21 +99,6 @@ describe('Branch module', async () => {
 
       // restore
       createRefStub.restore();
-      getBranchStub.restore();
-    });
-  });
-
-  describe('The create branch function', () => {
-    it('Returns the correct primary SHA when branching is successful', async () => {
-      // setup
-      const getBranchStub = sinon
-        .stub(octokit.repos, 'getBranch')
-        .resolves(branchResponse);
-      // // tests
-      const SHA = await getBranchHead(logger, octokit, origin, 'master');
-      expect(SHA).equals('7fd1a60b01f91b314f59955a4e4d4e80d8edf11d');
-
-      // restore
       getBranchStub.restore();
     });
   });

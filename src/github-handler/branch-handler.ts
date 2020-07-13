@@ -14,7 +14,7 @@
 
 import {Logger, Octokit, RepoDomain} from '../types';
 
-const refPrefix = 'refs/heads/';
+const REF_PREFIX = 'refs/heads/';
 const DEFAULT_PRIMARY_BRANCH = 'master';
 
 /**
@@ -22,7 +22,7 @@ const DEFAULT_PRIMARY_BRANCH = 'master';
  * @param {string} branchName name of the branch
  */
 function createRef(branchName: string) {
-  return refPrefix + branchName;
+  return REF_PREFIX + branchName;
 }
 
 /**
@@ -47,7 +47,7 @@ async function getBranchHead(
       branch,
     })
   ).data;
-  logger.info('Successfully found primary branch HEAD sha.');
+  logger.info(`Successfully found primary branch HEAD sha \"${branchData.commit.sha}\".`);
   return branchData.commit.sha;
 }
 
@@ -71,17 +71,17 @@ async function branch(
   // create branch from primary branch HEAD SHA
   try {
     const baseSHA = await getBranchHead(logger, octokit, origin, baseBranch);
-    await octokit.git.createRef({
+    const refData = (await octokit.git.createRef({
       owner: origin.owner,
       repo: origin.repo,
       ref: createRef(name),
       sha: baseSHA,
-    });
-    logger.info('Successfully created branch');
+    })).data;
+    logger.info(`Successfully created branch at ${refData.url}`);
     return baseSHA;
   } catch (err) {
     logger.error('Error when creating branch');
-    throw Error(err.toString());
+    throw Error(err);
   }
 }
 
