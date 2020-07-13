@@ -34,13 +34,11 @@
   },
   "dependencies": {
     "@octokit/rest": "^18.0.0",
-    "google-gax": "^1.14.1",
-    "pino": "^6.3.2",
-    "protobufjs": "^6.8.0"
+    "pino": "^6.3.2"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
-    "@types/mocha": "^7.0.2",
+    "@types/mocha": "^8.0.0",
     "@types/node": "^14.0.20",
     "@types/pino": "^6.3.0",
     "@types/sinon": "^9.0.4",
