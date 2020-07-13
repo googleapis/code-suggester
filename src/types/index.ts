@@ -21,6 +21,14 @@ interface Files {
 }
 
 /**
+ * The domain of a repository
+ */
+interface RepoDomain {
+  repo: string;
+  owner: string;
+}
+
+/**
  * The user parameter for GitHub data needed for creating a PR
  */
 interface GitHubContextParam {
@@ -52,4 +60,12 @@ interface GitHubContext {
   prTitle: string;
 }
 
-export {Files, GitHubContextParam, GitHubContext, Level, Logger, Octokit};
+export {
+  Files,
+  GitHubContextParam,
+  GitHubContext,
+  Level,
+  Logger,
+  Octokit,
+  RepoDomain,
+};
