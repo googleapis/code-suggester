@@ -15,9 +15,27 @@
 import {Level, Logger} from '../logger';
 import {Octokit} from '@octokit/rest';
 
+type FileMode = '100644' | '100755' | '040000' | '160000' | '120000';
+
+/**
+ * GitHub definition of tree
+ */
+declare interface GitCreateTreeParamsTree {
+  path?: string;
+  mode?: FileMode;
+  type?: 'blob' | 'tree' | 'commit';
+  sha?: string | null;
+  content?: string;
+}
+
+interface FileData {
+  mode: FileMode;
+  content?: string;
+}
+
 // a flat object of the path of the file as the key, and the text contents as a value
-interface Files {
-  [index: string]: string;
+interface Changes {
+  [path: string]: FileData;
 }
 
 /**
@@ -61,7 +79,8 @@ interface GitHubContext {
 }
 
 export {
-  Files,
+  Changes,
+  GitCreateTreeParamsTree,
   GitHubContextParam,
   GitHubContext,
   Level,
