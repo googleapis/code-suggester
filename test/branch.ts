@@ -108,7 +108,7 @@ describe('Branch module', async () => {
     it('Octokit get branch fails', async () => {
       const getBranchStub = sinon
         .stub(octokit.repos, 'getBranch')
-        .rejects(testErrorMessage);
+        .rejects(Error(testErrorMessage));
       try {
         await branch(logger, octokit, origin, branchName, 'master');
         assert.fail();
@@ -124,7 +124,7 @@ describe('Branch module', async () => {
         .resolves(branchResponse);
       const createRefStub = sinon
         .stub(octokit.git, 'createRef')
-        .rejects(testErrorMessage);
+        .rejects(Error(testErrorMessage));
       try {
         await branch(logger, octokit, origin, branchName, 'master');
         assert.fail();

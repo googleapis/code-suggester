@@ -85,7 +85,7 @@ async function branch(
     return baseSHA;
   } catch (err) {
     logger.error('Error when creating branch');
-    throw Error(err);
+    throw err;
   }
 }
 
