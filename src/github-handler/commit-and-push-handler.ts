@@ -12,8 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Changes, GitCreateTreeParamsTree, Logger, RepoDomain} from '../types';
-import {Octokit} from '@octokit/rest';
+import {
+  Changes,
+  FileData,
+  GitCreateTreeParamsTree,
+  Logger,
+  Octokit,
+  RepoDomain,
+} from '../types';
 
 /**
  * Generate and return a GitHub tree object structure
@@ -22,28 +28,27 @@ import {Octokit} from '@octokit/rest';
  * @param {Changes} changes the set of repository changes
  * @returns {GitCreateTreeParamsTree[]} The new GitHub changes
  */
-function genTreeObj(changes: Changes): GitCreateTreeParamsTree[] {
+function generateTreeObjects(changes: Changes): GitCreateTreeParamsTree[] {
   const tree: GitCreateTreeParamsTree[] = [];
-  for (const path in changes) {
-    if (!path) continue;
-    if (changes[path].content) {
-      // update file with its content
-      tree.push({
-        path,
-        mode: changes[path].mode,
-        type: 'blob',
-        content: changes[path].content,
-      });
-    } else {
+  changes.forEach((fileData: FileData, path: string) => {
+    if (fileData.content == null) {
       // if no file content then file is deleted
       tree.push({
         path,
-        mode: changes[path].mode,
+        mode: fileData.mode,
         type: 'blob',
         sha: null,
       });
+    } else {
+      // update file with its content
+      tree.push({
+        path,
+        mode: fileData.mode,
+        type: 'blob',
+        content: fileData.content,
+      });
     }
-  }
+  });
   return tree;
 }
 
@@ -167,7 +172,7 @@ async function commitAndPush(
   commitMessage: string
 ) {
   try {
-    const tree = genTreeObj(changes);
+    const tree = generateTreeObjects(changes);
     const treeSHA = await createTree(logger, octokit, origin, refHEAD, tree);
     const commitSHA = await createCommit(
       logger,
@@ -184,4 +189,10 @@ async function commitAndPush(
   }
 }
 
-export {commitAndPush, createCommit, genTreeObj, createTree, updateRef};
+export {
+  commitAndPush,
+  createCommit,
+  generateTreeObjects,
+  createTree,
+  updateRef,
+};
