@@ -15,7 +15,7 @@
 import {
   Changes,
   FileData,
-  GitCreateTreeParamsTree,
+  TreeObject,
   Logger,
   Octokit,
   RepoDomain,
@@ -26,10 +26,10 @@ import {
  * containing the target change data
  * See https://developer.github.com/v3/git/trees/#tree-object
  * @param {Changes} changes the set of repository changes
- * @returns {GitCreateTreeParamsTree[]} The new GitHub changes
+ * @returns {TreeObject[]} The new GitHub changes
  */
-function generateTreeObjects(changes: Changes): GitCreateTreeParamsTree[] {
-  const tree: GitCreateTreeParamsTree[] = [];
+function generateTreeObjects(changes: Changes): TreeObject[] {
+  const tree: TreeObject[] = [];
   changes.forEach((fileData: FileData, path: string) => {
     if (fileData.content == null) {
       // if no file content then file is deleted
@@ -59,7 +59,7 @@ function generateTreeObjects(changes: Changes): GitCreateTreeParamsTree[] {
  * @param {Octokit} octokit The authenticated octokit instance
  * @param {RepoDomain} origin the the remote repository to push changes to
  * @param {string} refHead the base of the new commit(s)
- * @param {GitCreateTreeParamsTree[]} tree the set of GitHub changes to upload
+ * @param {TreeObject[]} tree the set of GitHub changes to upload
  * @returns {Promise<string>} the GitHub tree SHA
  */
 async function createTree(
@@ -67,7 +67,7 @@ async function createTree(
   octokit: Octokit,
   origin: RepoDomain,
   refHead: string,
-  tree: GitCreateTreeParamsTree[]
+  tree: TreeObject[]
 ): Promise<string> {
   const oldTreeSha = (
     await octokit.git.getCommit({

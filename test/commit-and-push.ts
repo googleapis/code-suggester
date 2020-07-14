@@ -17,16 +17,16 @@ import {describe, it, before} from 'mocha';
 import {logger, octokit, setup} from './util';
 import * as sinon from 'sinon';
 import * as handler from '../src/github-handler/commit-and-push-handler';
-import {
-  Changes,
-  FileData,
-  GitCreateTreeParamsTree,
-  RepoDomain,
-} from '../src/types';
+import {Changes, FileData, TreeObject, RepoDomain} from '../src/types';
 
 before(() => {
   setup();
 });
+
+let stubGetCommit = sinon.stub(octokit.git, 'getCommit');
+let stubCreateTree = sinon.stub(octokit.git, 'createTree');
+let stubCreateCommit = sinon.stub(octokit.git, 'createCommit');
+let stubUpdateRef = sinon.stub(octokit.git, 'updateRef');
 
 describe('Push', async () => {
   const changes: Changes = new Map();
@@ -35,7 +35,7 @@ describe('Push', async () => {
   changes.set('baz.exe', new FileData(null, '100755'));
   changes.set('empty.txt', new FileData(''));
 
-  const tree: GitCreateTreeParamsTree[] = [
+  const tree: TreeObject[] = [
     {
       path: 'a/foo.txt',
       mode: '100644',
@@ -68,6 +68,12 @@ describe('Push', async () => {
   const sha = 'asdf1234';
 
   describe('GitHub trees', () => {
+    beforeEach(() => {
+      stubGetCommit.restore();
+      stubCreateTree.restore();
+      stubCreateCommit.restore();
+      stubUpdateRef.restore();
+    });
     it('has objects that are generated correctly', () => {
       expect(handler.generateTreeObjects(changes)).to.deep.equal(tree);
     });
@@ -92,10 +98,10 @@ describe('Push', async () => {
         data: createTreeResponseData,
       };
       // setup
-      const stub1 = sinon
+      stubGetCommit = sinon
         .stub(octokit.git, 'getCommit')
         .resolves(getCommitResponse);
-      const stub2 = sinon
+      stubCreateTree = sinon
         .stub(octokit.git, 'createTree')
         .resolves(createTreeResponse);
       // tests
@@ -106,26 +112,29 @@ describe('Push', async () => {
         sha,
         tree
       );
-      sinon.assert.calledOnceWithExactly(stub1, {
+      sinon.assert.calledOnceWithExactly(stubGetCommit, {
         owner: origin.owner,
         repo: origin.repo,
         commit_sha: sha,
       });
-      sinon.assert.calledWithExactly(stub2, {
+      sinon.assert.calledWithExactly(stubCreateTree, {
         owner: origin.owner,
         repo: origin.repo,
         tree,
         base_tree: getCommitResponse.data.tree.sha,
       });
       expect(treeSha).to.equal(createTreeResponse.data.sha);
-      // restore
-      stub1.restore();
-      stub2.restore();
     });
   });
 });
 
 describe('Commit', () => {
+  beforeEach(() => {
+    stubGetCommit.restore();
+    stubCreateTree.restore();
+    stubCreateCommit.restore();
+    stubUpdateRef.restore();
+  });
   const origin: RepoDomain = {
     owner: 'Foo',
     repo: 'Bar',
@@ -144,7 +153,7 @@ describe('Commit', () => {
       url: 'http://fake-url.com',
       data: createCommitResponseData,
     };
-    const stub = sinon
+    stubCreateCommit = sinon
       .stub(octokit.git, 'createCommit')
       .resolves(createCommitResponse);
     // tests
@@ -157,19 +166,23 @@ describe('Commit', () => {
       message
     );
     expect(sha).equals(createCommitResponse.data.sha);
-    sinon.assert.calledOnceWithExactly(stub, {
+    sinon.assert.calledOnceWithExactly(stubCreateCommit, {
       owner: origin.owner,
       repo: origin.repo,
       message,
       tree: treeSha,
       parents: [head],
     });
-    // restore
-    stub.restore();
   });
 });
 
 describe('Update branch reference', () => {
+  beforeEach(() => {
+    stubGetCommit.restore();
+    stubCreateTree.restore();
+    stubCreateCommit.restore();
+    stubUpdateRef.restore();
+  });
   const origin: RepoDomain = {
     owner: 'Foo',
     repo: 'Bar',
@@ -177,17 +190,15 @@ describe('Update branch reference', () => {
   const sha = 'asdf1234';
   it('Invokes octokit function called with correct values', async () => {
     // setup
-    const stub = sinon.stub(octokit.git, 'updateRef');
+    stubUpdateRef = sinon.stub(octokit.git, 'updateRef');
     // tests
     await handler.updateRef(logger, octokit, origin, 'test-branch-name', sha);
-    sinon.assert.calledOnceWithExactly(stub, {
+    sinon.assert.calledOnceWithExactly(stubUpdateRef, {
       owner: origin.owner,
       repo: origin.repo,
       sha,
       ref: 'heads/test-branch-name',
     });
-    // restore
-    stub.restore();
   });
 });
 
@@ -201,6 +212,12 @@ describe('Commit and push function', () => {
   const branchName = 'test-branch-name';
   const message = 'Hello world';
   describe('Works when everything works', () => {
+    beforeEach(() => {
+      stubGetCommit.restore();
+      stubCreateTree.restore();
+      stubCreateCommit.restore();
+      stubUpdateRef.restore();
+    });
     it('Calls functions with correct parameter values', async () => {
       const commitResponseData = await import(
         './fixtures/get-commit-response.json'
@@ -231,16 +248,16 @@ describe('Commit and push function', () => {
         data: createCommitResponseData,
       };
       // setup
-      const stubGetCommit = sinon
+      stubGetCommit = sinon
         .stub(octokit.git, 'getCommit')
         .resolves(getCommitResponse);
-      const stubCreateTree = sinon
+      stubCreateTree = sinon
         .stub(octokit.git, 'createTree')
         .resolves(createTreeResponse);
-      const stubCreateCommit = sinon
+      stubCreateCommit = sinon
         .stub(octokit.git, 'createCommit')
         .resolves(createCommitResponse);
-      const stubUpdateRef = sinon.stub(octokit.git, 'updateRef');
+      stubUpdateRef = sinon.stub(octokit.git, 'updateRef');
       // tests
       await handler.commitAndPush(
         logger,
@@ -275,18 +292,19 @@ describe('Commit and push function', () => {
         sha: createCommitResponse.data.sha,
         ref: 'heads/test-branch-name',
       });
-      // restore
+    });
+  });
+  describe('Fails and forwards the error message if any octokit function fails', () => {
+    beforeEach(() => {
       stubGetCommit.restore();
       stubCreateTree.restore();
       stubCreateCommit.restore();
       stubUpdateRef.restore();
     });
-  });
-  describe('Fails and forwards the error message if any octokit function fails', () => {
     it('Forwards GitHub error if getCommit fails', async () => {
       // setup
       const commitErrorMsg = 'Error committing';
-      const stubGetCommit = sinon
+      stubGetCommit = sinon
         .stub(octokit.git, 'getCommit')
         .rejects(Error(commitErrorMsg));
       try {
@@ -294,8 +312,6 @@ describe('Commit and push function', () => {
         await handler.createTree(logger, octokit, origin, '', []);
       } catch (err) {
         expect(err.message).to.equal(commitErrorMsg);
-      } finally {
-        stubGetCommit.restore();
       }
     });
     it('Forwards GitHub error if createTree fails', async () => {
@@ -310,10 +326,10 @@ describe('Commit and push function', () => {
         data: commitResponseData,
       };
       const createTreeErrorMsg = 'Error committing';
-      const stubGetCommit = sinon
+      stubGetCommit = sinon
         .stub(octokit.git, 'getCommit')
         .resolves(getCommitResponse);
-      const stubCreateTree = sinon
+      stubCreateTree = sinon
         .stub(octokit.git, 'createTree')
         .rejects(Error(createTreeErrorMsg));
       try {
@@ -321,9 +337,6 @@ describe('Commit and push function', () => {
         await handler.createTree(logger, octokit, origin, '', []);
       } catch (err) {
         expect(err.message).to.equal(createTreeErrorMsg);
-      } finally {
-        stubGetCommit.restore();
-        stubCreateTree.restore();
       }
     });
     it('Forwards GitHub error if createCommit fails', async () => {
@@ -346,14 +359,14 @@ describe('Commit and push function', () => {
         url: 'http://fake-url.com',
         data: createTreeResponseData,
       };
-      const stubGetCommit = sinon
+      stubGetCommit = sinon
         .stub(octokit.git, 'getCommit')
         .resolves(getCommitResponse);
-      const stubCreateTree = sinon
+      stubCreateTree = sinon
         .stub(octokit.git, 'createTree')
         .resolves(createTreeResponse);
       const createCommitErrorMsg = 'Error creating commit';
-      const stubCreateCommit = sinon
+      stubCreateCommit = sinon
         .stub(octokit.git, 'createCommit')
         .rejects(Error(createCommitErrorMsg));
       try {
@@ -361,10 +374,6 @@ describe('Commit and push function', () => {
         await handler.createTree(logger, octokit, origin, '', []);
       } catch (err) {
         expect(err.message).to.equal(createCommitErrorMsg);
-      } finally {
-        stubGetCommit.restore();
-        stubCreateTree.restore();
-        stubCreateCommit.restore();
       }
     });
     it('Forwards GitHub error if updateRef fails', async () => {
@@ -397,17 +406,17 @@ describe('Commit and push function', () => {
         url: 'http://fake-url.com',
         data: createCommitResponseData,
       };
-      const stubGetCommit = sinon
+      stubGetCommit = sinon
         .stub(octokit.git, 'getCommit')
         .resolves(getCommitResponse);
-      const stubCreateTree = sinon
+      stubCreateTree = sinon
         .stub(octokit.git, 'createTree')
         .resolves(createTreeResponse);
-      const stubCreateCommit = sinon
+      stubCreateCommit = sinon
         .stub(octokit.git, 'createCommit')
         .resolves(createCommitResponse);
       const updateRefErrorMsg = 'Error updating reference';
-      const stubUpdateRef = sinon
+      stubUpdateRef = sinon
         .stub(octokit.git, 'updateRef')
         .rejects(Error(updateRefErrorMsg));
       try {
@@ -415,11 +424,6 @@ describe('Commit and push function', () => {
         await handler.createTree(logger, octokit, origin, '', []);
       } catch (err) {
         expect(err.message).to.equal(updateRefErrorMsg);
-      } finally {
-        stubGetCommit.restore();
-        stubCreateTree.restore();
-        stubCreateCommit.restore();
-        stubUpdateRef.restore();
       }
     });
   });
