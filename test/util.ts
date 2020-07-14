@@ -19,6 +19,9 @@ import {disableNetConnect} from 'nock';
 const logger = Pino({level: 'warn'});
 const octokit = new Octokit();
 
+/**
+ * setup tests
+ */
 function setup() {
   disableNetConnect();
 }

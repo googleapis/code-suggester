@@ -23,8 +23,7 @@ before(() => {
 });
 
 describe('Fork', async () => {
-  const upstreamOwner = 'upstream-owner';
-  const upstreamRepo = 'upstream-repo';
+  const upstream = {owner: 'upstream-owner', repo: 'upstream-repo'};
   const responseData = await import('./fixtures/create-fork-response.json');
 
   describe('Octokit createFork function', () => {
@@ -40,10 +39,10 @@ describe('Fork', async () => {
         .stub(octokit.repos, 'createFork')
         .resolves(createRefResponse);
       // tests
-      await fork(logger, octokit, upstreamOwner, upstreamRepo);
+      await fork(logger, octokit, upstream);
       sinon.assert.calledOnceWithExactly(stub, {
-        owner: upstreamOwner,
-        repo: upstreamRepo,
+        owner: upstream.owner,
+        repo: upstream.repo,
       });
       // restore
       stub.restore();
@@ -63,9 +62,9 @@ describe('Fork', async () => {
         .stub(octokit.repos, 'createFork')
         .resolves(createRefResponse);
       // tests
-      const res = await fork(logger, octokit, upstreamOwner, upstreamRepo);
-      expect(res.forkOwner).equals(responseData.owner.login);
-      expect(res.forkRepo).equals(responseData.name);
+      const res = await fork(logger, octokit, upstream);
+      expect(res.owner).equals(responseData.owner.login);
+      expect(res.repo).equals(responseData.name);
       // restore
       stub.restore();
     });
@@ -74,7 +73,7 @@ describe('Fork', async () => {
       const errorMsg = 'Error message';
       const stub = sinon.stub(octokit.repos, 'createFork').rejects(errorMsg);
       try {
-        await fork(logger, octokit, upstreamOwner, upstreamRepo);
+        await fork(logger, octokit, upstream);
         expect.fail(
           'The fork function should have failed because Octokit failed.'
         );
