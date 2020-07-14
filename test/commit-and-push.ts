@@ -284,9 +284,7 @@ describe('Commit and push function', () => {
     it('Forwards GitHub error if getCommit fails', async () => {
       // setup
       const commitErrorMsg = 'Error committing';
-      sinon
-        .stub(octokit.git, 'getCommit')
-        .rejects(Error(commitErrorMsg));
+      sinon.stub(octokit.git, 'getCommit').rejects(Error(commitErrorMsg));
       try {
         // tests
         await handler.createTree(logger, octokit, origin, '', []);
@@ -306,12 +304,8 @@ describe('Commit and push function', () => {
         data: commitResponseData,
       };
       const createTreeErrorMsg = 'Error committing';
-      sinon
-        .stub(octokit.git, 'getCommit')
-        .resolves(getCommitResponse);
-      sinon
-        .stub(octokit.git, 'createTree')
-        .rejects(Error(createTreeErrorMsg));
+      sinon.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
+      sinon.stub(octokit.git, 'createTree').rejects(Error(createTreeErrorMsg));
       try {
         // tests
         await handler.createTree(logger, octokit, origin, '', []);
@@ -339,12 +333,8 @@ describe('Commit and push function', () => {
         url: 'http://fake-url.com',
         data: createTreeResponseData,
       };
-      sinon
-        .stub(octokit.git, 'getCommit')
-        .resolves(getCommitResponse);
-      sinon
-        .stub(octokit.git, 'createTree')
-        .resolves(createTreeResponse);
+      sinon.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
+      sinon.stub(octokit.git, 'createTree').resolves(createTreeResponse);
       const createCommitErrorMsg = 'Error creating commit';
       sinon
         .stub(octokit.git, 'createCommit')
@@ -386,19 +376,11 @@ describe('Commit and push function', () => {
         url: 'http://fake-url.com',
         data: createCommitResponseData,
       };
-      sinon
-        .stub(octokit.git, 'getCommit')
-        .resolves(getCommitResponse);
-      sinon
-        .stub(octokit.git, 'createTree')
-        .resolves(createTreeResponse);
-      sinon
-        .stub(octokit.git, 'createCommit')
-        .resolves(createCommitResponse);
+      sinon.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
+      sinon.stub(octokit.git, 'createTree').resolves(createTreeResponse);
+      sinon.stub(octokit.git, 'createCommit').resolves(createCommitResponse);
       const updateRefErrorMsg = 'Error updating reference';
-      sinon
-        .stub(octokit.git, 'updateRef')
-        .rejects(Error(updateRefErrorMsg));
+      sinon.stub(octokit.git, 'updateRef').rejects(Error(updateRefErrorMsg));
       try {
         // tests
         await handler.createTree(logger, octokit, origin, '', []);
