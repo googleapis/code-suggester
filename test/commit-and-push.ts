@@ -59,7 +59,7 @@ describe('Push', async () => {
       mode: '100644',
       type: 'blob',
       content: '',
-    }
+    },
   ];
   const origin: RepoDomain = {
     owner: 'Foo',
@@ -71,7 +71,6 @@ describe('Push', async () => {
     it('has objects that are generated correctly', () => {
       expect(handler.generateTreeObjects(changes)).to.deep.equal(tree);
     });
-
 
     it('Calls octokit functions with correct params', async () => {
       const commitResponseData = await import(
