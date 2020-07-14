@@ -99,7 +99,7 @@ describe('Push', async () => {
         .stub(octokit.git, 'createTree')
         .resolves(createTreeResponse);
       // tests
-      const treeSHA = await handler.createTree(
+      const treeSha = await handler.createTree(
         logger,
         octokit,
         origin,
@@ -117,7 +117,7 @@ describe('Push', async () => {
         tree,
         base_tree: getCommitResponse.data.tree.sha,
       });
-      expect(treeSHA).to.equal(createTreeResponse.data.sha);
+      expect(treeSha).to.equal(createTreeResponse.data.sha);
       // restore
       stub1.restore();
       stub2.restore();
@@ -130,8 +130,8 @@ describe('Commit', () => {
     owner: 'Foo',
     repo: 'Bar',
   };
-  const treeSHA = 'TREE-asfd1234';
-  const HEAD = 'HEAD-asdf1234';
+  const treeSha = 'TREE-asfd1234';
+  const head = 'head-asdf1234';
   const message = 'Hello world';
   it('Invokes octokit function called with correct values', async () => {
     // setup
@@ -152,8 +152,8 @@ describe('Commit', () => {
       logger,
       octokit,
       origin,
-      HEAD,
-      treeSHA,
+      head,
+      treeSha,
       message
     );
     expect(sha).equals(createCommitResponse.data.sha);
@@ -161,8 +161,8 @@ describe('Commit', () => {
       owner: origin.owner,
       repo: origin.repo,
       message,
-      tree: treeSHA,
-      parents: [HEAD],
+      tree: treeSha,
+      parents: [head],
     });
     // restore
     stub.restore();
@@ -192,7 +192,7 @@ describe('Update branch reference', () => {
 });
 
 describe('Commit and push function', () => {
-  const oldHEADSHA = 'OLD-HEAD-SHA-asdf1234';
+  const oldHeadSha = 'OLD-head-Sha-asdf1234';
   const changes: Changes = new Map();
   const origin: RepoDomain = {
     owner: 'Foo',
@@ -245,7 +245,7 @@ describe('Commit and push function', () => {
       await handler.commitAndPush(
         logger,
         octokit,
-        oldHEADSHA,
+        oldHeadSha,
         changes,
         origin,
         branchName,
@@ -254,7 +254,7 @@ describe('Commit and push function', () => {
       sinon.assert.calledOnceWithExactly(stubGetCommit, {
         owner: origin.owner,
         repo: origin.repo,
-        commit_sha: oldHEADSHA,
+        commit_sha: oldHeadSha,
       });
       sinon.assert.calledWithExactly(stubCreateTree, {
         owner: origin.owner,
@@ -267,7 +267,7 @@ describe('Commit and push function', () => {
         repo: origin.repo,
         message,
         tree: createTreeResponse.data.sha,
-        parents: [oldHEADSHA],
+        parents: [oldHeadSha],
       });
       sinon.assert.calledOnceWithExactly(stubUpdateRef, {
         owner: origin.owner,

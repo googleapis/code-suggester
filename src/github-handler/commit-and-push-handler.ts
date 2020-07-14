@@ -58,7 +58,7 @@ function generateTreeObjects(changes: Changes): GitCreateTreeParamsTree[] {
  * Rejects if GitHub V3 API fails with the GitHub error response
  * @param {Octokit} octokit The authenticated octokit instance
  * @param {RepoDomain} origin the the remote repository to push changes to
- * @param {string} refHEAD the base of the new commit(s)
+ * @param {string} refHead the base of the new commit(s)
  * @param {GitCreateTreeParamsTree[]} tree the set of GitHub changes to upload
  * @returns {Promise<string>} the GitHub tree SHA
  */
@@ -66,29 +66,29 @@ async function createTree(
   logger: Logger,
   octokit: Octokit,
   origin: RepoDomain,
-  refHEAD: string,
+  refHead: string,
   tree: GitCreateTreeParamsTree[]
 ): Promise<string> {
-  const oldTreeSHA = (
+  const oldTreeSha = (
     await octokit.git.getCommit({
       owner: origin.owner,
       repo: origin.repo,
-      commit_sha: refHEAD,
+      commit_sha: refHead,
     })
   ).data.tree.sha;
   logger.info('Got the latest commit tree');
-  const treeSHA = (
+  const treeSha = (
     await octokit.git.createTree({
       owner: origin.owner,
       repo: origin.repo,
       tree,
-      base_tree: oldTreeSHA,
+      base_tree: oldTreeSha,
     })
   ).data.sha;
   logger.info(
-    `Successfully created a tree with the desired changes with SHA ${treeSHA}`
+    `Successfully created a tree with the desired changes with SHA ${treeSha}`
   );
-  return treeSHA;
+  return treeSha;
 }
 
 /**
@@ -98,8 +98,8 @@ async function createTree(
  * @param {Logger} logger The logger instance
  * @param {Octokit} octokit The authenticated octokit instance
  * @param {RepoDomain} origin the the remote repository to push changes to
- * @param {string} refHEAD the base of the new commit(s)
- * @param {string} treeSHA the tree SHA that this commit will point to
+ * @param {string} refHead the base of the new commit(s)
+ * @param {string} treeSha the tree SHA that this commit will point to
  * @param {string} message the message of the new commit
  * @returns {Promise<string>} the new commit SHA
  */
@@ -107,8 +107,8 @@ async function createCommit(
   logger: Logger,
   octokit: Octokit,
   origin: RepoDomain,
-  refHEAD: string,
-  treeSHA: string,
+  refHead: string,
+  treeSha: string,
   message: string
 ): Promise<string> {
   const commitData = (
@@ -116,8 +116,8 @@ async function createCommit(
       owner: origin.owner,
       repo: origin.repo,
       message,
-      tree: treeSHA,
-      parents: [refHEAD],
+      tree: treeSha,
+      parents: [refHead],
     })
   ).data;
   logger.info(`Successfully created commit. See commit at ${commitData.url}`);
@@ -131,7 +131,7 @@ async function createCommit(
  * @param {Octokit} octokit The authenticated octokit instance
  * @param {RepoDomain} origin the the remote repository to push changes to
  * @param {string} refName the name of the branch ref
- * @param {string} newSHA the ref to update the commit HEAD to
+ * @param {string} newSha the ref to update the commit HEAD to
  * @returns {Promise<void>}
  */
 async function updateRef(
@@ -139,15 +139,15 @@ async function updateRef(
   octokit: Octokit,
   origin: RepoDomain,
   refName: string,
-  newSHA: string
+  newSha: string
 ): Promise<void> {
   await octokit.git.updateRef({
     owner: origin.owner,
     repo: origin.repo,
     ref: `heads/${refName}`,
-    sha: newSHA,
+    sha: newSha,
   });
-  logger.info(`Successfully updated reference ${refName} to ${newSHA}`);
+  logger.info(`Successfully updated reference ${refName} to ${newSha}`);
 }
 
 /**
@@ -155,7 +155,7 @@ async function updateRef(
  * Rejects if GitHub V3 API fails with the GitHub error response
  * @param {Logger} logger The logger instance
  * @param {Octokit} octokit The authenticated octokit instance
- * @param {string} refHEAD the base of the new commit(s)
+ * @param {string} refHead the base of the new commit(s)
  * @param {Changes} changes the set of repository changes
  * @param {RepoDomain} origin the the remote repository to push changes to
  * @param {string} originBranchName the remote branch that will contain the new changes
@@ -165,7 +165,7 @@ async function updateRef(
 async function commitAndPush(
   logger: Logger,
   octokit: Octokit,
-  refHEAD: string,
+  refHead: string,
   changes: Changes,
   origin: RepoDomain,
   originBranchName: string,
@@ -173,16 +173,16 @@ async function commitAndPush(
 ) {
   try {
     const tree = generateTreeObjects(changes);
-    const treeSHA = await createTree(logger, octokit, origin, refHEAD, tree);
-    const commitSHA = await createCommit(
+    const treeSha = await createTree(logger, octokit, origin, refHead, tree);
+    const commitSha = await createCommit(
       logger,
       octokit,
       origin,
-      refHEAD,
-      treeSHA,
+      refHead,
+      treeSha,
       commitMessage
     );
-    await updateRef(logger, octokit, origin, originBranchName, commitSHA);
+    await updateRef(logger, octokit, origin, originBranchName, commitSha);
   } catch (err) {
     logger.error('Error while creating a tree and updating the ref');
     throw err;
