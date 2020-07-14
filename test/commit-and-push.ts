@@ -23,11 +23,6 @@ before(() => {
   setup();
 });
 
-let stubGetCommit = sinon.stub(octokit.git, 'getCommit');
-let stubCreateTree = sinon.stub(octokit.git, 'createTree');
-let stubCreateCommit = sinon.stub(octokit.git, 'createCommit');
-let stubUpdateRef = sinon.stub(octokit.git, 'updateRef');
-
 describe('Push', async () => {
   const changes: Changes = new Map();
   changes.set('a/foo.txt', new FileData('Foo content'));
@@ -69,10 +64,7 @@ describe('Push', async () => {
 
   describe('GitHub trees', () => {
     beforeEach(() => {
-      stubGetCommit.restore();
-      stubCreateTree.restore();
-      stubCreateCommit.restore();
-      stubUpdateRef.restore();
+      sinon.restore();
     });
     it('has objects that are generated correctly', () => {
       expect(handler.generateTreeObjects(changes)).to.deep.equal(tree);
@@ -98,10 +90,10 @@ describe('Push', async () => {
         data: createTreeResponseData,
       };
       // setup
-      stubGetCommit = sinon
+      const stubGetCommit = sinon
         .stub(octokit.git, 'getCommit')
         .resolves(getCommitResponse);
-      stubCreateTree = sinon
+      const stubCreateTree = sinon
         .stub(octokit.git, 'createTree')
         .resolves(createTreeResponse);
       // tests
@@ -130,10 +122,7 @@ describe('Push', async () => {
 
 describe('Commit', () => {
   beforeEach(() => {
-    stubGetCommit.restore();
-    stubCreateTree.restore();
-    stubCreateCommit.restore();
-    stubUpdateRef.restore();
+    sinon.restore();
   });
   const origin: RepoDomain = {
     owner: 'Foo',
@@ -153,7 +142,7 @@ describe('Commit', () => {
       url: 'http://fake-url.com',
       data: createCommitResponseData,
     };
-    stubCreateCommit = sinon
+    const stubCreateCommit = sinon
       .stub(octokit.git, 'createCommit')
       .resolves(createCommitResponse);
     // tests
@@ -178,10 +167,7 @@ describe('Commit', () => {
 
 describe('Update branch reference', () => {
   beforeEach(() => {
-    stubGetCommit.restore();
-    stubCreateTree.restore();
-    stubCreateCommit.restore();
-    stubUpdateRef.restore();
+    sinon.restore();
   });
   const origin: RepoDomain = {
     owner: 'Foo',
@@ -190,7 +176,7 @@ describe('Update branch reference', () => {
   const sha = 'asdf1234';
   it('Invokes octokit function called with correct values', async () => {
     // setup
-    stubUpdateRef = sinon.stub(octokit.git, 'updateRef');
+    const stubUpdateRef = sinon.stub(octokit.git, 'updateRef');
     // tests
     await handler.updateRef(logger, octokit, origin, 'test-branch-name', sha);
     sinon.assert.calledOnceWithExactly(stubUpdateRef, {
@@ -213,10 +199,7 @@ describe('Commit and push function', () => {
   const message = 'Hello world';
   describe('Works when everything works', () => {
     beforeEach(() => {
-      stubGetCommit.restore();
-      stubCreateTree.restore();
-      stubCreateCommit.restore();
-      stubUpdateRef.restore();
+      sinon.restore();
     });
     it('Calls functions with correct parameter values', async () => {
       const commitResponseData = await import(
@@ -248,16 +231,16 @@ describe('Commit and push function', () => {
         data: createCommitResponseData,
       };
       // setup
-      stubGetCommit = sinon
+      const stubGetCommit = sinon
         .stub(octokit.git, 'getCommit')
         .resolves(getCommitResponse);
-      stubCreateTree = sinon
+      const stubCreateTree = sinon
         .stub(octokit.git, 'createTree')
         .resolves(createTreeResponse);
-      stubCreateCommit = sinon
+      const stubCreateCommit = sinon
         .stub(octokit.git, 'createCommit')
         .resolves(createCommitResponse);
-      stubUpdateRef = sinon.stub(octokit.git, 'updateRef');
+      const stubUpdateRef = sinon.stub(octokit.git, 'updateRef');
       // tests
       await handler.commitAndPush(
         logger,
@@ -296,15 +279,12 @@ describe('Commit and push function', () => {
   });
   describe('Fails and forwards the error message if any octokit function fails', () => {
     beforeEach(() => {
-      stubGetCommit.restore();
-      stubCreateTree.restore();
-      stubCreateCommit.restore();
-      stubUpdateRef.restore();
+      sinon.restore();
     });
     it('Forwards GitHub error if getCommit fails', async () => {
       // setup
       const commitErrorMsg = 'Error committing';
-      stubGetCommit = sinon
+      sinon
         .stub(octokit.git, 'getCommit')
         .rejects(Error(commitErrorMsg));
       try {
@@ -326,10 +306,10 @@ describe('Commit and push function', () => {
         data: commitResponseData,
       };
       const createTreeErrorMsg = 'Error committing';
-      stubGetCommit = sinon
+      sinon
         .stub(octokit.git, 'getCommit')
         .resolves(getCommitResponse);
-      stubCreateTree = sinon
+      sinon
         .stub(octokit.git, 'createTree')
         .rejects(Error(createTreeErrorMsg));
       try {
@@ -359,14 +339,14 @@ describe('Commit and push function', () => {
         url: 'http://fake-url.com',
         data: createTreeResponseData,
       };
-      stubGetCommit = sinon
+      sinon
         .stub(octokit.git, 'getCommit')
         .resolves(getCommitResponse);
-      stubCreateTree = sinon
+      sinon
         .stub(octokit.git, 'createTree')
         .resolves(createTreeResponse);
       const createCommitErrorMsg = 'Error creating commit';
-      stubCreateCommit = sinon
+      sinon
         .stub(octokit.git, 'createCommit')
         .rejects(Error(createCommitErrorMsg));
       try {
@@ -406,17 +386,17 @@ describe('Commit and push function', () => {
         url: 'http://fake-url.com',
         data: createCommitResponseData,
       };
-      stubGetCommit = sinon
+      sinon
         .stub(octokit.git, 'getCommit')
         .resolves(getCommitResponse);
-      stubCreateTree = sinon
+      sinon
         .stub(octokit.git, 'createTree')
         .resolves(createTreeResponse);
-      stubCreateCommit = sinon
+      sinon
         .stub(octokit.git, 'createCommit')
         .resolves(createCommitResponse);
       const updateRefErrorMsg = 'Error updating reference';
-      stubUpdateRef = sinon
+      sinon
         .stub(octokit.git, 'updateRef')
         .rejects(Error(updateRefErrorMsg));
       try {
