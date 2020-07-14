@@ -17,25 +17,24 @@ import {describe, it, before} from 'mocha';
 import {logger, octokit, setup} from './util';
 import * as sinon from 'sinon';
 import * as handler from '../src/github-handler/commit-and-push-handler';
-import {Changes, GitCreateTreeParamsTree, RepoDomain} from '../src/types';
+import {
+  Changes,
+  FileData,
+  GitCreateTreeParamsTree,
+  RepoDomain,
+} from '../src/types';
 
 before(() => {
   setup();
 });
 
 describe('Push', async () => {
-  const changes: Changes = {
-    'a/foo.txt': {
-      content: 'Foo content',
-      mode: '100644',
-    },
-    'b/bar.txt': {
-      mode: '100644',
-    },
-    'baz.exe': {
-      mode: '100755',
-    },
-  };
+  const changes: Changes = new Map();
+  changes.set('a/foo.txt', new FileData('Foo content'));
+  changes.set('b/bar.txt', new FileData(null));
+  changes.set('baz.exe', new FileData(null, '100755'));
+  changes.set('empty.txt', new FileData(''));
+
   const tree: GitCreateTreeParamsTree[] = [
     {
       path: 'a/foo.txt',
@@ -55,6 +54,12 @@ describe('Push', async () => {
       type: 'blob',
       sha: null,
     },
+    {
+      path: 'empty.txt',
+      mode: '100644',
+      type: 'blob',
+      content: '',
+    }
   ];
   const origin: RepoDomain = {
     owner: 'Foo',
@@ -64,8 +69,9 @@ describe('Push', async () => {
 
   describe('GitHub trees', () => {
     it('has objects that are generated correctly', () => {
-      expect(handler.genTreeObj(changes)).to.deep.equal(tree);
+      expect(handler.generateTreeObjects(changes)).to.deep.equal(tree);
     });
+
 
     it('Calls octokit functions with correct params', async () => {
       const commitResponseData = await import(
@@ -188,7 +194,7 @@ describe('Update branch reference', () => {
 
 describe('Commit and push function', () => {
   const oldHEADSHA = 'OLD-HEAD-SHA-asdf1234';
-  const changes: Changes = {};
+  const changes: Changes = new Map();
   const origin: RepoDomain = {
     owner: 'Foo',
     repo: 'Bar',
