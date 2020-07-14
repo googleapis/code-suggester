@@ -20,7 +20,7 @@ type FileMode = '100644' | '100755' | '040000' | '160000' | '120000';
 /**
  * GitHub definition of tree
  */
-declare interface GitCreateTreeParamsTree {
+declare interface TreeObject {
   path: string;
   mode: FileMode;
   type: 'blob' | 'tree' | 'commit';
@@ -109,7 +109,7 @@ export {
   Description,
   Changes,
   FileData,
-  GitCreateTreeParamsTree,
+  TreeObject,
   GitHubContextParam,
   GitHubContext,
   Level,
