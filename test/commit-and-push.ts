@@ -24,38 +24,6 @@ before(() => {
 });
 
 describe('Push', async () => {
-  const changes: Changes = new Map();
-  changes.set('a/foo.txt', new FileData('Foo content'));
-  changes.set('b/bar.txt', new FileData(null));
-  changes.set('baz.exe', new FileData(null, '100755'));
-  changes.set('empty.txt', new FileData(''));
-
-  const tree: TreeObject[] = [
-    {
-      path: 'a/foo.txt',
-      mode: '100644',
-      type: 'blob',
-      content: 'Foo content',
-    },
-    {
-      path: 'b/bar.txt',
-      mode: '100644',
-      type: 'blob',
-      sha: null,
-    },
-    {
-      path: 'baz.exe',
-      mode: '100755',
-      type: 'blob',
-      sha: null,
-    },
-    {
-      path: 'empty.txt',
-      mode: '100644',
-      type: 'blob',
-      content: '',
-    },
-  ];
   const origin: RepoDomain = {
     owner: 'Foo',
     repo: 'Bar',
@@ -66,11 +34,82 @@ describe('Push', async () => {
     beforeEach(() => {
       sinon.restore();
     });
-    it('has objects that are generated correctly', () => {
-      expect(handler.generateTreeObjects(changes)).to.deep.equal(tree);
+    it('has objects that are generated correctly for text files in a sub-directory', () => {
+      const changes: Changes = new Map();
+      changes.set('a/foo.txt', new FileData('Foo content'));
+      expect(handler.generateTreeObjects(changes)).to.deep.equal([
+        {
+          path: 'a/foo.txt',
+          mode: '100644',
+          type: 'blob',
+          content: 'Foo content',
+        },
+      ]);
+    });
+    it('has objects that are generated correctly for text files that are deleted', () => {
+      const changes: Changes = new Map();
+      changes.set('b/bar.txt', new FileData(null));
+      expect(handler.generateTreeObjects(changes)).to.deep.equal([
+        {
+          path: 'b/bar.txt',
+          mode: '100644',
+          type: 'blob',
+          sha: null,
+        },
+      ]);
+    });
+    it('has objects that are generated correctly for deleted exe files', () => {
+      const changes: Changes = new Map();
+      changes.set('baz.exe', new FileData(null, '100755'));
+      expect(handler.generateTreeObjects(changes)).to.deep.equal([
+        {
+          path: 'baz.exe',
+          mode: '100755',
+          type: 'blob',
+          sha: null,
+        },
+      ]);
+    });
+    it('has objects that are generated correctly for empty text files', () => {
+      const changes: Changes = new Map();
+      changes.set('empty.txt', new FileData(''));
+      expect(handler.generateTreeObjects(changes)).to.deep.equal([
+        {
+          path: 'empty.txt',
+          mode: '100644',
+          type: 'blob',
+          content: '',
+        },
+      ]);
     });
 
     it('Calls octokit functions with correct params', async () => {
+      const tree: TreeObject[] = [
+        {
+          path: 'a/foo.txt',
+          mode: '100644',
+          type: 'blob',
+          content: 'Foo content',
+        },
+        {
+          path: 'b/bar.txt',
+          mode: '100644',
+          type: 'blob',
+          sha: null,
+        },
+        {
+          path: 'baz.exe',
+          mode: '100755',
+          type: 'blob',
+          sha: null,
+        },
+        {
+          path: 'empty.txt',
+          mode: '100644',
+          type: 'blob',
+          content: '',
+        },
+      ];
       const commitResponseData = await import(
         './fixtures/get-commit-response.json'
       );
