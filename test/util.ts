@@ -15,6 +15,7 @@
 import * as Pino from 'pino';
 import {Octokit} from '@octokit/rest';
 import {disableNetConnect} from 'nock';
+import * as sinon from 'sinon';
 
 const logger = Pino({level: 'warn'});
 const octokit = new Octokit();
@@ -23,6 +24,7 @@ const octokit = new Octokit();
  * setup tests
  */
 function setup() {
+  sinon.restore();
   disableNetConnect();
 }
 

@@ -22,11 +22,16 @@ before(() => {
   setup();
 });
 
+let stub = sinon.stub(octokit.repos, 'createFork');
+
 describe('Fork', async () => {
   const upstream = {owner: 'upstream-owner', repo: 'upstream-repo'};
   const responseData = await import('./fixtures/create-fork-response.json');
 
   describe('Octokit createFork function', () => {
+    beforeEach(() => {
+      sinon.restore();
+    });
     it('Is called with the correct values', async () => {
       const createRefResponse = {
         headers: {},
@@ -35,7 +40,7 @@ describe('Fork', async () => {
         data: responseData,
       };
       // setup
-      const stub = sinon
+      stub = sinon
         .stub(octokit.repos, 'createFork')
         .resolves(createRefResponse);
       // tests
@@ -44,12 +49,13 @@ describe('Fork', async () => {
         owner: upstream.owner,
         repo: upstream.repo,
       });
-      // restore
-      stub.restore();
     });
   });
 
   describe('Forking function', () => {
+    beforeEach(() => {
+      sinon.restore();
+    });
     it('Returns correct values on success', async () => {
       const createRefResponse = {
         headers: {},
@@ -58,20 +64,18 @@ describe('Fork', async () => {
         data: responseData,
       };
       // setup
-      const stub = sinon
+      stub = sinon
         .stub(octokit.repos, 'createFork')
         .resolves(createRefResponse);
       // tests
       const res = await fork(logger, octokit, upstream);
       expect(res.owner).equals(responseData.owner.login);
       expect(res.repo).equals(responseData.name);
-      // restore
-      stub.restore();
     });
     it('Passes the error message with a throw when octokit fails', async () => {
       // setup
       const errorMsg = 'Error message';
-      const stub = sinon.stub(octokit.repos, 'createFork').rejects(errorMsg);
+      sinon.stub(octokit.repos, 'createFork').rejects(errorMsg);
       try {
         await fork(logger, octokit, upstream);
         expect.fail(
@@ -79,9 +83,6 @@ describe('Fork', async () => {
         );
       } catch (err) {
         expect(err.message).to.equal(errorMsg);
-      } finally {
-        // restore
-        stub.restore();
       }
     });
   });
