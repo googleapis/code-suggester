@@ -103,87 +103,79 @@ describe('Branch module', async () => {
         sha: branchResponse.data.commit.sha,
       });
     });
+  });
 
-    describe('Branching fails when', () => {
-      beforeEach(() => {
-        sinon.restore();
-      });
-      const testErrorMessage = 'test-error-message';
-      it('Octokit get branch fails', async () => {
-        getBranchStub = sinon
-          .stub(octokit.repos, 'getBranch')
-          .rejects(Error(testErrorMessage));
-        try {
-          await branch(logger, octokit, origin, branchName, 'master');
-          assert.fail();
-        } catch (err) {
-          expect(err.message).to.equal(testErrorMessage);
-        }
-      });
-      it('Octokit create ref fails', async () => {
-        getBranchStub = sinon
-          .stub(octokit.repos, 'getBranch')
-          .resolves(branchResponse);
-        createRefStub = sinon
-          .stub(octokit.git, 'createRef')
-          .rejects(Error(testErrorMessage));
-        try {
-          await branch(logger, octokit, origin, branchName, 'master');
-          assert.fail();
-        } catch (err) {
-          expect(err.message).to.equal(testErrorMessage);
-        }
-      });
-      it('Primary branch specified did not match any of the branches returned', async () => {
-        const listBranchesResponse = {
-          headers: {},
-          status: 200,
-          url: 'http://fake-url.com',
-          data: [
-            {
-              name: 'master',
-              commit: {
-                sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-                url:
-                  'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-              },
-              protected: true,
-              protection: {
-                enabled: true,
-                required_status_checks: {
-                  enforcement_level: 'non_admins',
-                  contexts: ['ci-test', 'linter'],
-                },
-              },
-              protection_url:
-                'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
-            },
-          ],
-        };
-        sinon
-          .stub(octokit.repos, 'listBranches')
-          .resolves(listBranchesResponse);
-        try {
-          await branch(
-            logger,
-            octokit,
-            origin,
-            branchName,
-            'non-master-branch'
-          );
-          assert.fail();
-        } catch (err) {
-          assert.isOk(true);
-        }
-      });
+  describe('Branching fails when', () => {
+    beforeEach(() => {
+      sinon.restore();
     });
+    const testErrorMessage = 'test-error-message';
+    it('Octokit get branch fails', async () => {
+      getBranchStub = sinon
+        .stub(octokit.repos, 'getBranch')
+        .rejects(Error(testErrorMessage));
+      try {
+        await branch(logger, octokit, origin, branchName, 'master');
+        assert.fail();
+      } catch (err) {
+        expect(err.message).to.equal(testErrorMessage);
+      }
+    });
+    it('Octokit create ref fails', async () => {
+      getBranchStub = sinon
+        .stub(octokit.repos, 'getBranch')
+        .resolves(branchResponse);
+      createRefStub = sinon
+        .stub(octokit.git, 'createRef')
+        .rejects(Error(testErrorMessage));
+      try {
+        await branch(logger, octokit, origin, branchName, 'master');
+        assert.fail();
+      } catch (err) {
+        expect(err.message).to.equal(testErrorMessage);
+      }
+    });
+    it('Primary branch specified did not match any of the branches returned', async () => {
+      const listBranchesResponse = {
+        headers: {},
+        status: 200,
+        url: 'http://fake-url.com',
+        data: [
+          {
+            name: 'master',
+            commit: {
+              sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
+              url:
+                'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
+            },
+            protected: true,
+            protection: {
+              enabled: true,
+              required_status_checks: {
+                enforcement_level: 'non_admins',
+                contexts: ['ci-test', 'linter'],
+              },
+            },
+            protection_url:
+              'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
+          },
+        ],
+      };
+      sinon.stub(octokit.repos, 'listBranches').resolves(listBranchesResponse);
+      try {
+        await branch(logger, octokit, origin, branchName, 'non-master-branch');
+        assert.fail();
+      } catch (err) {
+        assert.isOk(true);
+      }
+    });
+  });
 
-    describe('Reference string parsing function', () => {
-      it('correctly appends branch name to reference prefix', () => {
-        assert.equal(createRef('master'), 'refs/heads/master');
-        assert.equal(createRef('foo/bar/baz'), 'refs/heads/foo/bar/baz');
-        assert.equal(createRef('+++'), 'refs/heads/+++');
-      });
+  describe('Reference string parsing function', () => {
+    it('correctly appends branch name to reference prefix', () => {
+      assert.equal(createRef('master'), 'refs/heads/master');
+      assert.equal(createRef('foo/bar/baz'), 'refs/heads/foo/bar/baz');
+      assert.equal(createRef('+++'), 'refs/heads/+++');
     });
   });
 });
