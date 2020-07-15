@@ -29,6 +29,21 @@ interface RepoDomain {
 }
 
 /**
+ * The domain for a branch
+ */
+interface BranchDomain extends RepoDomain {
+  branch: string;
+}
+
+/**
+ * The descriptive properties for any entity
+ */
+interface Description {
+  title: string;
+  body: string;
+}
+
+/**
  * The user parameter for GitHub data needed for creating a PR
  */
 interface GitHubContextParam {
@@ -61,6 +76,8 @@ interface GitHubContext {
 }
 
 export {
+  BranchDomain,
+  Description,
   Files,
   GitHubContextParam,
   GitHubContext,
