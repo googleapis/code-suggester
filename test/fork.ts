@@ -22,8 +22,6 @@ before(() => {
   setup();
 });
 
-let stub = sinon.stub(octokit.repos, 'createFork');
-
 describe('Fork', async () => {
   const upstream = {owner: 'upstream-owner', repo: 'upstream-repo'};
   const responseData = await import('./fixtures/create-fork-response.json');
@@ -40,7 +38,7 @@ describe('Fork', async () => {
         data: responseData,
       };
       // setup
-      stub = sinon
+      const stub = sinon
         .stub(octokit.repos, 'createFork')
         .resolves(createRefResponse);
       // tests
@@ -64,9 +62,7 @@ describe('Fork', async () => {
         data: responseData,
       };
       // setup
-      stub = sinon
-        .stub(octokit.repos, 'createFork')
-        .resolves(createRefResponse);
+      sinon.stub(octokit.repos, 'createFork').resolves(createRefResponse);
       // tests
       const res = await fork(logger, octokit, upstream);
       expect(res.owner).equals(responseData.owner.login);

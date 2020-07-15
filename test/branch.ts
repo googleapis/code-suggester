@@ -26,9 +26,6 @@ before(() => {
   setup();
 });
 
-let getBranchStub = sinon.stub(octokit.repos, 'getBranch');
-let createRefStub = sinon.stub(octokit.git, 'createRef');
-
 describe('Branch module', async () => {
   const origin = {owner: 'octocat', repo: 'HelloWorld'};
   const branchName = 'test-branch';
@@ -48,13 +45,12 @@ describe('Branch module', async () => {
     });
     it('is passed the correct parameters, invokes octokit correctly, and returns the HEAD sha', async () => {
       // setup
-      getBranchStub = sinon
+      const getBranchStub = sinon
         .stub(octokit.repos, 'getBranch')
         .resolves(branchResponse);
       // // tests
       const headSHA = await getBranchHead(logger, octokit, origin, 'master');
       expect(headSHA).to.equal(branchResponse.data.commit.sha);
-      sinon.assert.calledOnce(getBranchStub);
       sinon.assert.calledOnceWithExactly(getBranchStub, {
         owner: origin.owner,
         repo: origin.repo,
@@ -86,16 +82,20 @@ describe('Branch module', async () => {
           },
         },
       };
-      getBranchStub = sinon
+      const getBranchStub = sinon
         .stub(octokit.repos, 'getBranch')
         .resolves(branchResponse);
-      createRefStub = sinon
+      const createRefStub = sinon
         .stub(octokit.git, 'createRef')
         .resolves(createRefResponse);
       // tests
       const sha = await branch(logger, octokit, origin, branchName, 'master');
       expect(sha).to.equal(branchResponse.data.commit.sha);
-      sinon.assert.calledOnce(createRefStub);
+      sinon.assert.calledOnceWithExactly(getBranchStub, {
+        owner: origin.owner,
+        repo: origin.repo,
+        branch: 'master',
+      });
       sinon.assert.calledOnceWithExactly(createRefStub, {
         owner: origin.owner,
         repo: origin.repo,
@@ -111,9 +111,7 @@ describe('Branch module', async () => {
     });
     const testErrorMessage = 'test-error-message';
     it('Octokit get branch fails', async () => {
-      getBranchStub = sinon
-        .stub(octokit.repos, 'getBranch')
-        .rejects(Error(testErrorMessage));
+      sinon.stub(octokit.repos, 'getBranch').rejects(Error(testErrorMessage));
       try {
         await branch(logger, octokit, origin, branchName, 'master');
         assert.fail();
@@ -122,12 +120,8 @@ describe('Branch module', async () => {
       }
     });
     it('Octokit create ref fails', async () => {
-      getBranchStub = sinon
-        .stub(octokit.repos, 'getBranch')
-        .resolves(branchResponse);
-      createRefStub = sinon
-        .stub(octokit.git, 'createRef')
-        .rejects(Error(testErrorMessage));
+      sinon.stub(octokit.repos, 'getBranch').resolves(branchResponse);
+      sinon.stub(octokit.git, 'createRef').rejects(Error(testErrorMessage));
       try {
         await branch(logger, octokit, origin, branchName, 'master');
         assert.fail();
