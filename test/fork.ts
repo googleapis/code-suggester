@@ -21,65 +21,57 @@ import {fork} from '../src/github-handler/fork-handler';
 before(() => {
   setup();
 });
+beforeEach(() => {
+  sinon.restore();
+});
 
-describe('Fork', async () => {
+describe('Forking function', () => {
   const upstream = {owner: 'upstream-owner', repo: 'upstream-repo'};
-  const responseData = await import('./fixtures/create-fork-response.json');
-
-  describe('Octokit createFork function', () => {
-    beforeEach(() => {
-      sinon.restore();
-    });
-    it('Is called with the correct values', async () => {
-      const createRefResponse = {
-        headers: {},
-        status: 200,
-        url: 'http://fake-url.com',
-        data: responseData,
-      };
-      // setup
-      const stub = sinon
-        .stub(octokit.repos, 'createFork')
-        .resolves(createRefResponse);
-      // tests
-      await fork(logger, octokit, upstream);
-      sinon.assert.calledOnceWithExactly(stub, {
-        owner: upstream.owner,
-        repo: upstream.repo,
-      });
+  it('Calls Octokit with the correct values', async () => {
+    const responseData = await import('./fixtures/create-fork-response.json');
+    const createRefResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: responseData,
+    };
+    // setup
+    const stub = sinon
+      .stub(octokit.repos, 'createFork')
+      .resolves(createRefResponse);
+    // tests
+    await fork(logger, octokit, upstream);
+    sinon.assert.calledOnceWithExactly(stub, {
+      owner: upstream.owner,
+      repo: upstream.repo,
     });
   });
-
-  describe('Forking function', () => {
-    beforeEach(() => {
-      sinon.restore();
-    });
-    it('Returns correct values on success', async () => {
-      const createRefResponse = {
-        headers: {},
-        status: 200,
-        url: 'http://fake-url.com',
-        data: responseData,
-      };
-      // setup
-      sinon.stub(octokit.repos, 'createFork').resolves(createRefResponse);
-      // tests
-      const res = await fork(logger, octokit, upstream);
-      expect(res.owner).equals(responseData.owner.login);
-      expect(res.repo).equals(responseData.name);
-    });
-    it('Passes the error message with a throw when octokit fails', async () => {
-      // setup
-      const errorMsg = 'Error message';
-      sinon.stub(octokit.repos, 'createFork').rejects(errorMsg);
-      try {
-        await fork(logger, octokit, upstream);
-        expect.fail(
-          'The fork function should have failed because Octokit failed.'
-        );
-      } catch (err) {
-        expect(err.message).to.equal(errorMsg);
-      }
-    });
+  it('Returns correct values on success', async () => {
+    const responseData = await import('./fixtures/create-fork-response.json');
+    const createRefResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: responseData,
+    };
+    // setup
+    sinon.stub(octokit.repos, 'createFork').resolves(createRefResponse);
+    // tests
+    const res = await fork(logger, octokit, upstream);
+    expect(res.owner).equals(responseData.owner.login);
+    expect(res.repo).equals(responseData.name);
+  });
+  it('Passes the error message with a throw when octokit fails', async () => {
+    // setup
+    const errorMsg = 'Error message';
+    sinon.stub(octokit.repos, 'createFork').rejects(errorMsg);
+    try {
+      await fork(logger, octokit, upstream);
+      expect.fail(
+        'The fork function should have failed because Octokit failed.'
+      );
+    } catch (err) {
+      expect(err.message).to.equal(errorMsg);
+    }
   });
 });

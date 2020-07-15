@@ -25,151 +25,163 @@ import {
 before(() => {
   setup();
 });
+beforeEach(() => {
+  sinon.restore();
+});
 
-describe('Branch module', async () => {
-  const origin = {owner: 'octocat', repo: 'HelloWorld'};
-  const branchName = 'test-branch';
-  const branchResponseBody = await import(
-    './fixtures/create-branch-response.json'
-  );
-  const branchResponse = {
-    headers: {},
-    status: 200,
-    url: 'http://fake-url.com',
-    data: branchResponseBody,
-  };
+const origin = {owner: 'octocat', repo: 'HelloWorld'};
+const branchName = 'test-branch';
+describe('Get branch head', () => {
+  it('is passed the correct parameters, invokes octokit correctly, and returns the HEAD sha', async () => {
+    // setup
+    const branchResponseBody = await import(
+      './fixtures/create-branch-response.json'
+    );
+    const branchResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: branchResponseBody,
+    };
 
-  describe('Get branch head', () => {
-    beforeEach(() => {
-      sinon.restore();
-    });
-    it('is passed the correct parameters, invokes octokit correctly, and returns the HEAD sha', async () => {
-      // setup
-      const getBranchStub = sinon
-        .stub(octokit.repos, 'getBranch')
-        .resolves(branchResponse);
-      // // tests
-      const headSHA = await getBranchHead(logger, octokit, origin, 'master');
-      expect(headSHA).to.equal(branchResponse.data.commit.sha);
-      sinon.assert.calledOnceWithExactly(getBranchStub, {
-        owner: origin.owner,
-        repo: origin.repo,
-        branch: 'master',
-      });
+    const getBranchStub = sinon
+      .stub(octokit.repos, 'getBranch')
+      .resolves(branchResponse);
+    // // tests
+    const headSHA = await getBranchHead(logger, octokit, origin, 'master');
+    expect(headSHA).to.equal(branchResponse.data.commit.sha);
+    sinon.assert.calledOnceWithExactly(getBranchStub, {
+      owner: origin.owner,
+      repo: origin.repo,
+      branch: 'master',
     });
   });
+});
 
-  describe('The create branch function', () => {
-    beforeEach(() => {
-      sinon.restore();
-    });
-    it('Returns the primary SHA when branching is successful', async () => {
-      // setup
-      const createRefResponse = {
-        headers: {},
-        status: 200,
-        url: 'http://fake-url.com',
-        data: {
-          ref: 'refs/heads/test-branch',
-          node_id: 'MDM6UmVmMjc0NzM5ODIwOnJlZnMvaGVhZHMvVGVzdC1icmFuY2gtNQ==',
+describe('The create branch function', () => {
+  it('Returns the primary SHA when branching is successful', async () => {
+    // setup
+    const branchResponseBody = await import(
+      './fixtures/create-branch-response.json'
+    );
+    const branchResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: branchResponseBody,
+    };
+
+    const createRefResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: {
+        ref: 'refs/heads/test-branch',
+        node_id: 'MDM6UmVmMjc0NzM5ODIwOnJlZnMvaGVhZHMvVGVzdC1icmFuY2gtNQ==',
+        url:
+          'https://api.github.com/repos/fake-Owner/HelloWorld/git/refs/heads/Test-branch-5',
+        object: {
+          sha: 'f826b1caabafdffec3dc45a08e41d7021c68db41',
+          type: 'commit',
           url:
-            'https://api.github.com/repos/fake-Owner/HelloWorld/git/refs/heads/Test-branch-5',
-          object: {
-            sha: 'f826b1caabafdffec3dc45a08e41d7021c68db41',
-            type: 'commit',
-            url:
-              'https://api.github.com/repos/fake-Owner/HelloWorld/git/commits/f826b1caabafdffec3dc45a08e41d7021c68db41',
-          },
+            'https://api.github.com/repos/fake-Owner/HelloWorld/git/commits/f826b1caabafdffec3dc45a08e41d7021c68db41',
         },
-      };
-      const getBranchStub = sinon
-        .stub(octokit.repos, 'getBranch')
-        .resolves(branchResponse);
-      const createRefStub = sinon
-        .stub(octokit.git, 'createRef')
-        .resolves(createRefResponse);
-      // tests
-      const sha = await branch(logger, octokit, origin, branchName, 'master');
-      expect(sha).to.equal(branchResponse.data.commit.sha);
-      sinon.assert.calledOnceWithExactly(getBranchStub, {
-        owner: origin.owner,
-        repo: origin.repo,
-        branch: 'master',
-      });
-      sinon.assert.calledOnceWithExactly(createRefStub, {
-        owner: origin.owner,
-        repo: origin.repo,
-        ref: `refs/heads/${branchName}`,
-        sha: branchResponse.data.commit.sha,
-      });
+      },
+    };
+    const getBranchStub = sinon
+      .stub(octokit.repos, 'getBranch')
+      .resolves(branchResponse);
+    const createRefStub = sinon
+      .stub(octokit.git, 'createRef')
+      .resolves(createRefResponse);
+    // tests
+    const sha = await branch(logger, octokit, origin, branchName, 'master');
+    expect(sha).to.equal(branchResponse.data.commit.sha);
+    sinon.assert.calledOnceWithExactly(getBranchStub, {
+      owner: origin.owner,
+      repo: origin.repo,
+      branch: 'master',
+    });
+    sinon.assert.calledOnceWithExactly(createRefStub, {
+      owner: origin.owner,
+      repo: origin.repo,
+      ref: `refs/heads/${branchName}`,
+      sha: branchResponse.data.commit.sha,
     });
   });
+});
 
-  describe('Branching fails when', () => {
-    beforeEach(() => {
-      sinon.restore();
-    });
-    const testErrorMessage = 'test-error-message';
-    it('Octokit get branch fails', async () => {
-      sinon.stub(octokit.repos, 'getBranch').rejects(Error(testErrorMessage));
-      try {
-        await branch(logger, octokit, origin, branchName, 'master');
-        assert.fail();
-      } catch (err) {
-        expect(err.message).to.equal(testErrorMessage);
-      }
-    });
-    it('Octokit create ref fails', async () => {
-      sinon.stub(octokit.repos, 'getBranch').resolves(branchResponse);
-      sinon.stub(octokit.git, 'createRef').rejects(Error(testErrorMessage));
-      try {
-        await branch(logger, octokit, origin, branchName, 'master');
-        assert.fail();
-      } catch (err) {
-        expect(err.message).to.equal(testErrorMessage);
-      }
-    });
-    it('Primary branch specified did not match any of the branches returned', async () => {
-      const listBranchesResponse = {
-        headers: {},
-        status: 200,
-        url: 'http://fake-url.com',
-        data: [
-          {
-            name: 'master',
-            commit: {
-              sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-              url:
-                'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-            },
-            protected: true,
-            protection: {
-              enabled: true,
-              required_status_checks: {
-                enforcement_level: 'non_admins',
-                contexts: ['ci-test', 'linter'],
-              },
-            },
-            protection_url:
-              'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
+describe('Branching fails when', () => {
+  const testErrorMessage = 'test-error-message';
+  it('Octokit get branch fails', async () => {
+    sinon.stub(octokit.repos, 'getBranch').rejects(Error(testErrorMessage));
+    try {
+      await branch(logger, octokit, origin, branchName, 'master');
+      assert.fail();
+    } catch (err) {
+      expect(err.message).to.equal(testErrorMessage);
+    }
+  });
+  it('Octokit create ref fails', async () => {
+    const branchResponseBody = await import(
+      './fixtures/create-branch-response.json'
+    );
+    const branchResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: branchResponseBody,
+    };
+
+    sinon.stub(octokit.repos, 'getBranch').resolves(branchResponse);
+    sinon.stub(octokit.git, 'createRef').rejects(Error(testErrorMessage));
+    try {
+      await branch(logger, octokit, origin, branchName, 'master');
+      assert.fail();
+    } catch (err) {
+      expect(err.message).to.equal(testErrorMessage);
+    }
+  });
+  it('Primary branch specified did not match any of the branches returned', async () => {
+    const listBranchesResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: [
+        {
+          name: 'master',
+          commit: {
+            sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
+            url:
+              'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
           },
-        ],
-      };
-      sinon.stub(octokit.repos, 'listBranches').resolves(listBranchesResponse);
-      try {
-        await branch(logger, octokit, origin, branchName, 'non-master-branch');
-        assert.fail();
-      } catch (err) {
-        assert.isOk(true);
-      }
-    });
+          protected: true,
+          protection: {
+            enabled: true,
+            required_status_checks: {
+              enforcement_level: 'non_admins',
+              contexts: ['ci-test', 'linter'],
+            },
+          },
+          protection_url:
+            'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
+        },
+      ],
+    };
+    sinon.stub(octokit.repos, 'listBranches').resolves(listBranchesResponse);
+    try {
+      await branch(logger, octokit, origin, branchName, 'non-master-branch');
+      assert.fail();
+    } catch (err) {
+      assert.isOk(true);
+    }
   });
+});
 
-  describe('Reference string parsing function', () => {
-    it('correctly appends branch name to reference prefix', () => {
-      assert.equal(createRef('master'), 'refs/heads/master');
-      assert.equal(createRef('foo/bar/baz'), 'refs/heads/foo/bar/baz');
-      assert.equal(createRef('+++'), 'refs/heads/+++');
-    });
+describe('Reference string parsing function', () => {
+  it('correctly appends branch name to reference prefix', () => {
+    assert.equal(createRef('master'), 'refs/heads/master');
+    assert.equal(createRef('foo/bar/baz'), 'refs/heads/foo/bar/baz');
+    assert.equal(createRef('+++'), 'refs/heads/+++');
   });
 });
