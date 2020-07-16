@@ -24,13 +24,14 @@ before(() => {
 });
 
 describe('Push', () => {
+  const sandbox = sinon.createSandbox();
   const origin: RepoDomain = {
     owner: 'Foo',
     repo: 'Bar',
   };
   const sha = 'asdf1234';
-  beforeEach(() => {
-    sinon.restore();
+  afterEach(() => {
+    sandbox.restore();
   });
 
   it('GitHub tree objects that are generated correctly for text files in a sub-directory', () => {
@@ -128,10 +129,10 @@ describe('Push', () => {
       data: createTreeResponseData,
     };
     // setup
-    const stubGetCommit = sinon
+    const stubGetCommit = sandbox
       .stub(octokit.git, 'getCommit')
       .resolves(getCommitResponse);
-    const stubCreateTree = sinon
+    const stubCreateTree = sandbox
       .stub(octokit.git, 'createTree')
       .resolves(createTreeResponse);
     // tests
@@ -142,12 +143,12 @@ describe('Push', () => {
       sha,
       tree
     );
-    sinon.assert.calledOnceWithExactly(stubGetCommit, {
+    sandbox.assert.calledOnceWithExactly(stubGetCommit, {
       owner: origin.owner,
       repo: origin.repo,
       commit_sha: sha,
     });
-    sinon.assert.calledWithExactly(stubCreateTree, {
+    sandbox.assert.calledWithExactly(stubCreateTree, {
       owner: origin.owner,
       repo: origin.repo,
       tree,
@@ -158,8 +159,9 @@ describe('Push', () => {
 });
 
 describe('Commit', () => {
-  beforeEach(() => {
-    sinon.restore();
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
   });
   const origin: RepoDomain = {
     owner: 'Foo',
@@ -179,7 +181,7 @@ describe('Commit', () => {
       url: 'http://fake-url.com',
       data: createCommitResponseData,
     };
-    const stubCreateCommit = sinon
+    const stubCreateCommit = sandbox
       .stub(octokit.git, 'createCommit')
       .resolves(createCommitResponse);
     // tests
@@ -192,7 +194,7 @@ describe('Commit', () => {
       message
     );
     expect(sha).equals(createCommitResponse.data.sha);
-    sinon.assert.calledOnceWithExactly(stubCreateCommit, {
+    sandbox.assert.calledOnceWithExactly(stubCreateCommit, {
       owner: origin.owner,
       repo: origin.repo,
       message,
@@ -203,8 +205,9 @@ describe('Commit', () => {
 });
 
 describe('Update branch reference', () => {
-  beforeEach(() => {
-    sinon.restore();
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
   });
   const origin: RepoDomain = {
     owner: 'Foo',
@@ -213,10 +216,10 @@ describe('Update branch reference', () => {
   const sha = 'asdf1234';
   it('Invokes octokit function called with correct values', async () => {
     // setup
-    const stubUpdateRef = sinon.stub(octokit.git, 'updateRef');
+    const stubUpdateRef = sandbox.stub(octokit.git, 'updateRef');
     // tests
     await handler.updateRef(logger, octokit, origin, 'test-branch-name', sha);
-    sinon.assert.calledOnceWithExactly(stubUpdateRef, {
+    sandbox.assert.calledOnceWithExactly(stubUpdateRef, {
       owner: origin.owner,
       repo: origin.repo,
       sha,
@@ -226,6 +229,7 @@ describe('Update branch reference', () => {
 });
 
 describe('Commit and push function', async () => {
+  const sandbox = sinon.createSandbox();
   const oldHeadSha = 'OLD-head-Sha-asdf1234';
   const changes: Changes = new Map();
   const origin: RepoDomain = {
@@ -263,21 +267,21 @@ describe('Commit and push function', async () => {
     url: 'http://fake-url.com',
     data: createCommitResponseData,
   };
-  beforeEach(() => {
-    sinon.restore();
+  afterEach(() => {
+    sandbox.restore();
   });
   it('When everything works it calls functions with correct parameter values', async () => {
     // setup
-    const stubGetCommit = sinon
+    const stubGetCommit = sandbox
       .stub(octokit.git, 'getCommit')
       .resolves(getCommitResponse);
-    const stubCreateTree = sinon
+    const stubCreateTree = sandbox
       .stub(octokit.git, 'createTree')
       .resolves(createTreeResponse);
-    const stubCreateCommit = sinon
+    const stubCreateCommit = sandbox
       .stub(octokit.git, 'createCommit')
       .resolves(createCommitResponse);
-    const stubUpdateRef = sinon.stub(octokit.git, 'updateRef');
+    const stubUpdateRef = sandbox.stub(octokit.git, 'updateRef');
     // tests
     await handler.commitAndPush(
       logger,
@@ -288,25 +292,25 @@ describe('Commit and push function', async () => {
       branchName,
       message
     );
-    sinon.assert.calledOnceWithExactly(stubGetCommit, {
+    sandbox.assert.calledOnceWithExactly(stubGetCommit, {
       owner: origin.owner,
       repo: origin.repo,
       commit_sha: oldHeadSha,
     });
-    sinon.assert.calledWithExactly(stubCreateTree, {
+    sandbox.assert.calledWithExactly(stubCreateTree, {
       owner: origin.owner,
       repo: origin.repo,
       tree: [],
       base_tree: getCommitResponse.data.tree.sha,
     });
-    sinon.assert.calledOnceWithExactly(stubCreateCommit, {
+    sandbox.assert.calledOnceWithExactly(stubCreateCommit, {
       owner: origin.owner,
       repo: origin.repo,
       message,
       tree: createTreeResponse.data.sha,
       parents: [oldHeadSha],
     });
-    sinon.assert.calledOnceWithExactly(stubUpdateRef, {
+    sandbox.assert.calledOnceWithExactly(stubUpdateRef, {
       owner: origin.owner,
       repo: origin.repo,
       sha: createCommitResponse.data.sha,
@@ -316,7 +320,7 @@ describe('Commit and push function', async () => {
   it('Forwards GitHub error if getCommit fails', async () => {
     // setup
     const commitErrorMsg = 'Error committing';
-    sinon.stub(octokit.git, 'getCommit').rejects(Error(commitErrorMsg));
+    sandbox.stub(octokit.git, 'getCommit').rejects(Error(commitErrorMsg));
     try {
       // tests
       await handler.createTree(logger, octokit, origin, '', []);
@@ -327,8 +331,8 @@ describe('Commit and push function', async () => {
   it('Forwards GitHub error if createTree fails', async () => {
     // setup
     const createTreeErrorMsg = 'Error committing';
-    sinon.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
-    sinon.stub(octokit.git, 'createTree').rejects(Error(createTreeErrorMsg));
+    sandbox.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
+    sandbox.stub(octokit.git, 'createTree').rejects(Error(createTreeErrorMsg));
     try {
       // tests
       await handler.createTree(logger, octokit, origin, '', []);
@@ -338,10 +342,10 @@ describe('Commit and push function', async () => {
   });
   it('Forwards GitHub error if createCommit fails', async () => {
     // setup
-    sinon.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
-    sinon.stub(octokit.git, 'createTree').resolves(createTreeResponse);
+    sandbox.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
+    sandbox.stub(octokit.git, 'createTree').resolves(createTreeResponse);
     const createCommitErrorMsg = 'Error creating commit';
-    sinon
+    sandbox
       .stub(octokit.git, 'createCommit')
       .rejects(Error(createCommitErrorMsg));
     try {
@@ -353,11 +357,11 @@ describe('Commit and push function', async () => {
   });
   it('Forwards GitHub error if updateRef fails', async () => {
     // setup
-    sinon.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
-    sinon.stub(octokit.git, 'createTree').resolves(createTreeResponse);
-    sinon.stub(octokit.git, 'createCommit').resolves(createCommitResponse);
+    sandbox.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
+    sandbox.stub(octokit.git, 'createTree').resolves(createTreeResponse);
+    sandbox.stub(octokit.git, 'createCommit').resolves(createCommitResponse);
     const updateRefErrorMsg = 'Error updating reference';
-    sinon.stub(octokit.git, 'updateRef').rejects(Error(updateRefErrorMsg));
+    sandbox.stub(octokit.git, 'updateRef').rejects(Error(updateRefErrorMsg));
     try {
       // tests
       await handler.createTree(logger, octokit, origin, '', []);
