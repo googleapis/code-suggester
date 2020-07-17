@@ -28,7 +28,7 @@ npm i code-suggester
 ### Example
 
 ```
-import * as suggest from "code-suggester";
+import { makePr } from "code-suggester";
 
 async function main() {
   const octokit = new Octokit({ auth: process.env.ACCESS_TOKEN });
@@ -40,7 +40,7 @@ async function main() {
          content: 'hello world!'
       }
     };
-  await suggest.makePr(
+  await makePr(
     changes,
     octokit,
     'Foo-Repo',
@@ -50,12 +50,12 @@ async function main() {
 
 ```
 
-### suggest.makePr(options)
+### makePr(options)
 
 The `makePr()` method creates a GitHub Pull request with the files given as input.
 
 #### Syntax
-`suggest.makePr(octokit, changes, config [, logger])`
+`makePr(octokit, changes, config [, logger])`
 
 #### Parameters
 #### `octokit`
@@ -69,8 +69,8 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 **FileData Object**
 |  field 	|   type	|   description	|
 |---	|---	|---	|
-|   mode	|   `'100644' | '100755' | '040000' | '160000' | '120000'`	|  The file type as specified in the [GitHub API](https://developer.github.com/v3/git/trees/#tree-object). Default is `'100644'`. From the docs: "The file mode; one of 100644 for file (blob), 100755 for executable (blob), 040000 for subdirectory (tree), 160000 for submodule (commit), or 120000 for a blob that specifies the path of a symlink."|
-|   changes	|  `string | null` 	|  **Required.** The entire file contents  	|
+|   mode	|   `'100644' \| '100755' \| '040000' \| '160000' \| '120000'`	|  The file type as specified in the [GitHub API](https://developer.github.com/v3/git/trees/#tree-object). Default is `'100644'`. From the docs: "The file mode; one of 100644 for file (blob), 100755 for executable (blob), 040000 for subdirectory (tree), 160000 for submodule (commit), or 120000 for a blob that specifies the path of a symlink."|
+|   content	|  `string | null` 	|  **Required.** The entire file contents  	|
 
 #### `config`
 *Config Object* <br>
@@ -158,7 +158,7 @@ Whether or not to force push a reference with different commit history before th
 
 ### Example
 ```
-code-suggester pr --o='Foo' --r='Bar' --git-dir="/my-project"
+code-suggester pr -o 'Foo' -r 'Bar' --git-dir="/my-project"
 ```
 
 ## Supported Node.js Versions
