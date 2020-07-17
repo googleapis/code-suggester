@@ -69,8 +69,8 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 **FileData Object**
 |  field 	|   type	|   description	|
 |---	|---	|---	|
-|   mode	|   `'100644' | '100755' | '040000' | '160000' | '120000'`	|  The file type as specified in the [GitHub API](https://developer.github.com/v3/git/trees/#tree-object). Default is `'100644'`. From the docs: "The file mode; one of 100644 for file (blob), 100755 for executable (blob), 040000 for subdirectory (tree), 160000 for submodule (commit), or 120000 for a blob that specifies the path of a symlink."|
-|   changes	|  `string | null` 	|  **Required.** The entire file contents  	|
+|   mode	|   `'100644' \| '100755' \| '040000' \| '160000' \| '120000'`	|  The file type as specified in the [GitHub API](https://developer.github.com/v3/git/trees/#tree-object). Default is `'100644'`. From the docs: "The file mode; one of 100644 for file (blob), 100755 for executable (blob), 040000 for subdirectory (tree), 160000 for submodule (commit), or 120000 for a blob that specifies the path of a symlink."|
+|   changes	|  `string \| null` 	|  **Required.** The entire file contents  	|
 
 #### `config`
 *Config Object* <br>
@@ -113,43 +113,43 @@ npm i code-suggester -g
 
 #### Options
 
-#### --upstream-repo, -r
+#### `--upstream-repo, -r`
 *string* <br>
 **Required.** The repository to create the fork off of.
 
 
-#### --upstream-owner, -o
+#### `--upstream-owner, -o`
 *string* <br>
 **Required.** The owner of the upstream repository.
 
 
-#### --description, -d
+#### `--description, -d`
 *string* <br>
 The GitHub Pull Request description. *Default* value is: `code suggestions`.
 
-#### --title, -t
+#### `--title, -t`
 *string* <br>
 The GitHub Pull Request title. *Default* value is: `chore: code suggestions`.
 
-#### --branch, -b
+#### `--branch, -b`
 *string* <br>
 The GitHub working branch name. *Default* value is: `code-suggestions`.
 
-#### --message, -m
+#### `--message, -m`
 *string* <br>
 The GitHub commit message. *Default* value is: `code suggestions`.
 
-#### --force, -f
+#### `--force, -f`
 *boolean* <br>
 Whether or not to force push a reference with different commit history before the remote reference HEAD. *Default* value is: `false`.
 
-#### --files [\<file1\>...]
+#### `--files [\<file1\>...]`
 *string* <br>
 **Required.** A list of files
 
 **Note:** Use either `--files` or `--git-dir` exclusively. Using both with terminate with an error.
 
-#### --git-dir
+#### `--git-dir`
 *string* <br>
 **Required.** The path of a git directory
 
