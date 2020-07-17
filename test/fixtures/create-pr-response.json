@@ -187,7 +187,7 @@
         "permission": "admin",
         "members_url": "https://api.github.com/teams/1/members{/member}",
         "repositories_url": "https://api.github.com/teams/1/repos",
-        "parent": "null"
+        "parent": {}
       }
     ],
     "head": {
@@ -317,7 +317,7 @@
           "pull": true
         },
         "allow_rebase_merge": true,
-        "template_repository": "null",
+        "template_repository": {},
         "temp_clone_token": "ABTLWHOULUVAXGTRYU7OC2876QJ2O",
         "allow_squash_merge": true,
         "delete_branch_on_merge": true,
@@ -453,7 +453,7 @@
           "pull": true
         },
         "allow_rebase_merge": true,
-        "template_repository": "null",
+        "template_repository": {},
         "temp_clone_token": "ABTLWHOULUVAXGTRYU7OC2876QJ2O",
         "allow_squash_merge": true,
         "delete_branch_on_merge": true,
