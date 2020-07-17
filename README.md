@@ -55,14 +55,14 @@ async function main() {
 The `makePr()` method creates a GitHub Pull request with the files given as input.
 
 #### Syntax
-> suggest.makePr(octokit, changes, config [, logger])
+`suggest.makePr(octokit, changes, config [, logger])`
 
 #### Parameters
-#### octokit
+#### `octokit`
 *[octokit](https://github.com/octokit/rest.js/)* <br>
 **Required.** An authenticated [octokit](https://github.com/octokit/rest.js/) instance
 
-#### changes
+#### `changes`
 *Map<string, FileData>* <br>
 **Required.** A set of files with their respective file contents conforming where the key is the file path, and the value is the a FileData object.
 
@@ -72,7 +72,7 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 |   mode	|   `'100644' | '100755' | '040000' | '160000' | '120000'`	|  The file type as specified in the [GitHub API](https://developer.github.com/v3/git/trees/#tree-object). Default is `'100644'`. From the docs: "The file mode; one of 100644 for file (blob), 100755 for executable (blob), 040000 for subdirectory (tree), 160000 for submodule (commit), or 120000 for a blob that specifies the path of a symlink."|
 |   changes	|  `string | null` 	|  **Required.** The entire file contents  	|
 
-#### config
+#### `config`
 *Config Object* <br>
 **Required.**
 
@@ -89,7 +89,7 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 
 
 
-#### logger
+#### `logger`
 *[Logger](https://www.npmjs.com/package/@types/pino)* <br>
 The default logger is [Pino](https://github.com/pinojs/pino). You can plug in any logger that conforms to [Pino's interface](https://www.npmjs.com/package/@types/pino)
 
@@ -108,7 +108,7 @@ npm i code-suggester -g
 #### Syntax
 
 
-> code-suggester pr [options] --upstream-repo=<string> --upstream-owner=<string>
+`code-suggester pr [options] --upstream-repo=<string> --upstream-owner=<string>`
 
 
 #### Options
