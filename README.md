@@ -13,17 +13,18 @@
 
 ## Description
 Code-suggester automates the steps involved in making code changes to your [GitHub](https://github.com/) repository changes. You can import code-suggester
-1. as a [node package library](#Core-Library-Usage), or
+1. as a [node package library](#Core-Library), or
 2. as a [CLI](#CLI) tool!
 
-## Installation
+
+## Core Library
+
+### Installation
 
 ```bash
-npm install @google-cloud/code-suggester
+npm i code-suggester
 ```
 
-
-## Core Library Usage
 ### Example
 
 ```
@@ -49,16 +50,16 @@ async function main() {
 
 ```
 
-### makePr()
+### suggest.makePr(options)
 
-The `suggest.makePr()` method creates a GitHub Pull request with the files given as input.
+The `makePr()` method creates a GitHub Pull request with the files given as input.
 
 #### Syntax
 > suggest.makePr(octokit, changes, config [, logger])
 
-### Parameters
+#### Parameters
 #### octokit
-*Octokit* <br>
+*[octokit](https://github.com/octokit/rest.js/)* <br>
 **Required.** An authenticated [octokit](https://github.com/octokit/rest.js/) instance
 
 #### changes
@@ -72,7 +73,7 @@ The `suggest.makePr()` method creates a GitHub Pull request with the files given
 |   changes	|  `string | null` 	|  **Required.** The entire file contents  	|
 
 #### config
-*Object* <br>
+*Config Object* <br>
 **Required.**
 
 **Config Object**
@@ -89,22 +90,28 @@ The `suggest.makePr()` method creates a GitHub Pull request with the files given
 
 
 #### logger
-*Object* <br>
+*[Logger](https://www.npmjs.com/package/@types/pino)* <br>
 The default logger is [Pino](https://github.com/pinojs/pino). You can plug in any logger that conforms to [Pino's interface](https://www.npmjs.com/package/@types/pino)
 
 
 ## CLI
 
-### Name
-`code-suggester pr` - opens a GitHub Pull Request containing the a set of files.
-
-### Synopsis
+### Installation
 
 ```bash
-code-suggester pr [options] --upstream-repo=<string> --upstream-owner=<string>
+npm i code-suggester -g
 ```
 
-### Options
+### code-suggester pr
+`code-suggester pr` - opens a GitHub Pull Request containing the a set of files.
+
+#### Syntax
+
+
+> code-suggester pr [options] --upstream-repo=<string> --upstream-owner=<string>
+
+
+#### Options
 
 #### --upstream-repo, -r
 *string* <br>
@@ -153,6 +160,27 @@ Whether or not to force push a reference with different commit history before th
 ```
 code-suggester pr --o='Foo' --r='Bar' --git-dir="/my-project"
 ```
+
+## Supported Node.js Versions
+
+Our client libraries follow the [Node.js release schedule](https://nodejs.org/en/about/releases/).
+Libraries are compatible with all current _active_ and _maintenance_ versions of
+Node.js.
+
+Client libraries targeting some end-of-life versions of Node.js are available, and
+can be installed via npm [dist-tags](https://docs.npmjs.com/cli/dist-tag).
+The dist-tags follow the naming convention `legacy-(version)`.
+
+_Legacy Node.js versions are supported as a best effort:_
+
+* Legacy versions will not be tested in continuous integration.
+* Some security patches may not be able to be backported.
+* Dependencies will not be kept up-to-date, and features will not be backported.
+
+#### Legacy tags available
+
+* `legacy-8`: install client libraries from this dist-tag for versions
+  compatible with Node.js 8.
 
 
 ## Versioning
