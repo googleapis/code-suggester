@@ -143,7 +143,7 @@ The GitHub commit message. *Default* value is: `code suggestions`.
 *boolean* <br>
 Whether or not to force push a reference with different commit history before the remote reference HEAD. *Default* value is: `false`.
 
-#### `--files [\<file1\>...]`
+#### `--files [<file1>...]`
 *string* <br>
 **Required.** A list of files
 
