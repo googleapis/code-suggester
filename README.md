@@ -113,43 +113,43 @@ npm i code-suggester -g
 
 #### Options
 
-#### --upstream-repo, -r
+#### `--upstream-repo, -r`
 *string* <br>
 **Required.** The repository to create the fork off of.
 
 
-#### --upstream-owner, -o
+#### `--upstream-owner, -o`
 *string* <br>
 **Required.** The owner of the upstream repository.
 
 
-#### --description, -d
+#### `--description, -d`
 *string* <br>
 The GitHub Pull Request description. *Default* value is: `code suggestions`.
 
-#### --title, -t
+#### `--title, -t`
 *string* <br>
 The GitHub Pull Request title. *Default* value is: `chore: code suggestions`.
 
-#### --branch, -b
+#### `--branch, -b`
 *string* <br>
 The GitHub working branch name. *Default* value is: `code-suggestions`.
 
-#### --message, -m
+#### `--message, -m`
 *string* <br>
 The GitHub commit message. *Default* value is: `code suggestions`.
 
-#### --force, -f
+#### `--force, -f`
 *boolean* <br>
 Whether or not to force push a reference with different commit history before the remote reference HEAD. *Default* value is: `false`.
 
-#### --files [\<file1\>...]
+#### `--files [<file1>...]`
 *string* <br>
 **Required.** A list of files
 
 **Note:** Use either `--files` or `--git-dir` exclusively. Using both with terminate with an error.
 
-#### --git-dir
+#### `--git-dir`
 *string* <br>
 **Required.** The path of a git directory
 
