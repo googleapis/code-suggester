@@ -15,10 +15,39 @@
 import {Level, Logger} from '../logger';
 import {Octokit} from '@octokit/rest';
 
-// a flat object of the path of the file as the key, and the text contents as a value
-interface Files {
-  [index: string]: string;
+type FileMode = '100644' | '100755' | '040000' | '160000' | '120000';
+
+/**
+ * GitHub definition of tree
+ */
+declare interface TreeObject {
+  path: string;
+  mode: FileMode;
+  type: 'blob' | 'tree' | 'commit';
+  sha?: string | null;
+  content?: string;
 }
+
+/**
+ * The content and the mode of a file.
+ * Default file mode is a text file which has code '100644'.
+ * If `content` is not null, then `content` must be the entire file content.
+ * See https://developer.github.com/v3/git/trees/#tree-object for details on mode.
+ */
+class FileData {
+  readonly mode: FileMode;
+  readonly content: string | null;
+  constructor(content: string | null, mode: FileMode = '100644') {
+    this.mode = mode;
+    this.content = content;
+  }
+}
+
+/**
+ * The map of a path to its content data.
+ * The content must be the entire file content.
+ */
+type Changes = Map<string, FileData>;
 
 /**
  * The domain of a repository
@@ -76,9 +105,11 @@ interface GitHubContext {
 }
 
 export {
+  Changes,
+  FileData,
+  TreeObject,
   BranchDomain,
   Description,
-  Files,
   GitHubContextParam,
   GitHubContext,
   Level,
