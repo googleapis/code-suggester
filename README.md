@@ -12,9 +12,9 @@
 
 
 ## Description
-Code-suggester automates the steps involved in making code changes to your [GitHub](https://github.com/) repository changes. You can import code-suggester
-1. as a [node package library](#Core-Library), or
-2. as a [CLI](#CLI) tool!
+Code-suggester automates the steps involved in making code changes or code suggestions to your [GitHub](https://github.com/) repository! Code-suggester
+1. can be imported as a [library](#Core-Library), or
+2. used as a [CLI](#CLI) tool
 
 
 ## Core Library
@@ -59,7 +59,7 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 
 #### Parameters
 #### `octokit`
-*[octokit](https://github.com/octokit/rest.js/)* <br>
+*octokit* <br>
 **Required.** An authenticated [octokit](https://github.com/octokit/rest.js/) instance
 
 #### `changes`
@@ -70,13 +70,13 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 |  field 	|   type	|   description	|
 |---	|---	|---	|
 |   mode	|   `'100644' \| '100755' \| '040000' \| '160000' \| '120000'`	|  The file type as specified in the [GitHub API](https://developer.github.com/v3/git/trees/#tree-object). Default is `'100644'`. From the docs: "The file mode; one of 100644 for file (blob), 100755 for executable (blob), 040000 for subdirectory (tree), 160000 for submodule (commit), or 120000 for a blob that specifies the path of a symlink."|
-|   content	|  `string \| null` 	|  **Required.** The entire file contents  	|
+|   content	|  `string | null` 	|  **Required.** The entire file contents  	|
 
-#### `prOptions`
-*Object* <br>
-**Required.**
+#### `config`
+*Config Object* <br>
+**Required.** Descriptive values or enforced rules for pull requests, branching, and commits.
 
-**prOptions Object**
+**Config Object**
 |      field      |     type  	|   description	|
 |---------------	|-----------	|-------------	|
 |   upstreamRepo	|   `string`	| **Required.** The repository to suggest changes to.  |
@@ -84,8 +84,9 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 |   description	  |   `string`	| The GitHub Pull Request description. Default is `'code suggestions'`.  |
 |   title       	|   `string`	| The GitHub Pull Request title. Default is `'chore: code suggestions'`.      |
 |   branch	      |   `string`	| The branch containing the changes. Default is `'code-suggestions'`.   |
-|   message     	|   `string`	| The commit message for the changes. Default is `'code suggestions'`. |
-|   force	        |   `string`	| Whether or not to force push the reference even if the ancestor commits differs. Default is `false`. |
+|   primary	      |   `string`	| The primary upstream branch to open a PR against. Default is `'master'`.   |
+|   message     	|   `string`	| The commit message for the changes. Default is `'code suggestions'`. We recommend following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/).|
+|   force	        |   `boolean`	| Whether or not to force push the reference even if the ancestor commits differs. Default is `false`. |
 
 
 
@@ -93,6 +94,9 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 *[Logger](https://www.npmjs.com/package/@types/pino)* <br>
 The default logger is [Pino](https://github.com/pinojs/pino). You can plug in any logger that conforms to [Pino's interface](https://www.npmjs.com/package/@types/pino)
 
+
+#### Exceptions
+The core-library will throw an exception if the [GitHub V3 API](https://developer.github.com/v3/) returns an error response, or if the response data format did not come back as expected. <br>
 
 ## CLI
 
@@ -103,7 +107,7 @@ npm i code-suggester -g
 ```
 
 ### code-suggester pr
-`code-suggester pr` - opens a GitHub Pull Request containing the a set of files.
+`code-suggester pr` - opens a GitHub Pull Request against the upstream primary branch with the provided set of changes.
 
 #### Syntax
 
@@ -113,43 +117,47 @@ npm i code-suggester -g
 
 #### Options
 
-##### `--upstream-repo, -r`
+#### `--upstream-repo, -r`
 *string* <br>
 **Required.** The repository to create the fork off of.
 
 
-##### `--upstream-owner, -o`
+#### `--upstream-owner, -o`
 *string* <br>
 **Required.** The owner of the upstream repository.
 
 
-##### `--description, -d`
+#### `--description, -d`
 *string* <br>
-The GitHub Pull Request description. *Default* value is: `code suggestions`.
+The GitHub Pull Request description. Default value is: `'code suggestions'`.
 
-##### `--title, -t`
+#### `--title, -t`
 *string* <br>
-The GitHub Pull Request title. *Default* value is: `chore: code suggestions`.
+The GitHub Pull Request title. Default value is: `'chore: code suggestions'`.
 
-##### `--branch, -b`
+#### `--branch, -b`
 *string* <br>
-The GitHub working branch name. *Default* value is: `code-suggestions`.
+The GitHub working branch name. Default value is: `'code-suggestions'`.
 
-##### `--message, -m`
+#### `--primary, -p`
 *string* <br>
-The GitHub commit message. *Default* value is: `code suggestions`.
+The primary upstream branch to open a PR against. Default value is: `'master'`.
 
-##### `--force, -f`
+#### `--message, -m`
+*string* <br>
+The GitHub commit message. Default value is: `'code suggestions'`.
+
+#### `--force, -f`
 *boolean* <br>
-Whether or not to force push a reference with different commit history before the remote reference HEAD. *Default* value is: `false`.
+Whether or not to force push a reference with different commit history before the remote reference HEAD. Default value is: `false`.
 
-##### `--files [<file1>...]`
+#### `--files [<file1>...]`
 *string* <br>
 **Required.** A list of files
 
 **Note:** Use either `--files` or `--git-dir` exclusively. Using both with terminate with an error.
 
-##### `--git-dir`
+#### `--git-dir`
 *string* <br>
 **Required.** The path of a git directory
 
