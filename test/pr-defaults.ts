@@ -16,7 +16,7 @@ import {expect} from 'chai';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
 import {GitHubPrUserOptions} from '../src/types';
-import {addPrDefaults} from '../src/default-options-handler';
+import {addPrOptionDefaults} from '../src/default-options-handler';
 
 before(() => {
   setup();
@@ -28,7 +28,7 @@ describe('Create with defaults', () => {
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
     };
-    const gitHubPr1 = addPrDefaults(upstreamOnly);
+    const gitHubPr1 = addPrOptionDefaults(upstreamOnly);
     expect(gitHubPr1).to.deep.equal({
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
@@ -45,7 +45,7 @@ describe('Create with defaults', () => {
       upstreamRepo: 'repo',
       primary: 'non-default-primary-branch',
     };
-    const gitHubPr2 = addPrDefaults(upstreamAndPrimary);
+    const gitHubPr2 = addPrOptionDefaults(upstreamAndPrimary);
     expect(gitHubPr2).to.deep.equal({
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
@@ -63,7 +63,7 @@ describe('Create with defaults', () => {
       description: 'Non-default PR description',
       title: 'chore: code suggestions non-default PR ttile',
     };
-    const gitHubPr3 = addPrDefaults(upstreamAndPrDescription);
+    const gitHubPr3 = addPrOptionDefaults(upstreamAndPrDescription);
     expect(gitHubPr3).to.deep.equal({
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
@@ -88,7 +88,7 @@ describe('Create with defaults', () => {
       primary: 'non-default-primary-branch',
       maintainersCanModify: false,
     };
-    const gitHubPr = addPrDefaults(options);
+    const gitHubPr = addPrOptionDefaults(options);
     expect(gitHubPr).to.deep.equal(options);
   });
 });

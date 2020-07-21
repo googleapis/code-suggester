@@ -20,10 +20,11 @@ const defaultMessage = 'chore: code suggestions';
 const defaultPrimaryBranch = 'master';
 
 /**
- * @param options the user-provided github context
- * @returns git hub context with defaults applied
+ * Add defaults to GitHub PR data
+ * @param {GitHubPrUserOptions} options the user-provided github context
+ * @returns {GitHubPr} git hub context with defaults applied
  */
-function addPrDefaults(options: GitHubPrUserOptions): GitHubPr {
+function addPrOptionDefaults(options: GitHubPrUserOptions): GitHubPr {
   const gitHubPr: GitHubPr = {
     upstreamOwner: options.upstreamOwner,
     upstreamRepo: options.upstreamRepo,
@@ -38,4 +39,4 @@ function addPrDefaults(options: GitHubPrUserOptions): GitHubPr {
   return gitHubPr;
 }
 
-export {addPrDefaults};
+export {addPrOptionDefaults};
