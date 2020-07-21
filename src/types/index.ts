@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Level, Logger} from '../logger';
+import {Logger} from '../logger';
 import {Octokit} from '@octokit/rest';
 
 type FileMode = '100644' | '100755' | '040000' | '160000' | '120000';
@@ -75,33 +75,49 @@ interface Description {
 /**
  * The user parameter for GitHub data needed for creating a PR
  */
-interface GitHubContextParam {
+interface GitHubPrUserOptions {
   // the owner of the target fork repository
   upstreamOwner: string;
   // the name of the target fork repository
   upstreamRepo: string;
   // the name of the branch to push changes to
-  originBranch?: string;
+  branch?: string;
+  // the message of any commits made
+  message?: string;
   // the description of the pull request
-  prDescription?: string;
+  description?: string;
   // the title of the pull request
-  prTitle?: string;
+  title?: string;
+  // whether or not to force branch reference updates
+  force?: boolean;
+  // primary upstream branch to open PRs against
+  primary?: string;
+  // whether or not maintainers can modify the PR
+  maintainersCanModify?: boolean;
 }
 
 /**
  * GitHub data needed for creating a PR
  */
-interface GitHubContext {
+interface GitHubPr {
   // the owner of the target fork repository
   upstreamOwner: string;
   // the name of the target fork repository
   upstreamRepo: string;
   // the name of the branch to push changes to
-  originBranch: string;
+  branch: string;
+  // the message of any commits made
+  message: string;
   // the description of the pull request
-  prDescription: string;
+  description: string;
   // the title of the pull request
-  prTitle: string;
+  title: string;
+  // whether or not to force branch reference updates
+  force: boolean;
+  // primary upstream branch to open PRs against
+  primary: string;
+  // whether or not maintainers can modify the PR
+  maintainersCanModify: boolean;
 }
 
 export {
@@ -110,9 +126,8 @@ export {
   TreeObject,
   BranchDomain,
   Description,
-  GitHubContextParam,
-  GitHubContext,
-  Level,
+  GitHubPrUserOptions,
+  GitHubPr,
   Logger,
   Octokit,
   RepoDomain,

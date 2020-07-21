@@ -14,7 +14,7 @@
 
 import {expect} from 'chai';
 import {describe, it, before} from 'mocha';
-import {logger, octokit, setup} from './util';
+import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {fork} from '../src/github-handler/fork-handler';
 
@@ -24,7 +24,7 @@ before(() => {
 
 describe('Forking function', () => {
   const sandbox = sinon.createSandbox();
-  beforeEach(() => {
+  afterEach(() => {
     sandbox.restore();
   });
   const upstream = {owner: 'upstream-owner', repo: 'upstream-repo'};
@@ -41,7 +41,7 @@ describe('Forking function', () => {
       .stub(octokit.repos, 'createFork')
       .resolves(createRefResponse);
     // tests
-    await fork(logger, octokit, upstream);
+    await fork(octokit, upstream);
     sandbox.assert.calledOnceWithExactly(stub, {
       owner: upstream.owner,
       repo: upstream.repo,
@@ -58,7 +58,7 @@ describe('Forking function', () => {
     // setup
     sandbox.stub(octokit.repos, 'createFork').resolves(createRefResponse);
     // tests
-    const res = await fork(logger, octokit, upstream);
+    const res = await fork(octokit, upstream);
     expect(res.owner).equals(responseData.owner.login);
     expect(res.repo).equals(responseData.name);
   });
@@ -67,7 +67,7 @@ describe('Forking function', () => {
     const errorMsg = 'Error message';
     sandbox.stub(octokit.repos, 'createFork').rejects(errorMsg);
     try {
-      await fork(logger, octokit, upstream);
+      await fork(octokit, upstream);
       expect.fail(
         'The fork function should have failed because Octokit failed.'
       );
