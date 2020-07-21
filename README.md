@@ -60,7 +60,7 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 #### Parameters
 #### `octokit`
 *octokit* <br>
-**Required.** An authenticated [octokit](https://github.com/octokit/rest.js/) instance
+**Required.** An authenticated [octokit](https://github.com/octokit/rest.js/) instance.
 
 #### `changes`
 *Map<string, FileData>* <br>
@@ -70,7 +70,7 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 |  field 	|   type	|   description	|
 |---	|---	|---	|
 |   mode	|   `'100644' \| '100755' \| '040000' \| '160000' \| '120000'`	|  The file type as specified in the [GitHub API](https://developer.github.com/v3/git/trees/#tree-object). Default is `'100644'`. From the docs: "The file mode; one of 100644 for file (blob), 100755 for executable (blob), 040000 for subdirectory (tree), 160000 for submodule (commit), or 120000 for a blob that specifies the path of a symlink."|
-|   content	|  `string \| null` 	|  **Required.** The entire file contents  	|
+|   content	|  `string \| null` 	|  **Required.** The entire file contents.  	|
 
 #### `prOptions`
 *Pull Request Options Object* <br>
