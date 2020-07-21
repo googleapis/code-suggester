@@ -70,13 +70,13 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 |  field 	|   type	|   description	|
 |---	|---	|---	|
 |   mode	|   `'100644' \| '100755' \| '040000' \| '160000' \| '120000'`	|  The file type as specified in the [GitHub API](https://developer.github.com/v3/git/trees/#tree-object). Default is `'100644'`. From the docs: "The file mode; one of 100644 for file (blob), 100755 for executable (blob), 040000 for subdirectory (tree), 160000 for submodule (commit), or 120000 for a blob that specifies the path of a symlink."|
-|   content	|  `string | null` 	|  **Required.** The entire file contents  	|
+|   content	|  `string \| null` 	|  **Required.** The entire file contents  	|
 
-#### `config`
-*Config Object* <br>
+#### `prOptions`
+*Pull Request Options Object* <br>
 **Required.** Descriptive values or enforced rules for pull requests, branching, and commits.
 
-**Config Object**
+**Pull Request Options Object**
 |      field      |     type  	|   description	|
 |---------------	|-----------	|-------------	|
 |   upstreamRepo	|   `string`	| **Required.** The repository to suggest changes to.  |
