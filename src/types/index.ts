@@ -73,26 +73,26 @@ interface Description {
 }
 
 /**
- * The user parameter for GitHub data needed for creating a PR
+ * The user options for creating GitHub PRs
  */
 interface GitHubPrUserOptions {
   // the owner of the target fork repository
   upstreamOwner: string;
   // the name of the target fork repository
   upstreamRepo: string;
-  // the name of the branch to push changes to
+  // the name of the branch to push changes to. Default is 'chore: code-suggestions'. (optional)
   branch?: string;
-  // the message of any commits made
+  // The message of any commits made. Default is 'chore: code suggestions'. (optional)
   message?: string;
-  // the description of the pull request
+  // The description of the pull request. Default is 'code suggestions'. (optional)
   description?: string;
-  // the title of the pull request
+  // The title of the pull request. Default is 'chore: code-suggestions'. (optional)
   title?: string;
-  // whether or not to force branch reference updates
+  // Whether or not to force branch reference updates. Default is false. (optional)
   force?: boolean;
-  // primary upstream branch to open PRs against
+  // Primary upstream branch to open PRs against. Default is 'master' (optional)
   primary?: string;
-  // whether or not maintainers can modify the PR
+  // Whether or not maintainers can modify the PR. Default is true. (optional)
   maintainersCanModify?: boolean;
 }
 
@@ -104,19 +104,19 @@ interface GitHubPr {
   upstreamOwner: string;
   // the name of the target fork repository
   upstreamRepo: string;
-  // the name of the branch to push changes to
+  // the name of the branch to push changes to.
   branch: string;
-  // the message of any commits made
+  // The message of any commits made.
   message: string;
-  // the description of the pull request
+  // The description of the pull request.
   description: string;
-  // the title of the pull request
+  // The title of the pull request
   title: string;
-  // whether or not to force branch reference updates
+  // Whether or not to force branch reference updates.
   force: boolean;
-  // primary upstream branch to open PRs against
+  // Primary upstream branch to open PRs against.
   primary: string;
-  // whether or not maintainers can modify the PR
+  // Whether or not maintainers can modify the PR.
   maintainersCanModify: boolean;
 }
 

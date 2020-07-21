@@ -15,7 +15,7 @@
 import {GitHubPr, GitHubPrUserOptions} from './types';
 
 const defaultNameNoSpaces = 'code-suggestions';
-const defaultDescription = 'Code suggestions';
+const defaultDescription = 'code suggestions';
 const defaultMessage = 'chore: code suggestions';
 const defaultPrimaryBranch = 'master';
 
