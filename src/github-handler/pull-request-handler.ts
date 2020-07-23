@@ -28,7 +28,7 @@ const DEFAULT_PRIMARY = 'master';
  * @param {string} upstreamPrimary The upstream repository's primary branch. Default is master.
  * @returns {Promise<void>}
  */
-async function openPr(
+async function openPullRequest(
   octokit: Octokit,
   upstream: RepoDomain,
   origin: BranchDomain,
@@ -53,4 +53,4 @@ async function openPr(
   );
 }
 
-export {openPr};
+export {openPullRequest};

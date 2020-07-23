@@ -75,19 +75,19 @@ interface Description {
 /**
  * The user options for creating GitHub PRs
  */
-interface GitHubPrUserOptions {
+interface CreatePullRequestUserOptions {
   // the owner of the target fork repository
   upstreamOwner: string;
   // the name of the target fork repository
   upstreamRepo: string;
-  // the name of the branch to push changes to. Default is 'chore: code-suggestions'. (optional)
+  // The message of any commits made.
+  message: string;
+  // The description of the pull request.
+  description: string;
+  // The title of the pull request.
+  title: string;
+  // the name of the branch to push changes to. Default is 'code-suggestions'. (optional)
   branch?: string;
-  // The message of any commits made. Default is 'chore: code suggestions'. (optional)
-  message?: string;
-  // The description of the pull request. Default is 'code suggestions'. (optional)
-  description?: string;
-  // The title of the pull request. Default is 'chore: code-suggestions'. (optional)
-  title?: string;
   // Whether or not to force branch reference updates. Default is false. (optional)
   force?: boolean;
   // Primary upstream branch to open PRs against. Default is 'master' (optional)
@@ -99,19 +99,19 @@ interface GitHubPrUserOptions {
 /**
  * GitHub data needed for creating a PR
  */
-interface GitHubPr {
+interface CreatePullRequest {
   // the owner of the target fork repository
   upstreamOwner: string;
   // the name of the target fork repository
   upstreamRepo: string;
-  // the name of the branch to push changes to.
-  branch: string;
   // The message of any commits made.
   message: string;
   // The description of the pull request.
   description: string;
   // The title of the pull request
   title: string;
+  // the name of the branch to push changes to.
+  branch: string;
   // Whether or not to force branch reference updates.
   force: boolean;
   // Primary upstream branch to open PRs against.
@@ -123,11 +123,12 @@ interface GitHubPr {
 export {
   Changes,
   FileData,
+  FileMode,
   TreeObject,
   BranchDomain,
   Description,
-  GitHubPrUserOptions,
-  GitHubPr,
+  CreatePullRequestUserOptions,
+  CreatePullRequest,
   Logger,
   Octokit,
   RepoDomain,

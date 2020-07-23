@@ -9,6 +9,9 @@
   },
   "repository": "googleapis/code-suggester",
   "main": "build/src/index.js",
+  "module": "build/src/index.js",
+  "source": "build/src/index.js",
+  "types": "build/src/index.d.ts",
   "files": [
     "build/src"
   ],
@@ -33,7 +36,7 @@
     "prelint": "cd samples; npm link ../; npm i"
   },
   "dependencies": {
-    "@octokit/rest": "^18.0.0",
+    "@octokit/rest": "^18.0.1",
     "pino": "^6.3.2"
   },
   "devDependencies": {

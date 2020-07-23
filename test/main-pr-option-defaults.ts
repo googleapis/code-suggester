@@ -15,8 +15,8 @@
 import {expect} from 'chai';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
-import {GitHubPrUserOptions} from '../src/types';
-import {addPrOptionDefaults} from '../src/default-options-handler';
+import {CreatePullRequestUserOptions} from '../src/types';
+import {addPullRequestDefaults} from '../src/default-options-handler';
 
 before(() => {
   setup();
@@ -24,46 +24,53 @@ before(() => {
 
 describe('Create with defaults', () => {
   it('Populates all un-specified parameters with a default', () => {
-    const upstreamOnly: GitHubPrUserOptions = {
+    const upstreamOnly: CreatePullRequestUserOptions = {
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
+      description: 'custom description',
+      title: 'chore: custom title',
+      message: 'chore: custom description',
     };
-    const gitHubPr1 = addPrOptionDefaults(upstreamOnly);
+    const gitHubPr1 = addPullRequestDefaults(upstreamOnly);
     expect(gitHubPr1).to.deep.equal({
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
       branch: 'code-suggestions',
-      description: 'code suggestions',
-      title: 'chore: code suggestions',
       force: false,
-      message: 'chore: code suggestions',
+      description: 'custom description',
+      title: 'chore: custom title',
+      message: 'chore: custom description',
       primary: 'master',
       maintainersCanModify: true,
     });
-    const upstreamAndPrimary: GitHubPrUserOptions = {
+    const upstreamAndPrimary: CreatePullRequestUserOptions = {
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
       primary: 'non-default-primary-branch',
+      description: 'custom description',
+      title: 'chore: custom title',
+      message: 'chore: custom description',
     };
-    const gitHubPr2 = addPrOptionDefaults(upstreamAndPrimary);
+    const gitHubPr2 = addPullRequestDefaults(upstreamAndPrimary);
     expect(gitHubPr2).to.deep.equal({
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
       branch: 'code-suggestions',
-      description: 'code suggestions',
-      title: 'chore: code suggestions',
       force: false,
-      message: 'chore: code suggestions',
+      description: 'custom description',
+      title: 'chore: custom title',
+      message: 'chore: custom description',
       primary: 'non-default-primary-branch',
       maintainersCanModify: true,
     });
-    const upstreamAndPrDescription: GitHubPrUserOptions = {
+    const upstreamAndPrDescription: CreatePullRequestUserOptions = {
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
       description: 'Non-default PR description',
       title: 'chore: code suggestions non-default PR ttile',
+      message: 'chore: custom code suggestions message',
     };
-    const gitHubPr3 = addPrOptionDefaults(upstreamAndPrDescription);
+    const gitHubPr3 = addPullRequestDefaults(upstreamAndPrDescription);
     expect(gitHubPr3).to.deep.equal({
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
@@ -71,13 +78,13 @@ describe('Create with defaults', () => {
       description: 'Non-default PR description',
       title: 'chore: code suggestions non-default PR ttile',
       force: false,
-      message: 'chore: code suggestions',
+      message: 'chore: custom code suggestions message',
       primary: 'master',
       maintainersCanModify: true,
     });
   });
   it("Uses all of user's provided options", () => {
-    const options: GitHubPrUserOptions = {
+    const options: CreatePullRequestUserOptions = {
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
       branch: 'custom-code-suggestion-branch',
@@ -88,7 +95,7 @@ describe('Create with defaults', () => {
       primary: 'non-default-primary-branch',
       maintainersCanModify: false,
     };
-    const gitHubPr = addPrOptionDefaults(options);
+    const gitHubPr = addPullRequestDefaults(options);
     expect(gitHubPr).to.deep.equal(options);
   });
 });

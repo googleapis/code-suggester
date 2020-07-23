@@ -12,18 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+import {assert, expect} from 'chai';
 import {describe, it, before} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
-import {makePr} from '../src';
-import {Changes, FileData, GitHubPrUserOptions, Octokit} from '../src/types';
+import {createPullRequest} from '../src';
+import {
+  Changes,
+  FileData,
+  CreatePullRequestUserOptions,
+  Octokit,
+  CreatePullRequest,
+} from '../src/types';
 import * as proxyquire from 'proxyquire';
+import {EmtpyStringError} from '../src/parameters-handler';
 
 before(() => {
   setup();
 });
 
+// tslint:disable:no-unused-expression
+// .true triggers ts-lint failure, but is valid chai
 describe('Make PR main function', () => {
   const upstreamOwner = 'owner';
   const upstreamRepo = 'Hello-World';
@@ -36,7 +45,7 @@ describe('Make PR main function', () => {
   const primary = 'custom-primary';
   const originRepo = 'Hello-World';
   const originOwner = 'octocat';
-  const options: GitHubPrUserOptions = {
+  const options: CreatePullRequestUserOptions = {
     upstreamOwner,
     upstreamRepo,
     branch,
@@ -92,7 +101,7 @@ describe('Make PR main function', () => {
         expect(testChanges).deep.equals(changes);
         expect(testMessage).equals(message);
       },
-      openPr: (
+      openPullRequest: (
         octokit: Octokit,
         upstream: {owner: string; repo: string},
         originBranch: {owner: string; repo: string; branch: string},
@@ -114,7 +123,77 @@ describe('Make PR main function', () => {
     const stubMakePr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,
     });
-    await stubMakePr.makePr(octokit, changes, options);
+    await stubMakePr.createPullRequest(octokit, changes, options);
+  });
+
+  it('Throws error with invalid GitHub PR option parameter types', async () => {
+    try {
+      await createPullRequest(octokit, ('' as unknown) as Changes, options);
+      expect.fail(
+        'Invalid change parameter types should have caused create pull request to error'
+      );
+    } catch (err) {
+      expect(err instanceof TypeError).true;
+    }
+    try {
+      await createPullRequest(octokit, ({} as unknown) as Changes, options);
+      expect.fail(
+        'Invalid change parameter types should have caused create pull request to error'
+      );
+    } catch (err) {
+      expect(err instanceof TypeError).true;
+    }
+  });
+
+  it('Throws error with invalid GitHub PR option parameter types', async () => {
+    try {
+      await createPullRequest(
+        octokit,
+        changes,
+        ('' as unknown) as CreatePullRequest
+      );
+      expect.fail(
+        'Invalid pr option type parameters should have caused create pull request to error'
+      );
+    } catch (err) {
+      expect(err instanceof TypeError).true;
+    }
+    try {
+      await createPullRequest(octokit, changes, ({
+        upstreamOwner: true,
+        upstreamRepo,
+        branch,
+        description,
+        title,
+        force,
+        message,
+        primary,
+      } as unknown) as CreatePullRequest);
+      expect.fail(
+        'Invalid pr suboption types should have caused create pull request to error'
+      );
+    } catch (err) {
+      expect(err instanceof TypeError).true;
+    }
+  });
+  it('Throws error when pull request options are passed empty strings', async () => {
+    try {
+      await createPullRequest(octokit, changes, {
+        upstreamOwner: '',
+        upstreamRepo,
+        branch,
+        description,
+        title,
+        force,
+        message,
+        primary,
+      });
+      expect.fail(
+        'Invalid parameters should have caused create pull request to error'
+      );
+    } catch (err) {
+      expect(err instanceof EmtpyStringError).true;
+    }
   });
   it('Passes up the error message with a throw when create fork helper function fails', async () => {
     // setup
@@ -128,7 +207,7 @@ describe('Make PR main function', () => {
       './github-handler': stubHelperHandlers,
     });
     try {
-      await stubMakePr.makePr(octokit, changes, options);
+      await stubMakePr.createPullRequest(octokit, changes, options);
       expect.fail(
         'The main function should have errored because the fork helper function failed.'
       );
@@ -161,7 +240,7 @@ describe('Make PR main function', () => {
       './github-handler': stubHelperHandlers,
     });
     try {
-      await stubMakePr.makePr(octokit, changes, options);
+      await stubMakePr.createPullRequest(octokit, changes, options);
       expect.fail(
         'The main function should have errored because the branch helper function failed.'
       );
@@ -207,7 +286,7 @@ describe('Make PR main function', () => {
       './github-handler': stubHelperHandlers,
     });
     try {
-      await stubMakePr.makePr(octokit, changes, options);
+      await stubMakePr.createPullRequest(octokit, changes, options);
       expect.fail(
         'The main function should have errored because the commit and push helper function failed.'
       );
@@ -253,7 +332,7 @@ describe('Make PR main function', () => {
         expect(testChanges).deep.equals(changes);
         expect(testMessage).equals(message);
       },
-      openPr: (
+      openPullRequest: (
         octokit: Octokit,
         upstream: {owner: string; repo: string},
         originBranch: {owner: string; repo: string; branch: string},
@@ -268,12 +347,62 @@ describe('Make PR main function', () => {
       './github-handler': stubHelperHandlers,
     });
     try {
-      await stubMakePr.makePr(octokit, changes, options);
+      await stubMakePr.createPullRequest(octokit, changes, options);
       expect.fail(
         'The main function should have errored because the commit and push helper function failed.'
       );
     } catch (err) {
       expect(err.message).equals('Create PR helper failed');
     }
+  });
+  it('Does not execute any GitHub API calls when there are no changes to commit', async () => {
+    // setup
+    const stubHelperHandlers = {
+      fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
+        expect.fail(
+          'When changeset is null or undefined then GitHub forking should not execute'
+        );
+      },
+      branch: (
+        octokit: Octokit,
+        originBranch: {owner: string; repo: string},
+        testBranch: string,
+        testprimary: string
+      ) => {
+        expect.fail(
+          'When changeset is null or undefined then GitHub forking should not execute'
+        );
+      },
+      commitAndPush: (
+        octokit: Octokit,
+        testOldHeadSha: string,
+        testChanges: Changes,
+        originBranch: {owner: string; repo: string; branch: string},
+        testMessage: string
+      ) => {
+        expect.fail(
+          'When changeset is null or undefined then GitHub forking should not execute'
+        );
+      },
+      openPullRequest: (
+        octokit: Octokit,
+        upstream: {owner: string; repo: string},
+        originBranch: {owner: string; repo: string; branch: string},
+        testDescription: {title: string; body: string},
+        testMaintainersCanModify: boolean,
+        testPrimary: string
+      ) => {
+        expect.fail(
+          'When changeset is null or undefined then GitHub forking should not execute'
+        );
+      },
+    };
+    const stubMakePr = proxyquire.noCallThru()('../src/', {
+      './github-handler': stubHelperHandlers,
+    });
+    await stubMakePr.createPullRequest(octokit, null, options);
+    await stubMakePr.createPullRequest(octokit, undefined, options);
+    await stubMakePr.createPullRequest(octokit, new Map(), options);
+    assert.isOk(true);
   });
 });

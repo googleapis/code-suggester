@@ -12,31 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GitHubPr, GitHubPrUserOptions} from './types';
+import {CreatePullRequest, CreatePullRequestUserOptions} from './types';
 
-const defaultNameNoSpaces = 'code-suggestions';
-const defaultDescription = 'code suggestions';
-const defaultMessage = 'chore: code suggestions';
-const defaultPrimaryBranch = 'master';
+const DEFAULT_BRANCH_NAME = 'code-suggestions';
+const DEFAULT_PRIMARY_BRANCH = 'master';
 
 /**
- * Add defaults to GitHub PR data
- * @param {GitHubPrUserOptions} options the user-provided github context
- * @returns {GitHubPr} git hub context with defaults applied
+ * Add defaults to GitHub Pull Request options.
+ * Preserves the empty string.
+ * For ESCMAScript, null/undefined values are preserved for required fields.
+ * Recommended with an object validation function to check empty strings and incorrect types.
+ * @param {PullRequestUserOptions} options the user-provided github pull request options
+ * @returns {CreatePullRequest} git hub context with defaults applied
  */
-function addPrOptionDefaults(options: GitHubPrUserOptions): GitHubPr {
-  const gitHubPr: GitHubPr = {
+function addPullRequestDefaults(
+  options: CreatePullRequestUserOptions
+): CreatePullRequest {
+  const pullRequestSettings: CreatePullRequest = {
     upstreamOwner: options.upstreamOwner,
     upstreamRepo: options.upstreamRepo,
-    branch: options.branch || defaultNameNoSpaces,
-    description: options.description || defaultDescription,
-    title: options.title || defaultMessage,
+    description: options.description,
+    title: options.title,
+    message: options.message,
     force: options.force || false,
-    message: options.message || defaultMessage,
-    primary: options.primary || defaultPrimaryBranch,
+    branch:
+      typeof options.branch === 'string' ? options.branch : DEFAULT_BRANCH_NAME,
+    primary:
+      typeof options.primary === 'string'
+        ? options.primary
+        : DEFAULT_PRIMARY_BRANCH,
     maintainersCanModify: options.maintainersCanModify === false ? false : true,
   };
-  return gitHubPr;
+  return pullRequestSettings;
 }
 
-export {addPrOptionDefaults};
+export {addPullRequestDefaults};
