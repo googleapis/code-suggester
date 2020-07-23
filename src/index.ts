@@ -41,7 +41,7 @@ import {
  * If changes are empty then the workflow will not run.
  * Rethrows an HttpError if Octokit GitHub API returns an error. HttpError Octokit access_token and client_secret headers redact all sensitive information.
  * @param {Octokit} octokit The authenticated octokit instance, instantiated with an access token having permissiong to create a fork on the target repository
- * @param {Changes} changes A set of changes. The changes may be empty
+ * @param {Changes | null | undefined} changes A set of changes. The changes may be empty
  * @param {CreatePullRequestUserOptions} options The configuration for interacting with GitHub provided by the user.
  * @param {Logger} logger The logger instance (optional).
  * @returns {Promise<void>} a void promise
@@ -120,7 +120,7 @@ async function createPullRequest(
 /**
  * Convert a Map<string,string> or {[path: string]: string}, where the key is the relative file path in the repository,
  * and the value is the text content. The files will be converted to a Map also containing the file mode information '100644'
- * @param {{[path: string]: string} | Map<string, string>} textFiles a map/object where the key is the relative file path and the value is the text file content
+ * @param {Object<string, string> | Map<string, string>} textFiles a map/object where the key is the relative file path and the value is the text file content
  * @returns {Changes} Map of the file path to the string file content and the file mode '100644'
  */
 function parseTextFiles(

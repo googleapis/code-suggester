@@ -2,12 +2,10 @@ import {Changes, CreatePullRequest, FileMode} from './types';
 import {logger} from './logger';
 
 /**
- *
- * @param elem
+ * @param {T} elem any JavaScript element of type T
+ * @returns {boolean} true if the value is null or undefined. False otherwise.
  */
-function isNullOrUndefined(
-  elem: Changes | {} | string | number | boolean | null | undefined
-) {
+function isNullOrUndefined<T>(elem: T): boolean {
   return elem === null || elem === undefined;
 }
 
@@ -32,7 +30,7 @@ function validMode(mode: FileMode): boolean {
 /**
  * Validate the change object provided.
  * In JavaScript there are no types, so check up-front before starting workflow
- * @param {Changes} changes the changeset
+ * @param {Changes | null |  undefined} changes the changeset
  * @returns {boolean} true if the change object is valid. False otherwise.
  */
 function changeSetHasCorrectTypes(
