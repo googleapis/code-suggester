@@ -1,7 +1,22 @@
-import {Changes, CreatePullRequest, FileMode} from './types';
+// Copyright 2020 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import {Changes, CreatePullRequest, FileMode, FileData} from './types';
 import {logger} from './logger';
 
 /**
+ * Created because the native isNullOrUndefined function is deprecated
  * @param {T} elem any JavaScript element of type T
  * @returns {boolean} true if the value is null or undefined. False otherwise.
  */
@@ -42,15 +57,15 @@ function changeSetHasCorrectTypes(
   if (typeof changes !== 'object' || isNullOrUndefined(changes?.size)) {
     return false;
   }
-  for (const [path, fileData] of Object.entries(changes as Changes)) {
+  for (const [path, fileData] of (changes as Changes).entries()) {
     if (
-      !fileData.hasOwnProperty('content') ||
-      !isNullOrUndefined(fileData.content) ||
-      typeof fileData.content !== 'string'
+      !('content' in fileData) ||
+      (fileData.content !== null && typeof fileData.content !== 'string')
     ) {
       logger.error(`Invalid file content set for: ${path}`);
       return false;
-    } else if (!fileData.hasOwnProperty('mode') || validMode(fileData.mode)) {
+    }
+    if (!('mode' in fileData && validMode(fileData.mode))) {
       logger.error(`Invalid file mode set for: ${path}`);
       return false;
     }
@@ -119,4 +134,5 @@ export {
   optionsHasCorrectTypes,
   EmtpyStringError,
   isNullOrUndefined,
+  validMode,
 };

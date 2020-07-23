@@ -120,27 +120,33 @@ async function createPullRequest(
 /**
  * Convert a Map<string,string> or {[path: string]: string}, where the key is the relative file path in the repository,
  * and the value is the text content. The files will be converted to a Map also containing the file mode information '100644'
- * @param {Object<string, string> | Map<string, string>} textFiles a map/object where the key is the relative file path and the value is the text file content
+ * @param {Object<string, string | null> | Map<string, string | null>} textFiles a map/object where the key is the relative file path and the value is the text file content
  * @returns {Changes} Map of the file path to the string file content and the file mode '100644'
  */
 function parseTextFiles(
-  textFiles: {[path: string]: string} | Map<string, string>
+  textFiles: {[path: string]: string | null} | Map<string, string | null>
 ): Changes {
   const changes = new Map<string, FileData>();
   if (textFiles instanceof Map) {
-    textFiles.forEach((content: string, path: string) => {
-      if (typeof path !== 'string' || typeof content !== 'string') {
+    textFiles.forEach((content: string | null, path: string) => {
+      if (
+        typeof path !== 'string' ||
+        (content !== null && typeof content !== 'string')
+      ) {
         throw TypeError(
-          'The file changeset provided must have a string key and a string value'
+          'The file changeset provided must have a string key and a string/null value'
         );
       }
       changes.set(path, new FileData(content));
     });
   } else {
     for (const [path, content] of Object.entries(textFiles)) {
-      if (typeof path !== 'string' || typeof content !== 'string') {
+      if (
+        typeof path !== 'string' ||
+        (content !== null && typeof content !== 'string')
+      ) {
         throw TypeError(
-          'The file changeset provided must have a string key and a string value'
+          'The file changeset provided must have a string key and a string/null value'
         );
       }
       changes.set(path, new FileData(content));

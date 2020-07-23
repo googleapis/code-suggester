@@ -5,8 +5,10 @@ import {
   changeSetHasCorrectTypes,
   hasEmptyStringOption,
   optionsHasCorrectTypes,
+  isNullOrUndefined,
+  validMode,
 } from '../src/parameters-handler';
-import {Changes, FileData} from '../src/types';
+import {Changes, FileData, FileMode} from '../src/types';
 
 before(() => {
   setup();
@@ -14,26 +16,119 @@ before(() => {
 
 // tslint:disable:no-unused-expression
 // .true triggers ts-lint failure, but is valid chai
+
+describe('isNullOrUndefined', () => {
+  it('returns true when a value is a GitHub file mode', () => {
+    expect(validMode('100644')).true;
+    expect(validMode('040000')).true;
+    expect(validMode('100755')).true;
+    expect(validMode('120000')).true;
+    expect(validMode('160000')).true;
+  });
+  it('returns false when a value is not null nor undefined', () => {
+    expect(validMode(({} as unknown) as FileMode)).false;
+    expect(validMode((new Map() as unknown) as FileMode)).false;
+    expect(validMode((1 as unknown) as FileMode)).false;
+    expect(validMode((0 as unknown) as FileMode)).false;
+    expect(validMode(('' as unknown) as FileMode)).false;
+    expect(validMode(([] as unknown) as FileMode)).false;
+    expect(validMode((null as unknown) as FileMode)).false;
+    expect(validMode((undefined as unknown) as FileMode)).false;
+    expect(validMode((true as unknown) as FileMode)).false;
+    expect(validMode((false as unknown) as FileMode)).false;
+    expect(validMode(('12312312123213' as unknown) as FileMode)).false;
+  });
+});
+
+describe('file mode validator', () => {
+  it('returns true when a value is null', () => {
+    expect(isNullOrUndefined(null)).true;
+  });
+  it('returns true when a value is undefined', () => {
+    expect(isNullOrUndefined(null)).true;
+  });
+  it('returns false when a value is not null nor undefined', () => {
+    expect(isNullOrUndefined({})).false;
+    expect(isNullOrUndefined(new Map())).false;
+    expect(isNullOrUndefined(1)).false;
+    expect(isNullOrUndefined(0)).false;
+    expect(isNullOrUndefined('')).false;
+    expect(isNullOrUndefined([])).false;
+    expect(isNullOrUndefined(false)).false;
+    expect(isNullOrUndefined(true)).false;
+  });
+});
+
 describe('Change set types validation during JavaScript runtime', () => {
   const changes: Changes = new Map();
   changes.set('src/index.ts', new FileData("console.log('new file')"));
+  changes.set(
+    'src/index.ts',
+    new FileData("console.log('new file')", '100755')
+  );
+  changes.set(
+    'src/index.ts',
+    new FileData("console.log('new file')", '040000')
+  );
+  changes.set(
+    'src/index.ts',
+    new FileData("console.log('new file')", '120000')
+  );
+  changes.set(
+    'src/index.ts',
+    new FileData("console.log('new file')", '160000')
+  );
+  changes.set(
+    'src/index.ts',
+    new FileData("console.log('new file')", '100644')
+  );
   it('Returns false if there is an invalid change object', () => {
-    const isValidString = changeSetHasCorrectTypes(('' as unknown) as Changes); // icky TypeScript hacks test JavaScript runtime behaviour
+    const isValidString = changeSetHasCorrectTypes(('' as unknown) as Changes);
     expect(isValidString).false;
-    const isValidMissingMode = changeSetHasCorrectTypes(({
-      path: {content: ''},
-    } as unknown) as Changes);
+    const badContent = new Map();
+    badContent.set(
+      'bad-content',
+      new FileData((1 as unknown) as string, '160000')
+    );
+    const isValidBadContnet = changeSetHasCorrectTypes(badContent);
+    expect(isValidBadContnet).false;
+    const missingMode = new Map();
+    missingMode.set('no-mode', new FileData('', (null as unknown) as FileMode));
+    const isValidMissingMode = changeSetHasCorrectTypes(missingMode);
     expect(isValidMissingMode).false;
-    const isValidMissingContent = changeSetHasCorrectTypes(({
-      path: {mode: '100644'},
-    } as unknown) as Changes);
+    const invalidMode = new Map();
+    invalidMode.set('invalid-mode', new FileData('', '123' as FileMode));
+    const isIncorrectMode = changeSetHasCorrectTypes(invalidMode);
+    expect(isIncorrectMode).false;
+    const missingContent = new Map();
+    missingContent.set(
+      'undefined-content',
+      new FileData((undefined as unknown) as string)
+    );
+    const isValidMissingContent = changeSetHasCorrectTypes(missingContent);
     expect(isValidMissingContent).false;
+    const isValidGeneralObject = changeSetHasCorrectTypes(
+      ({} as unknown) as Changes
+    );
+    expect(isValidGeneralObject).false;
+    const nullSizeProperty = {size: null};
+    expect(changeSetHasCorrectTypes((nullSizeProperty as unknown) as Changes))
+      .false;
+    expect(changeSetHasCorrectTypes(({} as unknown) as Changes)).false;
   });
   it('Returns true if there is a valid change object', () => {
-    const isValidChangeMap = changeSetHasCorrectTypes(changes); // icky TypeScript hacks test JavaScript runtime behaviour
+    const isValidChangeMap = changeSetHasCorrectTypes(changes);
     expect(isValidChangeMap).true;
-    const isValidEmptyChangeMap = changeSetHasCorrectTypes(new Map()); // icky TypeScript hacks test JavaScript runtime behaviour
+    const isValidEmptyChangeMap = changeSetHasCorrectTypes(new Map());
     expect(isValidEmptyChangeMap).true;
+    const isValidNullChange = changeSetHasCorrectTypes(null);
+    expect(isValidNullChange).true;
+    const isValidUndefinedChange = changeSetHasCorrectTypes(undefined);
+    expect(isValidUndefinedChange).true;
+    const nullUndefinedContent = new Map();
+    nullUndefinedContent.set('null-content', new FileData(null, '100644'));
+    const isValidNullContent = changeSetHasCorrectTypes(nullUndefinedContent);
+    expect(isValidNullContent).true;
   });
 });
 
