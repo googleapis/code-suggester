@@ -15,8 +15,8 @@
 import {assert} from 'chai';
 import {describe, it} from 'mocha';
 
-describe('System test', async () => {
+describe('System test', () => {
   it('has a test case', () => {
-      assert.isOk(true);
+    assert.isOk(true);
   });
 });
