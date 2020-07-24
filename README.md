@@ -28,7 +28,7 @@ npm i code-suggester
 ### Example
 
 ```
-import { makePr } from "code-suggester";
+const suggester = require("code-suggester");
 
 async function main() {
   const octokit = new Octokit({ auth: process.env.ACCESS_TOKEN });
@@ -40,7 +40,7 @@ async function main() {
          content: 'hello world!'
       }
     };
-  await makePr(
+  await suggester.createPullRequest(
     changes,
     octokit,
     'Foo-Repo',
@@ -50,12 +50,12 @@ async function main() {
 
 ```
 
-### makePr(options)
+### createPullRequest(options)
 
-The `makePr()` method creates a GitHub Pull request with the files given as input.
+The `createPullRequest()` method creates a GitHub Pull request with the files given as input.
 
 #### Syntax
-`makePr(octokit, changes, config [, logger])`
+`createPullRequest(octokit, changes, config [, logger])`
 
 #### Parameters
 #### `octokit`
@@ -63,8 +63,8 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 **Required.** An authenticated [octokit](https://github.com/octokit/rest.js/) instance.
 
 #### `changes`
-*Map<string, FileData>* <br>
-**Required.** A set of files with their respective file contents conforming where the key is the file path, and the value is the a FileData object.
+*Map<string, FileData> | null | undefined* <br>
+**Required.** A set of files with their respective file contents conforming where the key is the file path, and the value is the a FileData object. If it is null, the empty map, or undefined, no changes will be made.
 
 **FileData Object**
 |  field 	|   type	|   description	|
@@ -72,7 +72,7 @@ The `makePr()` method creates a GitHub Pull request with the files given as inpu
 |   mode	|   `'100644' \| '100755' \| '040000' \| '160000' \| '120000'`	|  The file type as specified in the [GitHub API](https://developer.github.com/v3/git/trees/#tree-object). Default is `'100644'`. From the docs: "The file mode; one of 100644 for file (blob), 100755 for executable (blob), 040000 for subdirectory (tree), 160000 for submodule (commit), or 120000 for a blob that specifies the path of a symlink."|
 |   content	|  `string \| null` 	|  **Required.** The entire file contents.  	|
 
-#### `prOptions`
+#### `options`
 *Pull Request Options Object* <br>
 **Required.** Descriptive values or enforced rules for pull requests, branching, and commits.
 
@@ -97,6 +97,19 @@ The default logger is [Pino](https://github.com/pinojs/pino). You can plug in an
 
 #### Exceptions
 The core-library will throw an exception if the [GitHub V3 API](https://developer.github.com/v3/) returns an error response, or if the response data format did not come back as expected. <br>
+
+### parseTextFiles(options)
+
+The `parseTextFiles()` method takes a `Map<string, string>` or `Object<string, string>` and outputs the [changes](#changes) object for **text files only**.
+
+#### Syntax
+`parseTextFiles(textFiles)`
+
+#### Parameters
+#### `textFiles`
+*Object<string, string> | Map<string, string>* <br>
+**Required.** The key should be the relative file path in the source code, and the value should be the entire file content.
+
 
 ## CLI
 
