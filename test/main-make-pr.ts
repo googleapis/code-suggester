@@ -25,7 +25,6 @@ import {
   CreatePullRequest,
 } from '../src/types';
 import * as proxyquire from 'proxyquire';
-import {EmtpyStringError} from '../src/parameters-handler';
 
 before(() => {
   setup();
@@ -126,75 +125,6 @@ describe('Make PR main function', () => {
     await stubMakePr.createPullRequest(octokit, changes, options);
   });
 
-  it('Throws error with invalid GitHub PR option parameter types', async () => {
-    try {
-      await createPullRequest(octokit, ('' as unknown) as Changes, options);
-      expect.fail(
-        'Invalid change parameter types should have caused create pull request to error'
-      );
-    } catch (err) {
-      expect(err instanceof TypeError).true;
-    }
-    try {
-      await createPullRequest(octokit, ({} as unknown) as Changes, options);
-      expect.fail(
-        'Invalid change parameter types should have caused create pull request to error'
-      );
-    } catch (err) {
-      expect(err instanceof TypeError).true;
-    }
-  });
-
-  it('Throws error with invalid GitHub PR option parameter types', async () => {
-    try {
-      await createPullRequest(
-        octokit,
-        changes,
-        ('' as unknown) as CreatePullRequest
-      );
-      expect.fail(
-        'Invalid pr option type parameters should have caused create pull request to error'
-      );
-    } catch (err) {
-      expect(err instanceof TypeError).true;
-    }
-    try {
-      await createPullRequest(octokit, changes, ({
-        upstreamOwner: true,
-        upstreamRepo,
-        branch,
-        description,
-        title,
-        force,
-        message,
-        primary,
-      } as unknown) as CreatePullRequest);
-      expect.fail(
-        'Invalid pr suboption types should have caused create pull request to error'
-      );
-    } catch (err) {
-      expect(err instanceof TypeError).true;
-    }
-  });
-  it('Throws error when pull request options are passed empty strings', async () => {
-    try {
-      await createPullRequest(octokit, changes, {
-        upstreamOwner: '',
-        upstreamRepo,
-        branch,
-        description,
-        title,
-        force,
-        message,
-        primary,
-      });
-      expect.fail(
-        'Invalid parameters should have caused create pull request to error'
-      );
-    } catch (err) {
-      expect(err instanceof EmtpyStringError).true;
-    }
-  });
   it('Passes up the error message with a throw when create fork helper function fails', async () => {
     // setup
 

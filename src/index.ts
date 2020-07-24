@@ -25,13 +25,6 @@ import {
 } from './types';
 import {logger, setupLogger} from './logger';
 import {addPullRequestDefaults} from './default-options-handler';
-import {
-  changeSetHasCorrectTypes,
-  hasEmptyStringOption,
-  optionsHasCorrectTypes,
-  EmtpyStringError,
-  isNullOrUndefined,
-} from './parameters-handler';
 
 /**
  * Make a new GitHub Pull Request with a set of changes applied on top of primary branch HEAD.
@@ -53,31 +46,15 @@ async function createPullRequest(
   loggerOption?: Logger
 ): Promise<void> {
   setupLogger(loggerOption);
-  changes = changes as Changes; // For TypeScript compiling purposes
-  if (!changeSetHasCorrectTypes(changes)) {
-    throw new TypeError(
-      'The provided change set object does not match what is required.'
-    );
-  }
   // if null undefined, or the empty map then no changes have been provided.
   // Do not execute GitHub workflow
-  if (isNullOrUndefined(changes) || changes.size === 0) {
+  if (changes === null || changes === undefined || changes.size === 0) {
     logger.info(
       'Empty change set provided. No changes need to be made. Cancelling workflow.'
     );
     return;
   }
   const gitHubConfigs = addPullRequestDefaults(options);
-  if (!optionsHasCorrectTypes(gitHubConfigs)) {
-    throw new TypeError(
-      'The provided pull request options object does not match what is required.'
-    );
-  }
-  if (hasEmptyStringOption(gitHubConfigs)) {
-    throw new EmtpyStringError(
-      'String type properties on create new Pull Request configurations must not be empty strings'
-    );
-  }
   logger.info('Starting GitHub PR workflow...');
   const upstream: RepoDomain = {
     owner: gitHubConfigs.upstreamOwner,
