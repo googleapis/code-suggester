@@ -16,10 +16,10 @@ import {
   Changes,
   FileData,
   TreeObject,
-  Octokit,
   RepoDomain,
   BranchDomain,
 } from '../types';
+import {Octokit} from '@octokit/rest';
 import {logger} from '../logger';
 
 /**
@@ -32,7 +32,7 @@ import {logger} from '../logger';
 function generateTreeObjects(changes: Changes): TreeObject[] {
   const tree: TreeObject[] = [];
   changes.forEach((fileData: FileData, path: string) => {
-    if (fileData.content == null) {
+    if (fileData.content === null) {
       // if no file content then file is deleted
       tree.push({
         path,

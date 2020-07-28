@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {expect} from 'chai';
-import {describe, it, before} from 'mocha';
-import {logger, octokit, setup} from './util';
+import {describe, it, before, afterEach} from 'mocha';
+import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import * as handler from '../src/github-handler/commit-and-push-handler';
 import {Changes, FileData, TreeObject, RepoDomain} from '../src/types';
