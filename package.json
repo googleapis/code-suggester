@@ -34,7 +34,7 @@
     "system-test": "c8 mocha build/system-test",
     "test": "c8 mocha build/test",
     "api-extractor": "api-extractor run --local",
-    "api-documenter": "api-documenter yaml --input-folder=temp"
+    "api-documenter": "api-documenter yaml --input-folder=temp",
     "pretest": "npm run compile"
   },
   "dependencies": {
