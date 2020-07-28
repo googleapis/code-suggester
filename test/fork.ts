@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {expect} from 'chai';
-import {describe, it, before} from 'mocha';
+import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {fork} from '../src/github-handler/fork-handler';

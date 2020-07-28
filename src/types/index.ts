@@ -12,15 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Logger} from '../logger';
-import {Octokit} from '@octokit/rest';
-
-type FileMode = '100644' | '100755' | '040000' | '160000' | '120000';
+export type FileMode = '100644' | '100755' | '040000' | '160000' | '120000';
 
 /**
  * GitHub definition of tree
  */
-declare interface TreeObject {
+export interface TreeObject {
   path: string;
   mode: FileMode;
   type: 'blob' | 'tree' | 'commit';
@@ -34,7 +31,7 @@ declare interface TreeObject {
  * If `content` is not null, then `content` must be the entire file content.
  * See https://developer.github.com/v3/git/trees/#tree-object for details on mode.
  */
-class FileData {
+export class FileData {
   readonly mode: FileMode;
   readonly content: string | null;
   constructor(content: string | null, mode: FileMode = '100644') {
@@ -47,12 +44,12 @@ class FileData {
  * The map of a path to its content data.
  * The content must be the entire file content.
  */
-type Changes = Map<string, FileData>;
+export type Changes = Map<string, FileData>;
 
 /**
  * The domain of a repository
  */
-interface RepoDomain {
+export interface RepoDomain {
   repo: string;
   owner: string;
 }
@@ -60,14 +57,14 @@ interface RepoDomain {
 /**
  * The domain for a branch
  */
-interface BranchDomain extends RepoDomain {
+export interface BranchDomain extends RepoDomain {
   branch: string;
 }
 
 /**
  * The descriptive properties for any entity
  */
-interface Description {
+export interface Description {
   title: string;
   body: string;
 }
@@ -75,7 +72,7 @@ interface Description {
 /**
  * The user options for creating GitHub PRs
  */
-interface CreatePullRequestUserOptions {
+export interface CreatePullRequestUserOptions {
   // the owner of the target fork repository
   upstreamOwner: string;
   // the name of the target fork repository
@@ -99,7 +96,7 @@ interface CreatePullRequestUserOptions {
 /**
  * GitHub data needed for creating a PR
  */
-interface CreatePullRequest {
+export interface CreatePullRequest {
   // the owner of the target fork repository
   upstreamOwner: string;
   // the name of the target fork repository
@@ -119,17 +116,3 @@ interface CreatePullRequest {
   // Whether or not maintainers can modify the PR.
   maintainersCanModify: boolean;
 }
-
-export {
-  Changes,
-  FileData,
-  FileMode,
-  TreeObject,
-  BranchDomain,
-  Description,
-  CreatePullRequestUserOptions,
-  CreatePullRequest,
-  Logger,
-  Octokit,
-  RepoDomain,
-};

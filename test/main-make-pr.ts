@@ -13,17 +13,11 @@
 // limitations under the License.
 
 import {assert, expect} from 'chai';
-import {describe, it, before} from 'mocha';
+import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
-import {createPullRequest} from '../src';
-import {
-  Changes,
-  FileData,
-  CreatePullRequestUserOptions,
-  Octokit,
-  CreatePullRequest,
-} from '../src/types';
+import {Changes, FileData, CreatePullRequestUserOptions} from '../src/types';
+import {Octokit} from '@octokit/rest';
 import * as proxyquire from 'proxyquire';
 
 before(() => {
@@ -129,7 +123,7 @@ describe('Make PR main function', () => {
     // setup
 
     const stubHelperHandlers = {
-      fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
+      fork: () => {
         throw Error('Create fork helper failed');
       },
     };
@@ -157,12 +151,7 @@ describe('Make PR main function', () => {
           repo: originRepo,
         };
       },
-      branch: (
-        octokit: Octokit,
-        originBranch: {owner: string; repo: string},
-        testBranch: string,
-        testprimary: string
-      ) => {
+      branch: () => {
         throw Error('Create branch helper failed');
       },
     };
@@ -202,13 +191,7 @@ describe('Make PR main function', () => {
         expect(testprimary).equals(primary);
         return oldHeadSha;
       },
-      commitAndPush: (
-        octokit: Octokit,
-        testOldHeadSha: string,
-        testChanges: Changes,
-        originBranch: {owner: string; repo: string; branch: string},
-        testMessage: string
-      ) => {
+      commitAndPush: () => {
         throw Error('Commit and push helper failed');
       },
     };
@@ -262,14 +245,7 @@ describe('Make PR main function', () => {
         expect(testChanges).deep.equals(changes);
         expect(testMessage).equals(message);
       },
-      openPullRequest: (
-        octokit: Octokit,
-        upstream: {owner: string; repo: string},
-        originBranch: {owner: string; repo: string; branch: string},
-        testDescription: {title: string; body: string},
-        testMaintainersCanModify: boolean,
-        testPrimary: string
-      ) => {
+      openPullRequest: () => {
         throw Error('Create PR helper failed');
       },
     };
@@ -288,40 +264,22 @@ describe('Make PR main function', () => {
   it('Does not execute any GitHub API calls when there are no changes to commit', async () => {
     // setup
     const stubHelperHandlers = {
-      fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
+      fork: () => {
         expect.fail(
           'When changeset is null or undefined then GitHub forking should not execute'
         );
       },
-      branch: (
-        octokit: Octokit,
-        originBranch: {owner: string; repo: string},
-        testBranch: string,
-        testprimary: string
-      ) => {
+      branch: () => {
         expect.fail(
           'When changeset is null or undefined then GitHub forking should not execute'
         );
       },
-      commitAndPush: (
-        octokit: Octokit,
-        testOldHeadSha: string,
-        testChanges: Changes,
-        originBranch: {owner: string; repo: string; branch: string},
-        testMessage: string
-      ) => {
+      commitAndPush: () => {
         expect.fail(
           'When changeset is null or undefined then GitHub forking should not execute'
         );
       },
-      openPullRequest: (
-        octokit: Octokit,
-        upstream: {owner: string; repo: string},
-        originBranch: {owner: string; repo: string; branch: string},
-        testDescription: {title: string; body: string},
-        testMaintainersCanModify: boolean,
-        testPrimary: string
-      ) => {
+      openPullRequest: () => {
         expect.fail(
           'When changeset is null or undefined then GitHub forking should not execute'
         );

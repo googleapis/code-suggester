@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Octokit, RepoDomain} from '../types';
+import {RepoDomain} from '../types';
+import {Octokit} from '@octokit/rest';
 import {logger} from '../logger';
 
 /**
