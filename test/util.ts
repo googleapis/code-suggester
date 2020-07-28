@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as Pino from 'pino';
+import {setupLogger, logger} from '../src/logger';
 import {Octokit} from '@octokit/rest';
 import {disableNetConnect} from 'nock';
+import * as Pino from 'pino';
 
-const logger = Pino({level: 'warn'});
 const octokit = new Octokit();
 
 /**
@@ -24,6 +24,7 @@ const octokit = new Octokit();
  */
 function setup() {
   disableNetConnect();
+  setupLogger(Pino({level: 'warn'}));
 }
 
 export {logger, octokit, setup};

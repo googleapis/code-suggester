@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Logger, Octokit, RepoDomain} from '../types';
+import {RepoDomain} from '../types';
+import {Octokit} from '@octokit/rest';
+import {logger} from '../logger';
 
 /**
  * Fork the GitHub owner's repository.
@@ -20,13 +22,11 @@ import {Logger, Octokit, RepoDomain} from '../types';
  *
  * If fork already exists no new fork is created, no error occurs, and the existing Fork data is returned
  * with the `updated_at` + any historical repo changes.
- * @param {Logger} logger The logger instance
  * @param {Octokit} octokit The authenticated octokit instance
  * @param {RepoDomain} upstream upstream repository information
  * @returns {Promise<RepoDomain>} the forked repository name, as well as the owner of that fork
  */
 async function fork(
-  logger: Logger,
   octokit: Octokit,
   upstream: RepoDomain
 ): Promise<RepoDomain> {

@@ -14,9 +14,9 @@
 
 import {expect} from 'chai';
 import {describe, it, before} from 'mocha';
-import {logger, octokit, setup} from './util';
+import {octokit, setup} from './util';
 import * as sinon from 'sinon';
-import {openPR} from '../src/github-handler/pr-handler';
+import {openPullRequest} from '../src/github-handler/pull-request-handler';
 
 before(() => {
   setup();
@@ -48,7 +48,7 @@ describe('Opening a pull request', async () => {
         .stub(octokit.pulls, 'create')
         .resolves(createRefResponse);
       // tests
-      await openPR(logger, octokit, upstream, origin, description);
+      await openPullRequest(octokit, upstream, origin, description);
       sinon.assert.calledOnceWithExactly(stub, {
         owner: upstream.owner,
         repo: origin.repo,
@@ -69,7 +69,7 @@ describe('Opening a pull request', async () => {
       const errorMsg = 'Error message';
       const stub = sinon.stub(octokit.pulls, 'create').rejects(Error(errorMsg));
       try {
-        await openPR(logger, octokit, upstream, origin, description);
+        await openPullRequest(octokit, upstream, origin, description);
         expect.fail();
       } catch (err) {
         expect(err.message).to.equal(errorMsg);
