@@ -14,7 +14,7 @@
 
 import {expect} from 'chai';
 import {describe, it, before} from 'mocha';
-import {logger, octokit, setup} from './util';
+import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {openPullRequest} from '../src/github-handler/pull-request-handler';
 

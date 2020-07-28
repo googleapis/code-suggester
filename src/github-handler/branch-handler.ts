@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import {logger} from '../logger';
-import {Octokit, RepoDomain} from '../types';
+import {RepoDomain} from '../types';
+import {Octokit} from '@octokit/rest';
 
 const REF_PREFIX = 'refs/heads/';
 const DEFAULT_PRIMARY_BRANCH = 'master';
@@ -47,7 +48,7 @@ async function getBranchHead(
     })
   ).data;
   logger.info(
-    `Successfully found primary branch HEAD sha \"${branchData.commit.sha}\".`
+    `Successfully found primary branch HEAD sha "${branchData.commit.sha}".`
   );
   return branchData.commit.sha;
 }
