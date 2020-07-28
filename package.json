@@ -21,8 +21,7 @@
     "google cloud"
   ],
   "scripts": {
-    "samples-test": "c8 npm run samples-test-suite",
-    "samples-test-suite": "cd samples/ && npm link ../ && npm test && cd ../",
+    "samples-test": "echo 😱",
     "clean": "gts clean",
     "compile": "tsc -p .",
     "docs": "jsdoc -c .jsdoc.js",
@@ -31,6 +30,7 @@
     "lint": "gts check",
     "predocs-test": "npm run docs",
     "prepare": "npm run compile",
+    "presystem-test": "npm run compile",
     "system-test": "c8 mocha build/system-test",
     "pretest": "npm run compile",
     "test": "c8 mocha build/test"
