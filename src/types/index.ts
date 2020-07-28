@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Level, Logger} from '../logger';
+import {Logger} from '../logger';
 import {Octokit} from '@octokit/rest';
 
 type FileMode = '100644' | '100755' | '040000' | '160000' | '120000';
@@ -73,46 +73,62 @@ interface Description {
 }
 
 /**
- * The user parameter for GitHub data needed for creating a PR
+ * The user options for creating GitHub PRs
  */
-interface GitHubContextParam {
+interface CreatePullRequestUserOptions {
   // the owner of the target fork repository
   upstreamOwner: string;
   // the name of the target fork repository
   upstreamRepo: string;
-  // the name of the branch to push changes to
-  originBranch?: string;
-  // the description of the pull request
-  prDescription?: string;
-  // the title of the pull request
-  prTitle?: string;
+  // The message of any commits made.
+  message: string;
+  // The description of the pull request.
+  description: string;
+  // The title of the pull request.
+  title: string;
+  // the name of the branch to push changes to. Default is 'code-suggestions'. (optional)
+  branch?: string;
+  // Whether or not to force branch reference updates. Default is false. (optional)
+  force?: boolean;
+  // Primary upstream branch to open PRs against. Default is 'master' (optional)
+  primary?: string;
+  // Whether or not maintainers can modify the PR. Default is true. (optional)
+  maintainersCanModify?: boolean;
 }
 
 /**
  * GitHub data needed for creating a PR
  */
-interface GitHubContext {
+interface CreatePullRequest {
   // the owner of the target fork repository
   upstreamOwner: string;
   // the name of the target fork repository
   upstreamRepo: string;
-  // the name of the branch to push changes to
-  originBranch: string;
-  // the description of the pull request
-  prDescription: string;
-  // the title of the pull request
-  prTitle: string;
+  // The message of any commits made.
+  message: string;
+  // The description of the pull request.
+  description: string;
+  // The title of the pull request
+  title: string;
+  // the name of the branch to push changes to.
+  branch: string;
+  // Whether or not to force branch reference updates.
+  force: boolean;
+  // Primary upstream branch to open PRs against.
+  primary: string;
+  // Whether or not maintainers can modify the PR.
+  maintainersCanModify: boolean;
 }
 
 export {
   Changes,
   FileData,
+  FileMode,
   TreeObject,
   BranchDomain,
   Description,
-  GitHubContextParam,
-  GitHubContext,
-  Level,
+  CreatePullRequestUserOptions,
+  CreatePullRequest,
   Logger,
   Octokit,
   RepoDomain,

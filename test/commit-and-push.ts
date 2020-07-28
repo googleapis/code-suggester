@@ -136,13 +136,7 @@ describe('Push', () => {
       .stub(octokit.git, 'createTree')
       .resolves(createTreeResponse);
     // tests
-    const treeSha = await handler.createTree(
-      logger,
-      octokit,
-      origin,
-      sha,
-      tree
-    );
+    const treeSha = await handler.createTree(octokit, origin, sha, tree);
     sandbox.assert.calledOnceWithExactly(stubGetCommit, {
       owner: origin.owner,
       repo: origin.repo,
@@ -186,7 +180,6 @@ describe('Commit', () => {
       .resolves(createCommitResponse);
     // tests
     const sha = await handler.createCommit(
-      logger,
       octokit,
       origin,
       head,
@@ -218,7 +211,11 @@ describe('Update branch reference', () => {
     // setup
     const stubUpdateRef = sandbox.stub(octokit.git, 'updateRef');
     // tests
-    await handler.updateRef(logger, octokit, origin, 'test-branch-name', sha);
+    await handler.updateRef(
+      octokit,
+      {branch: 'test-branch-name', ...origin},
+      sha
+    );
     sandbox.assert.calledOnceWithExactly(stubUpdateRef, {
       owner: origin.owner,
       repo: origin.repo,
@@ -284,12 +281,10 @@ describe('Commit and push function', async () => {
     const stubUpdateRef = sandbox.stub(octokit.git, 'updateRef');
     // tests
     await handler.commitAndPush(
-      logger,
       octokit,
       oldHeadSha,
       changes,
-      origin,
-      branchName,
+      {branch: branchName, ...origin},
       message
     );
     sandbox.assert.calledOnceWithExactly(stubGetCommit, {
@@ -323,7 +318,7 @@ describe('Commit and push function', async () => {
     sandbox.stub(octokit.git, 'getCommit').rejects(Error(commitErrorMsg));
     try {
       // tests
-      await handler.createTree(logger, octokit, origin, '', []);
+      await handler.createTree(octokit, origin, '', []);
     } catch (err) {
       expect(err.message).to.equal(commitErrorMsg);
     }
@@ -335,7 +330,7 @@ describe('Commit and push function', async () => {
     sandbox.stub(octokit.git, 'createTree').rejects(Error(createTreeErrorMsg));
     try {
       // tests
-      await handler.createTree(logger, octokit, origin, '', []);
+      await handler.createTree(octokit, origin, '', []);
     } catch (err) {
       expect(err.message).to.equal(createTreeErrorMsg);
     }
@@ -350,7 +345,7 @@ describe('Commit and push function', async () => {
       .rejects(Error(createCommitErrorMsg));
     try {
       // tests
-      await handler.createTree(logger, octokit, origin, '', []);
+      await handler.createTree(octokit, origin, '', []);
     } catch (err) {
       expect(err.message).to.equal(createCommitErrorMsg);
     }
@@ -364,7 +359,7 @@ describe('Commit and push function', async () => {
     sandbox.stub(octokit.git, 'updateRef').rejects(Error(updateRefErrorMsg));
     try {
       // tests
-      await handler.createTree(logger, octokit, origin, '', []);
+      await handler.createTree(octokit, origin, '', []);
     } catch (err) {
       expect(err.message).to.equal(updateRefErrorMsg);
     }

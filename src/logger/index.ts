@@ -14,6 +14,10 @@
 
 import {Logger, Level} from 'pino';
 import * as Pino from 'pino';
-const logger = Pino();
+let logger: Logger;
 
-export {logger, Logger, Level};
+function setupLogger(userLogger: Logger = Pino()) {
+  logger = userLogger;
+}
+
+export {logger, Logger, Level, setupLogger};

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BranchDomain, Description, Logger, Octokit, RepoDomain} from '../types';
+import {BranchDomain, Description, Octokit, RepoDomain} from '../types';
+import {logger} from '../logger';
 
 const DEFAULT_PRIMARY = 'master';
 
 /**
  * Create a GitHub PR on the upstream organization's repo
  * Throws an error if the GitHub API fails
- * @param {Logger} logger The logger instance
  * @param {Octokit} octokit The authenticated octokit instance
  * @param {RepoDomain} upstream The upstream repository
  * @param {BranchDomain} origin The remote origin information that contains the origin branch
@@ -28,8 +28,7 @@ const DEFAULT_PRIMARY = 'master';
  * @param {string} upstreamPrimary The upstream repository's primary branch. Default is master.
  * @returns {Promise<void>}
  */
-async function openPR(
-  logger: Logger,
+async function openPullRequest(
   octokit: Octokit,
   upstream: RepoDomain,
   origin: BranchDomain,
@@ -54,4 +53,4 @@ async function openPR(
   );
 }
 
-export {openPR};
+export {openPullRequest};
