@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Logger, Octokit, RepoDomain} from '../types';
+import {logger} from '../logger';
+import {RepoDomain} from '../types';
+import {Octokit} from '@octokit/rest';
 
 const REF_PREFIX = 'refs/heads/';
 const DEFAULT_PRIMARY_BRANCH = 'master';
@@ -28,14 +30,12 @@ function createRef(branchName: string) {
 /**
  * get branch commit HEAD SHA of a repository
  * Throws an error if the branch cannot be found
- * @param {Logger} logger The logger instance
  * @param {Octokit} octokit The authenticated octokit instance
  * @param {RepoDomain} origin The domain information of the remote origin repository
  * @param {string} branch the name of the branch
  * @returns {Promise<string>} branch commit HEAD SHA
  */
 async function getBranchHead(
-  logger: Logger,
   octokit: Octokit,
   origin: RepoDomain,
   branch: string
@@ -48,7 +48,7 @@ async function getBranchHead(
     })
   ).data;
   logger.info(
-    `Successfully found primary branch HEAD sha \"${branchData.commit.sha}\".`
+    `Successfully found primary branch HEAD sha "${branchData.commit.sha}".`
   );
   return branchData.commit.sha;
 }
@@ -56,7 +56,6 @@ async function getBranchHead(
 /**
  * Create a GitHub branch given a remote origin.
  * Throws an exception if octokit fails, or if the base branch is invalid
- * @param {Logger} logger The logger instance
  * @param {Octokit} octokit The authenticated octokit instance
  * @param {RepoDomain} origin The domain information of the remote origin repository
  * @param {string} name The branch name to create on the origin repository
@@ -64,7 +63,6 @@ async function getBranchHead(
  * @returns {Promise<string>} the base SHA for subsequent commits to be based off for the origin branch
  */
 async function branch(
-  logger: Logger,
   octokit: Octokit,
   origin: RepoDomain,
   name: string,
@@ -72,7 +70,7 @@ async function branch(
 ): Promise<string> {
   // create branch from primary branch HEAD SHA
   try {
-    const baseSHA = await getBranchHead(logger, octokit, origin, baseBranch);
+    const baseSHA = await getBranchHead(octokit, origin, baseBranch);
     const refData = (
       await octokit.git.createRef({
         owner: origin.owner,
