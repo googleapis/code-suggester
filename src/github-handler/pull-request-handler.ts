@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BranchDomain, Description, Octokit, RepoDomain} from '../types';
+import {BranchDomain, Description, RepoDomain} from '../types';
+import {Octokit} from '@octokit/rest';
 import {logger} from '../logger';
 
 const DEFAULT_PRIMARY = 'master';

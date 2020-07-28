@@ -16,13 +16,13 @@ import * as handler from './github-handler';
 import {
   Changes,
   Description,
-  Logger,
-  Octokit,
   CreatePullRequestUserOptions,
   RepoDomain,
   BranchDomain,
   FileData,
 } from './types';
+import {Octokit} from '@octokit/rest';
+import {Logger} from 'pino';
 import {logger, setupLogger} from './logger';
 import {addPullRequestDefaults} from './default-options-handler';
 
