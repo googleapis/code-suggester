@@ -14,7 +14,7 @@
 
 import {describe, it, before} from 'mocha';
 import {assert, expect} from 'chai';
-import {logger, octokit, setup} from './util';
+import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {
   branch,
@@ -37,7 +37,7 @@ describe('Branch', () => {
   it('invokes octokit get branch with correct parameters, invokes octokit correctly, and returns the HEAD sha', async () => {
     // setup
     const branchResponseBody = await import(
-      './fixtures/create-branch-response.json'
+      './fixtures/get-branch-response.json'
     );
     const branchResponse = {
       headers: {},
@@ -50,7 +50,7 @@ describe('Branch', () => {
       .stub(octokit.repos, 'getBranch')
       .resolves(branchResponse);
     // // tests
-    const headSHA = await getBranchHead(logger, octokit, origin, 'master');
+    const headSHA = await getBranchHead(octokit, origin, 'master');
     expect(headSHA).to.equal(branchResponse.data.commit.sha);
     sandbox.assert.calledOnceWithExactly(getBranchStub, {
       owner: origin.owner,
@@ -62,7 +62,7 @@ describe('Branch', () => {
   it('The create branch function returns the primary SHA when branching is successful', async () => {
     // setup
     const branchResponseBody = await import(
-      './fixtures/create-branch-response.json'
+      './fixtures/get-branch-response.json'
     );
     const branchResponse = {
       headers: {},
@@ -95,7 +95,7 @@ describe('Branch', () => {
       .stub(octokit.git, 'createRef')
       .resolves(createRefResponse);
     // tests
-    const sha = await branch(logger, octokit, origin, branchName, 'master');
+    const sha = await branch(octokit, origin, branchName, 'master');
     expect(sha).to.equal(branchResponse.data.commit.sha);
     sandbox.assert.calledOnceWithExactly(getBranchStub, {
       owner: origin.owner,
@@ -112,7 +112,7 @@ describe('Branch', () => {
   it('Branching fails when Octokit get branch fails', async () => {
     sandbox.stub(octokit.repos, 'getBranch').rejects(Error(testErrorMessage));
     try {
-      await branch(logger, octokit, origin, branchName, 'master');
+      await branch(octokit, origin, branchName, 'master');
       assert.fail();
     } catch (err) {
       expect(err.message).to.equal(testErrorMessage);
@@ -120,7 +120,7 @@ describe('Branch', () => {
   });
   it('Branching fails when Octokit create ref fails', async () => {
     const branchResponseBody = await import(
-      './fixtures/create-branch-response.json'
+      './fixtures/get-branch-response.json'
     );
     const branchResponse = {
       headers: {},
@@ -132,7 +132,7 @@ describe('Branch', () => {
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
     sandbox.stub(octokit.git, 'createRef').rejects(Error(testErrorMessage));
     try {
-      await branch(logger, octokit, origin, branchName, 'master');
+      await branch(octokit, origin, branchName, 'master');
       assert.fail();
     } catch (err) {
       expect(err.message).to.equal(testErrorMessage);
@@ -166,7 +166,7 @@ describe('Branch', () => {
     };
     sandbox.stub(octokit.repos, 'listBranches').resolves(listBranchesResponse);
     try {
-      await branch(logger, octokit, origin, branchName, 'non-master-branch');
+      await branch(octokit, origin, branchName, 'non-master-branch');
       assert.fail();
     } catch (err) {
       assert.isOk(true);
