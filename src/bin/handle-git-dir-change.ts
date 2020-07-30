@@ -67,24 +67,24 @@ function getGitFileData(
         resolve({path: relativePath, fileData: new FileData(null, oldMode)});
       } else {
         // else read the file
-      readFile(
-        gitDir + '/' + relativePath,
-        {
-          encoding: 'utf-8',
-        },
-        (err, content) => {
-          if (err) {
-            logger.error(
-              `Error loading file ${relativePath} in git directory ${gitDir}`
-            );
-            reject(err);
+        readFile(
+          gitDir + '/' + relativePath,
+          {
+            encoding: 'utf-8',
+          },
+          (err, content) => {
+            if (err) {
+              logger.error(
+                `Error loading file ${relativePath} in git directory ${gitDir}`
+              );
+              reject(err);
+            }
+            resolve({
+              path: relativePath,
+              fileData: new FileData(content, newMode),
+            });
           }
-          resolve({
-            path: relativePath,
-            fileData: new FileData(content, newMode),
-          });
-        }
-      );
+        );
       }
     } catch (err) {
       logger.warning(
@@ -102,15 +102,15 @@ function getGitFileData(
  */
 async function parseChanges(gitDir: string): Promise<Changes> {
   try {
-    execSync('git add -A', { cwd: gitDir });
+    execSync('git add -A', {cwd: gitDir});
     // a list of files where each row is of the form
     // https://git-scm.com/docs/git-diff#Documentation/git-diff.txt-git-diff-filesltpatterngt82308203
     // Copy and rename show as additions
     const diffs: string[] = execSync('git diff --raw --staged --no-renames', {
       cwd: gitDir,
     })
-    .toString() // for mocking purposes. sinon doesn't infer {encoding: 'utf-8'}
-    .split('\n'); // remove the trailing new line
+      .toString() // for mocking purposes. sinon doesn't infer {encoding: 'utf-8'}
+      .split('\n'); // remove the trailing new line
     diffs.pop();
     // get updated file contents
     const changes: Changes = new Map();
