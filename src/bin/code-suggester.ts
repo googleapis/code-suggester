@@ -95,9 +95,6 @@ yargs
         );
       }
     }
-    if (argv.files !== undefined && argv['git-dir'] !== undefined) {
-      throw Error('"git-dir" options must be defined');
-    }
     return true;
   })
   .demandCommand(1, 'A minimum of 1 command must be specified')

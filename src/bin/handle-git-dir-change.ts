@@ -27,6 +27,13 @@ interface GitFileData {
 // See https://git-scm.com/docs/git-diff#Documentation/git-diff.txt-git-diff-filesltpatterngt82308203
 type GitDiffStatus = 'A' | 'D' | 'M' | 'T' | 'U' | 'X' | string;
 
+class InstallationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InstallationError';
+  }
+}
+
 /**
  * Get the absolute path of a relative path
  * @param {string} dir the wildcard directory containing git change, not necessarily the root git directory
@@ -39,14 +46,15 @@ export function resolvePath(dir: string) {
 
 /**
  * Get the git root directory.
- * @param {string} dir the wildcard directory containing git change, not necessarily the root git directory
+ * Errors if the directory provided is not a git directory.
+ * @param {string} dir an absolute directory
  * @returns {string} the absolute path of the git directory root
  */
 export function findRepoRoot(dir: string): string {
   try {
     return execSync('git rev-parse --show-toplevel', {cwd: dir})
       .toString()
-      .slice(0, -1); // remove the \n
+      .trimRight(); // remove the trailing \n
   } catch (err) {
     logger.error(`The directory provided is not a git directory: ${dir}`);
     throw err;
@@ -54,10 +62,41 @@ export function findRepoRoot(dir: string): string {
 }
 
 /**
+ * Returns the git diff old/new mode, status, and path. Given a git diff.
+ * Errors if there is a parsing error
+ * @param {string} gitDiffPattern A single file diff. Renames and copies are broken up into separate diffs. See https://git-scm.com/docs/git-diff#Documentation/git-diff.txt-git-diff-filesltpatterngt82308203 for more details
+ * @returns indexable git diff fields: old/new mode, status, and path
+ */
+function parseGitDiff(
+  gitDiffPattern: string
+): {
+  oldMode: FileMode;
+  newMode: FileMode;
+  status: GitDiffStatus;
+  relativePath: string;
+} {
+  try {
+    const fields: string[] = gitDiffPattern.split(' ');
+    const newMode = fields[1] as FileMode;
+    const oldMode = fields[0].substring(1) as FileMode;
+    const statusAndPath = fields[4].split('\t');
+    const status = statusAndPath[0] as GitDiffStatus;
+    const relativePath = statusAndPath[1];
+    return {oldMode, newMode, status, relativePath};
+  } catch (err) {
+    logger.warning(
+      `\`git diff --raw\` may have changed formats: \n ${gitDiffPattern}`
+    );
+    throw err;
+  }
+}
+
+/**
  * Get the GitHub mode, file content, and relative path asynchronously
+ * Rejects if there is a git diff error, or if the file contents could not be loaded.
  * @param {string} gitRootDir the root of the local GitHub repository
  * @param {string} gitDiffPattern A single file diff. Renames and copies are broken up into separate diffs. See https://git-scm.com/docs/git-diff#Documentation/git-diff.txt-git-diff-filesltpatterngt82308203 for more details
- * @returns {GitFileData} the current mode, the relative path of the file in the Git Repository, and the file status.
+ * @returns {Promise<GitFileData>} the current mode, the relative path of the file in the Git Repository, and the file status.
  */
 export function getGitFileData(
   gitRootDir: string,
@@ -65,12 +104,9 @@ export function getGitFileData(
 ): Promise<GitFileData> {
   return new Promise((resolve, reject) => {
     try {
-      const fields: string[] = gitDiffPattern.split(' ');
-      const newMode = fields[1] as FileMode;
-      const oldMode = fields[0].substring(1) as FileMode;
-      const statusAndPath = fields[4].split('\t');
-      const status = statusAndPath[0] as GitDiffStatus;
-      const relativePath = statusAndPath[1];
+      const {oldMode, newMode, status, relativePath} = parseGitDiff(
+        gitDiffPattern
+      );
       // if file is deleted, do not attempt to read it
       if (status === 'D') {
         resolve({path: relativePath, fileData: new FileData(null, oldMode)});
@@ -96,16 +132,14 @@ export function getGitFileData(
         );
       }
     } catch (err) {
-      logger.warning(
-        `\`git diff --raw\` may have changed formats: \n ${gitDiffPattern}`
-      );
       reject(err);
     }
   });
 }
 
 /**
- * Get all the diffs using `git diff` of a git directory
+ * Get all the diffs using `git diff` of a git directory.
+ * Errors if the git directory provided is not a git directory.
  * @param {string} gitRootDir a git directory
  * @returns {string[]} a list of git diffs
  */
@@ -115,16 +149,18 @@ export function getAllDiffs(gitRootDir: string): string[] {
     cwd: gitRootDir,
   })
     .toString() // strictly return buffer for mocking purposes. sinon ts doesn't infer {encoding: 'utf-8'}
-    .split('\n'); // remove the trailing new line
-  diffs.pop();
+    .split('\n');
+  diffs.pop(); // remove the trailing new line
   return diffs;
 }
 
 /**
  * Get the git changes of the current project asynchronously.
+ * Rejects if any of the files fails to load (if not deleted),
+ * or if there is a git diff parse error
  * @param {string[]} diffs the git diff raw output (which only shows relative paths)
  * @param {string} gitDir the root of the local GitHub repository
- * @returns {Changes} the changeset
+ * @returns {Promise<Changes>} the changeset
  */
 export async function parseChanges(
   diffs: string[],
@@ -150,18 +186,36 @@ export async function parseChanges(
 }
 
 /**
- * Load the change set asynchronously
+ * Throws an error if git is not installed
+ * @returns {void} void if git is installed
+ */
+function validateGitInstalled(): void {
+  try {
+    execSync('git --version');
+  } catch (err) {
+    logger.error('git not installed');
+    throw new InstallationError(
+      'git command is not recognized. Make sure git is installed.'
+    );
+  }
+}
+
+/**
+ * Load the change set asynchronously.
  * @param dir the directory containing git changes
  * @returns {Promise<Changes>} the change set
  */
 export function getChanges(dir: string): Promise<Changes> {
   try {
+    validateGitInstalled();
     const absoluteDir = resolvePath(dir);
     const gitRootDir = findRepoRoot(absoluteDir);
     const diffs: string[] = getAllDiffs(gitRootDir);
     return parseChanges(diffs, gitRootDir);
   } catch (err) {
-    logger.error('Error loadng git changes.');
+    if (!(err instanceof InstallationError)) {
+      logger.error('Error loadng git changes.');
+    }
     throw err;
   }
 }

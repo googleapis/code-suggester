@@ -32,6 +32,7 @@ before(() => {
 
 // tslint:disable:no-unused-expression
 // .null triggers ts-lint failure, but is valid chai
+// .true triggers ts-lint failure, but is valid chai
 describe('git directory diff output to git file data + content', () => {
   const relativeGitDir = '/fixtures/some/git/dir';
   const absoluteGitDir = process.cwd() + relativeGitDir;
@@ -114,21 +115,25 @@ describe('Repository root', () => {
 });
 
 describe('Path resolving', () => {
-  const absoluteGitDir = process.cwd() + '/test/fixtures';
+  const absoluteGitDirLinux = process.cwd() + '/test/fixtures';
+  const absoluteGitDirDos = process.cwd() + '\\test\\fixtures';
 
   it("Resolves to absolute path when '..' is a prefix", () => {
     const relativeGitDir = '../code-suggester/test/fixtures';
-    expect(resolvePath(relativeGitDir)).equals(absoluteGitDir);
+    const path = resolvePath(relativeGitDir);
+    expect(path === absoluteGitDirLinux || path === absoluteGitDirDos).true;
   });
 
   it("Resolves to absolute path when './' is a prefix", () => {
     const relativeGitDir = './test/fixtures';
-    expect(resolvePath(relativeGitDir)).equals(absoluteGitDir);
+    const path = resolvePath(relativeGitDir);
+    expect(path === absoluteGitDirLinux || path === absoluteGitDirDos).true;
   });
 
   it('Resolves to absolute path when the leading chars are letters', () => {
     const relativeGitDir = 'test/fixtures';
-    expect(resolvePath(relativeGitDir)).equals(absoluteGitDir);
+    const path = resolvePath(relativeGitDir);
+    expect(path === absoluteGitDirLinux || path === absoluteGitDirDos).true;
   });
 });
 
