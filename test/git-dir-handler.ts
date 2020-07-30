@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {describe, it, before, beforeEach, afterEach} from 'mocha';
+import {describe, it, afterEach} from 'mocha';
 import {assert, expect} from 'chai';
 import {setup} from './util';
 import {
   getGitFileData,
+  getAllDiffs,
   parseChanges,
   findRepoRoot,
+  resolvePath,
 } from '../src/bin/handle-git-dir-change';
 import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as child_process from 'child_process';
-import {AssertionError} from 'assert';
-import * as proxyquire from 'proxyquire';
 
 before(() => {
   setup();
@@ -34,7 +34,7 @@ before(() => {
 // .null triggers ts-lint failure, but is valid chai
 describe('git directory diff output to git file data + content', () => {
   const relativeGitDir = '/fixtures/some/git/dir';
-  const absoluteGitDir = __dirname + relativeGitDir;
+  const absoluteGitDir = process.cwd() + relativeGitDir;
   const sandbox = sinon.createSandbox();
   afterEach(() => {
     // undo all changes
@@ -93,35 +93,78 @@ describe('git directory diff output to git file data + content', () => {
   });
 });
 
-describe('parse git directory diffs into change object', () => {
-  const relativeGitDir = __dirname + '/../test/fixtures';
-  const absoluteGitDir = __dirname + '/fixtures';
+describe('Repository root', () => {
+  const dir = '/some/dir';
   const sandbox = sinon.createSandbox();
   afterEach(() => {
     // undo all changes
     sandbox.restore();
   });
-  it('Gets changes from a relative path', () => {
+  it('Executes the git find root bash command', () => {
     const stubGitDiff = sandbox
       .stub(child_process, 'execSync')
-      .returns(Buffer.from(absoluteGitDir));
-    findRepoRoot(relativeGitDir);
+      .returns(Buffer.from(dir));
+    findRepoRoot(dir);
     sinon.assert.calledOnceWithExactly(
       stubGitDiff,
       'git rev-parse --show-toplevel',
-      {cwd: absoluteGitDir}
+      {cwd: dir}
     );
   });
 });
 
+describe('Path resolving', () => {
+  const absoluteGitDir = process.cwd() + '/test/fixtures';
+
+  it("Resolves to absolute path when '..' is a prefix", () => {
+    const relativeGitDir = '../code-suggester/test/fixtures';
+    expect(resolvePath(relativeGitDir)).equals(absoluteGitDir);
+  });
+
+  it("Resolves to absolute path when './' is a prefix", () => {
+    const relativeGitDir = './test/fixtures';
+    expect(resolvePath(relativeGitDir)).equals(absoluteGitDir);
+  });
+
+  it('Resolves to absolute path when the leading chars are letters', () => {
+    const relativeGitDir = 'test/fixtures';
+    expect(resolvePath(relativeGitDir)).equals(absoluteGitDir);
+  });
+});
+
+describe('Finding repository root', () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it('Removes the \\n character', () => {
+    sandbox
+      .stub(child_process, 'execSync')
+      .returns(Buffer.from('/home/user/work\n'));
+    expect(findRepoRoot('home/user/work/subdir')).equals('/home/user/work');
+  });
+
+  it('Rethrows execsync error', () => {
+    sandbox.stub(child_process, 'execSync').throws(Error('Execsync error'));
+    try {
+      findRepoRoot('home/user/work/subdir');
+      assert.fail();
+    } catch (err) {
+      assert.isOk(true);
+      expect(err.message).equals('Execsync error');
+    }
+  });
+});
+
 describe('parse all git diff output', () => {
-  const testDir = __dirname + '/fixtures';
+  const testDir = process.cwd() + '/fixtures';
   const sandbox = sinon.createSandbox();
   afterEach(() => {
     // undo all changes
     sandbox.restore();
   });
-  it('populates change object with everything from a diff output', async () => {
+  it('splits file diff into a list and removed \\n', async () => {
     sandbox
       .stub(child_process, 'execSync')
       .returns(
@@ -129,8 +172,27 @@ describe('parse all git diff output', () => {
           ':000000 100644 0000000 8e6c063 A\tadded.txt\n:100644 000000 8e6c063 0000000 D\tdeleted.txt\n'
         )
       );
+    const diffs = getAllDiffs(testDir);
+    expect(diffs[0]).equals(':000000 100644 0000000 8e6c063 A\tadded.txt');
+    expect(diffs[1]).equals(':100644 000000 8e6c063 0000000 D\tdeleted.txt');
+    expect(diffs.length).equals(2);
+  });
+});
+
+describe('parse changes', () => {
+  const testDir = '/test/dir';
+  const sandbox = sinon.createSandbox();
+  const diffs = [
+    ':000000 100644 0000000 8e6c063 A\tadded.txt',
+    ':100644 000000 8e6c063 0000000 D\tdeleted.txt',
+  ];
+  afterEach(() => {
+    // undo all changes
+    sandbox.restore();
+  });
+  it('populates change object with everything from a diff output', async () => {
     sandbox.stub(fs, 'readFile').yields(null, 'new text');
-    const changes = await parseChanges(testDir);
+    const changes = await parseChanges(diffs, testDir);
     expect(changes.get('added.txt')?.mode).equals('100644');
     expect(changes.get('added.txt')?.content).equals('new text');
     expect(changes.get('deleted.txt')?.mode).equals('100644');
@@ -138,9 +200,29 @@ describe('parse all git diff output', () => {
   });
   it('Passes up the error message with a throw when it is ', async () => {
     // setup
-    sandbox.stub(child_process, 'execSync').throws(Error());
+    sandbox.stub(fs, 'readFile').throws(Error());
     try {
-      await parseChanges('');
+      await parseChanges(diffs, '');
+      assert.fail();
+    } catch (err) {
+      assert.isOk(true);
+    }
+  });
+  it('Passes up the error message with a throw when reading the file fails', async () => {
+    // setup
+    sandbox.stub(fs, 'readFile').yields(Error(), '');
+    try {
+      await parseChanges(diffs, '');
+      assert.fail();
+    } catch (err) {
+      assert.isOk(true);
+    }
+  });
+  it('Passes up the error message with a throw when parsing the diff fails', async () => {
+    // setup
+    try {
+      const badDiff = [':000000 100644 0000000 8e6c063 Aadded.txt'];
+      await parseChanges(badDiff, '');
       assert.fail();
     } catch (err) {
       assert.isOk(true);

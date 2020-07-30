@@ -30,14 +30,23 @@ type GitDiffStatus = 'A' | 'D' | 'M' | 'T' | 'U' | 'X' | string;
 /**
  * Get the git root directory
  * @param {string} dir the wildcard directory containing git change, not necessarily the root git directory
+ * @returns {string} the absolute path relative to the path that the user executed the bash command in
+ */
+function resolvePath(dir: string) {
+  const absoluteDir = path.resolve(process.cwd(), dir);
+  return absoluteDir;
+}
+
+/**
+ * Get the git root directory.
+ * @param {string} dir the wildcard directory containing git change, not necessarily the root git directory
  * @returns {string} the absolute path of the git directory root
  */
 function findRepoRoot(dir: string): string {
   try {
-    const absoluteDir = path.resolve(process.cwd(), dir);
-    return execSync('git rev-parse --show-toplevel', {cwd: absoluteDir})
+    return execSync('git rev-parse --show-toplevel', {cwd: dir})
       .toString()
-      .slice(0, -1);
+      .slice(0, -1); // remove the \n
   } catch (err) {
     logger.error(`The directory provided is not a git directory: ${dir}`);
     throw err;
@@ -46,12 +55,12 @@ function findRepoRoot(dir: string): string {
 
 /**
  * Get the GitHub mode, file content, and relative path asynchronously
- * @param {string} gitDir the root of the local GitHub repository
+ * @param {string} gitRootDir the root of the local GitHub repository
  * @param {string} gitDiffPattern A single file diff. Renames and copies are broken up into separate diffs. See https://git-scm.com/docs/git-diff#Documentation/git-diff.txt-git-diff-filesltpatterngt82308203 for more details
  * @returns {GitFileData} the current mode, the relative path of the file in the Git Repository, and the file status.
  */
 function getGitFileData(
-  gitDir: string,
+  gitRootDir: string,
   gitDiffPattern: string
 ): Promise<GitFileData> {
   return new Promise((resolve, reject) => {
@@ -68,14 +77,14 @@ function getGitFileData(
       } else {
         // else read the file
         readFile(
-          gitDir + '/' + relativePath,
+          gitRootDir + '/' + relativePath,
           {
             encoding: 'utf-8',
           },
           (err, content) => {
             if (err) {
               logger.error(
-                `Error loading file ${relativePath} in git directory ${gitDir}`
+                `Error loading file ${relativePath} in git directory ${gitRootDir}`
               );
               reject(err);
             }
@@ -96,22 +105,29 @@ function getGitFileData(
 }
 
 /**
- * Get the git changes of the current project asynchronously
- * @param {string} gitDir the root of the local GitHub repository
- * @returns {Changes}
+ * Get all the diffs using `git diff` of a git directory
+ * @param {string} gitRootDir a git directory
+ * @returns {string[]} a list of git diffs
  */
-async function parseChanges(gitDir: string): Promise<Changes> {
+function getAllDiffs(gitRootDir: string): string[] {
+  execSync('git add -A', {cwd: gitRootDir});
+  const diffs: string[] = execSync('git diff --raw --staged --no-renames', {
+    cwd: gitRootDir,
+  })
+    .toString() // strictly return buffer for mocking purposes. sinon ts doesn't infer {encoding: 'utf-8'}
+    .split('\n'); // remove the trailing new line
+  diffs.pop();
+  return diffs;
+}
+
+/**
+ * Get the git changes of the current project asynchronously.
+ * @param {string[]} diffs the git diff raw output (which only shows relative paths)
+ * @param {string} gitDir the root of the local GitHub repository
+ * @returns {Changes} the changeset
+ */
+async function parseChanges(diffs: string[], gitDir: string): Promise<Changes> {
   try {
-    execSync('git add -A', {cwd: gitDir});
-    // a list of files where each row is of the form
-    // https://git-scm.com/docs/git-diff#Documentation/git-diff.txt-git-diff-filesltpatterngt82308203
-    // Copy and rename show as additions
-    const diffs: string[] = execSync('git diff --raw --staged --no-renames', {
-      cwd: gitDir,
-    })
-      .toString() // for mocking purposes. sinon doesn't infer {encoding: 'utf-8'}
-      .split('\n'); // remove the trailing new line
-    diffs.pop();
     // get updated file contents
     const changes: Changes = new Map();
     const changePromises: Array<Promise<GitFileData>> = [];
@@ -137,12 +153,21 @@ async function parseChanges(gitDir: string): Promise<Changes> {
  */
 function getChanges(dir: string): Promise<Changes> {
   try {
-    const repoRoot = findRepoRoot(dir);
-    return parseChanges(repoRoot);
+    const absoluteDir = resolvePath(dir);
+    const gitRootDir = findRepoRoot(absoluteDir);
+    const diffs: string[] = getAllDiffs(gitRootDir);
+    return parseChanges(diffs, gitRootDir);
   } catch (err) {
     logger.error('Error loadng git changes.');
     throw err;
   }
 }
 
-export {getChanges, getGitFileData, findRepoRoot, parseChanges};
+export {
+  getChanges,
+  getGitFileData,
+  getAllDiffs,
+  findRepoRoot,
+  parseChanges,
+  resolvePath,
+};
