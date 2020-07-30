@@ -179,7 +179,7 @@ Whether or not to force push a reference with different commit history before th
 
 ### Example
 ```
-code-suggester pr -o 'Foo' -r 'Bar' --git-dir="/my-project"
+code-suggester pr -o foo -r bar -d 'description' -t 'title' -m 'message' --git-dir .
 ```
 
 ## Supported Node.js Versions
