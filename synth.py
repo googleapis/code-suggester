@@ -23,4 +23,4 @@ logging.basicConfig(level=logging.DEBUG)
 # Copy common templates
 common_templates = gcp.CommonTemplates()
 templates = common_templates.node_library(source_location='build/src')
-s.copy(templates)
+s.copy(templates, excludes=['README.md'])
