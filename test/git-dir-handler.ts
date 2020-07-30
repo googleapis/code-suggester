@@ -40,7 +40,7 @@ describe('git directory diff output to git file data + content', () => {
     // undo all changes
     sandbox.restore();
   });
-  it('the git diff parser does not read from file if the file status is deleted and uses the old mode', async () => {
+  it('does not read from a file if the file status is deleted and uses the old mode', async () => {
     // setup
     const stubReadFile = sandbox.stub(fs, 'readFile').resolves('Text');
     const gitDiffTxt = ':100644 000000 8e6c063 0000000 D\tReadme.md';
@@ -50,7 +50,7 @@ describe('git directory diff output to git file data + content', () => {
     expect(gitFileData.fileData.content).is.null;
     sinon.assert.notCalled(stubReadFile);
   });
-  it('the git diff parser gets the new file mode, content and path for created files', async () => {
+  it('gets the new file mode, content and path for created files', async () => {
     // setup
     const stubReadFile = sandbox.stub(fs, 'readFile').yields(null, 'Text');
     const gitDiffTxtAdd = ':000000 100644 0000000 8e6c063 A\tReadme.md';
@@ -60,7 +60,7 @@ describe('git directory diff output to git file data + content', () => {
     expect(gitFileDataAdd.path).equals('Readme.md');
     sinon.assert.calledOnce(stubReadFile);
   });
-  it('the git diff parser gets the new file mode, content and path for content modified files', async () => {
+  it('gets the new file mode, content and path for content modified files', async () => {
     // setup
     const stubReadFile = sandbox.stub(fs, 'readFile').yields(null, 'new text');
     const gitDiffTxtModified =
@@ -75,7 +75,7 @@ describe('git directory diff output to git file data + content', () => {
     sinon.assert.calledOnce(stubReadFile);
   });
 
-  it('the git diff parser gets the new file mode, content and path for mode modified files', async () => {
+  it('gets the new file mode, content and path for mode modified files', async () => {
     // setup
     const stubReadFile = sandbox
       .stub(fs, 'readFile')

@@ -32,7 +32,7 @@ type GitDiffStatus = 'A' | 'D' | 'M' | 'T' | 'U' | 'X' | string;
  * @param {string} dir the wildcard directory containing git change, not necessarily the root git directory
  * @returns {string} the absolute path relative to the path that the user executed the bash command in
  */
-function resolvePath(dir: string) {
+export function resolvePath(dir: string) {
   const absoluteDir = path.resolve(process.cwd(), dir);
   return absoluteDir;
 }
@@ -42,7 +42,7 @@ function resolvePath(dir: string) {
  * @param {string} dir the wildcard directory containing git change, not necessarily the root git directory
  * @returns {string} the absolute path of the git directory root
  */
-function findRepoRoot(dir: string): string {
+export function findRepoRoot(dir: string): string {
   try {
     return execSync('git rev-parse --show-toplevel', {cwd: dir})
       .toString()
@@ -59,7 +59,7 @@ function findRepoRoot(dir: string): string {
  * @param {string} gitDiffPattern A single file diff. Renames and copies are broken up into separate diffs. See https://git-scm.com/docs/git-diff#Documentation/git-diff.txt-git-diff-filesltpatterngt82308203 for more details
  * @returns {GitFileData} the current mode, the relative path of the file in the Git Repository, and the file status.
  */
-function getGitFileData(
+export function getGitFileData(
   gitRootDir: string,
   gitDiffPattern: string
 ): Promise<GitFileData> {
@@ -109,7 +109,7 @@ function getGitFileData(
  * @param {string} gitRootDir a git directory
  * @returns {string[]} a list of git diffs
  */
-function getAllDiffs(gitRootDir: string): string[] {
+export function getAllDiffs(gitRootDir: string): string[] {
   execSync('git add -A', {cwd: gitRootDir});
   const diffs: string[] = execSync('git diff --raw --staged --no-renames', {
     cwd: gitRootDir,
@@ -126,7 +126,7 @@ function getAllDiffs(gitRootDir: string): string[] {
  * @param {string} gitDir the root of the local GitHub repository
  * @returns {Changes} the changeset
  */
-async function parseChanges(diffs: string[], gitDir: string): Promise<Changes> {
+export async function parseChanges(diffs: string[], gitDir: string): Promise<Changes> {
   try {
     // get updated file contents
     const changes: Changes = new Map();
@@ -151,7 +151,7 @@ async function parseChanges(diffs: string[], gitDir: string): Promise<Changes> {
  * @param dir the directory containing git changes
  * @returns {Promise<Changes>} the change set
  */
-function getChanges(dir: string): Promise<Changes> {
+export function getChanges(dir: string): Promise<Changes> {
   try {
     const absoluteDir = resolvePath(dir);
     const gitRootDir = findRepoRoot(absoluteDir);
@@ -162,12 +162,3 @@ function getChanges(dir: string): Promise<Changes> {
     throw err;
   }
 }
-
-export {
-  getChanges,
-  getGitFileData,
-  getAllDiffs,
-  findRepoRoot,
-  parseChanges,
-  resolvePath,
-};

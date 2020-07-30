@@ -32,10 +32,10 @@ describe('main', () => {
     stubWorkFlow.main();
     assert.isOk(true);
   });
-  it('fails when there is no env variable', () => {
+  it('fails when there is no env variable', async () => {
     try {
       sandbox.stub(process.env, 'ACCESS_TOKEN').value(undefined);
-      main();
+      await main();
       assert.fail();
     } catch (err) {
       assert.isOk(true);
