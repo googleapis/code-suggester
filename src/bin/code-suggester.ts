@@ -91,7 +91,7 @@ yargs
     for (const key in argv) {
       if (typeof argv[key] === 'string' && !argv[key]) {
         throw Error(
-          `String parameters cannot be provided empty values. Parameter \'${key}\' was given an empty value\'`
+          `String parameters cannot be provided empty values. Parameter ${key} was given an empty value`
         );
       }
     }

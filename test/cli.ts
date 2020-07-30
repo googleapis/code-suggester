@@ -1,3 +1,4 @@
+import {describe, it, afterEach} from 'mocha';
 import {assert, expect} from 'chai';
 import {main, setUserCreatePullRequestOptions} from '../src/bin/workflow';
 import * as sinon from 'sinon';
@@ -20,8 +21,8 @@ describe('main', () => {
       .stub(yargs, 'argv')
       .value({...yargs.argv, _: ['pr'], 'git-dir': 'some/dir'});
     const stubHelperHandlers = {
-      getChanges: (gitDir: string) => {
-        return new Promise((resolve, reject) => {
+      getChanges: () => {
+        return new Promise((resolve) => {
           resolve(new Map());
         });
       },
@@ -51,7 +52,7 @@ describe('main', () => {
       .stub(yargs, 'argv')
       .value({...yargs.argv, _: ['pr'], 'git-dir': 'some/dir'});
     const stubHelperHandlers = {
-      getChanges: (gitDir: string) => {
+      getChanges: () => {
         return new Promise((resolve, reject) => {
           reject(Error());
         });

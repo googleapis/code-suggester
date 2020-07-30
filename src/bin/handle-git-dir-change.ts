@@ -126,7 +126,10 @@ export function getAllDiffs(gitRootDir: string): string[] {
  * @param {string} gitDir the root of the local GitHub repository
  * @returns {Changes} the changeset
  */
-export async function parseChanges(diffs: string[], gitDir: string): Promise<Changes> {
+export async function parseChanges(
+  diffs: string[],
+  gitDir: string
+): Promise<Changes> {
   try {
     // get updated file contents
     const changes: Changes = new Map();
