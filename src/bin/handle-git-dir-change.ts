@@ -149,8 +149,8 @@ export function getAllDiffs(gitRootDir: string): string[] {
     cwd: gitRootDir,
   })
     .toString() // strictly return buffer for mocking purposes. sinon ts doesn't infer {encoding: 'utf-8'}
+    .trimRight() // remove the trailing new line
     .split('\n');
-  diffs.pop(); // remove the trailing new line
   return diffs;
 }
 
