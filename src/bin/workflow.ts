@@ -10,7 +10,7 @@ export const CREATE_PR_COMMAND = 'pr';
 /**
  * map yargs to user pull request otions
  */
-export function setUserCreatePullRequestOptions(): CreatePullRequestUserOptions {
+export function coerceUserCreatePullRequestOptions(): CreatePullRequestUserOptions {
   return {
     upstreamRepo: yargs.argv.upstreamRepo as string,
     upstreamOwner: yargs.argv.upstreamOwner as string,
@@ -30,7 +30,7 @@ export function setUserCreatePullRequestOptions(): CreatePullRequestUserOptions 
 export async function main() {
   try {
     setupLogger();
-    const options = setUserCreatePullRequestOptions();
+    const options = coerceUserCreatePullRequestOptions();
     if (!process.env.ACCESS_TOKEN) {
       throw Error('The ACCESS_TOKEN should not be undefined');
     }

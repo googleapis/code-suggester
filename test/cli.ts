@@ -1,6 +1,6 @@
 import {describe, it, afterEach} from 'mocha';
 import {assert, expect} from 'chai';
-import {main, setUserCreatePullRequestOptions} from '../src/bin/workflow';
+import {main, coerceUserCreatePullRequestOptions} from '../src/bin/workflow';
 import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';
 import * as yargs from 'yargs';
@@ -106,6 +106,6 @@ describe('Mapping pr yargs to create PR options', () => {
 
     sandbox.stub(yargs, 'argv').value({_: ['pr'], ...options});
 
-    expect(setUserCreatePullRequestOptions()).to.deep.equals(options);
+    expect(coerceUserCreatePullRequestOptions()).to.deep.equals(options);
   });
 });
