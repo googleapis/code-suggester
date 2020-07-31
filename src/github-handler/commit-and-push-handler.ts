@@ -29,7 +29,7 @@ import {logger} from '../logger';
  * @param {Changes} changes the set of repository changes
  * @returns {TreeObject[]} The new GitHub changes
  */
-function generateTreeObjects(changes: Changes): TreeObject[] {
+export function generateTreeObjects(changes: Changes): TreeObject[] {
   const tree: TreeObject[] = [];
   changes.forEach((fileData: FileData, path: string) => {
     if (fileData.content === null) {
@@ -63,7 +63,7 @@ function generateTreeObjects(changes: Changes): TreeObject[] {
  * @param {TreeObject[]} tree the set of GitHub changes to upload
  * @returns {Promise<string>} the GitHub tree SHA
  */
-async function createTree(
+export async function createTree(
   octokit: Octokit,
   origin: RepoDomain,
   refHead: string,
@@ -102,7 +102,7 @@ async function createTree(
  * @param {string} message the message of the new commit
  * @returns {Promise<string>} the new commit SHA
  */
-async function createCommit(
+export async function createCommit(
   octokit: Octokit,
   origin: RepoDomain,
   refHead: string,
@@ -128,18 +128,21 @@ async function createCommit(
  * @param {Octokit} octokit The authenticated octokit instance
  * @param {BranchDomain} origin the the remote branch to push changes to
  * @param {string} newSha the ref to update the commit HEAD to
+ * @param {boolean} force to force the commit changes given refHead
  * @returns {Promise<void>}
  */
-async function updateRef(
+export async function updateRef(
   octokit: Octokit,
   origin: BranchDomain,
-  newSha: string
+  newSha: string,
+  force: boolean
 ): Promise<void> {
   await octokit.git.updateRef({
     owner: origin.owner,
     repo: origin.repo,
     ref: `heads/${origin.branch}`,
     sha: newSha,
+    force,
   });
   logger.info(`Successfully updated reference ${origin.branch} to ${newSha}`);
 }
@@ -153,14 +156,16 @@ async function updateRef(
  * @param {RepoDomain} origin the the remote repository to push changes to
  * @param {string} originBranchName the remote branch that will contain the new changes
  * @param {string} commitMessage the message of the new commit
+ * @param {boolean} force to force the commit changes given refHead
  * @returns {Promise<void>}
  */
-async function commitAndPush(
+export async function commitAndPush(
   octokit: Octokit,
   refHead: string,
   changes: Changes,
   originBranch: BranchDomain,
-  commitMessage: string
+  commitMessage: string,
+  force: boolean
 ) {
   try {
     const tree = generateTreeObjects(changes);
@@ -172,17 +177,9 @@ async function commitAndPush(
       treeSha,
       commitMessage
     );
-    await updateRef(octokit, originBranch, commitSha);
+    await updateRef(octokit, originBranch, commitSha, force);
   } catch (err) {
     logger.error('Error while creating a tree and updating the ref');
     throw err;
   }
 }
-
-export {
-  commitAndPush,
-  createCommit,
-  generateTreeObjects,
-  createTree,
-  updateRef,
-};
