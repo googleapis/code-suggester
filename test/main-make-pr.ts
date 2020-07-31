@@ -70,12 +70,15 @@ describe('Make PR main function', () => {
       },
       branch: (
         octokit: Octokit,
-        originBranch: {owner: string; repo: string},
+        origin: {owner: string; repo: string},
+        upstream: {owner: string; repo: string},
         testBranch: string,
         testprimary: string
       ) => {
-        expect(originBranch.owner).equals(originOwner);
-        expect(originBranch.repo).equals(originRepo);
+        expect(origin.owner).equals(originOwner);
+        expect(origin.repo).equals(originRepo);
+        expect(upstream.owner).equals(upstreamOwner);
+        expect(upstream.repo).equals(upstreamRepo);
         expect(testBranch).equals(branch);
         expect(testprimary).equals(primary);
         return oldHeadSha;
@@ -181,12 +184,15 @@ describe('Make PR main function', () => {
       },
       branch: (
         octokit: Octokit,
-        originBranch: {owner: string; repo: string},
+        origin: {owner: string; repo: string},
+        upstream: {owner: string; repo: string},
         testBranch: string,
         testprimary: string
       ) => {
-        expect(originBranch.owner).equals(originOwner);
-        expect(originBranch.repo).equals(originRepo);
+        expect(origin.owner).equals(originOwner);
+        expect(origin.repo).equals(originRepo);
+        expect(upstream.owner).equals(upstreamOwner);
+        expect(upstream.repo).equals(upstreamRepo);
         expect(testBranch).equals(branch);
         expect(testprimary).equals(primary);
         return oldHeadSha;
@@ -221,12 +227,15 @@ describe('Make PR main function', () => {
       },
       branch: (
         octokit: Octokit,
-        originBranch: {owner: string; repo: string},
+        origin: {owner: string; repo: string},
+        upstream: {owner: string; repo: string},
         testBranch: string,
         testprimary: string
       ) => {
-        expect(originBranch.owner).equals(originOwner);
-        expect(originBranch.repo).equals(originRepo);
+        expect(origin.owner).equals(originOwner);
+        expect(origin.repo).equals(originRepo);
+        expect(upstream.owner).equals(upstreamOwner);
+        expect(upstream.repo).equals(upstreamRepo);
         expect(testBranch).equals(branch);
         expect(testprimary).equals(primary);
         return oldHeadSha;
