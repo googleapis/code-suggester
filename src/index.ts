@@ -68,6 +68,7 @@ async function createPullRequest(
   const refHeadSha: string = await handler.branch(
     octokit,
     origin,
+    upstream,
     originBranch.branch,
     gitHubConfigs.primary
   );
@@ -76,7 +77,8 @@ async function createPullRequest(
     refHeadSha,
     changes,
     originBranch,
-    gitHubConfigs.message
+    gitHubConfigs.message,
+    gitHubConfigs.force
   );
 
   const description: Description = {

@@ -214,13 +214,15 @@ describe('Update branch reference', () => {
     await handler.updateRef(
       octokit,
       {branch: 'test-branch-name', ...origin},
-      sha
+      sha,
+      false
     );
     sandbox.assert.calledOnceWithExactly(stubUpdateRef, {
       owner: origin.owner,
       repo: origin.repo,
       sha,
       ref: 'heads/test-branch-name',
+      force: false,
     });
   });
 });
@@ -285,7 +287,8 @@ describe('Commit and push function', async () => {
       oldHeadSha,
       changes,
       {branch: branchName, ...origin},
-      message
+      message,
+      true
     );
     sandbox.assert.calledOnceWithExactly(stubGetCommit, {
       owner: origin.owner,
@@ -310,6 +313,7 @@ describe('Commit and push function', async () => {
       repo: origin.repo,
       sha: createCommitResponse.data.sha,
       ref: 'heads/test-branch-name',
+      force: true,
     });
   });
   it('Forwards GitHub error if getCommit fails', async () => {
