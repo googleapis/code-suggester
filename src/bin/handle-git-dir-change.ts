@@ -210,7 +210,7 @@ export function getChanges(dir: string): Promise<Changes> {
     validateGitInstalled();
     const absoluteDir = resolvePath(dir);
     const gitRootDir = findRepoRoot(absoluteDir);
-    const diffs: string[] = getAllDiffs(gitRootDir);
+    const diffs = getAllDiffs(gitRootDir);
     return parseChanges(diffs, gitRootDir);
   } catch (err) {
     if (!(err instanceof InstallationError)) {
