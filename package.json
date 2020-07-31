@@ -7,6 +7,9 @@
   "engines": {
     "node": ">=8.10.0"
   },
+  "bin": {
+    "code-suggest": "./build/src/bin/code-suggester.js"
+  },
   "repository": "googleapis/code-suggester",
   "main": "build/src/index.js",
   "module": "build/src/index.js",
@@ -39,7 +42,10 @@
   },
   "dependencies": {
     "@octokit/rest": "^18.0.1",
-    "pino": "^6.3.2"
+    "@types/yargs": "^15.0.5",
+    "glob": "^7.1.6",
+    "pino": "^6.3.2",
+    "yargs": "^15.4.1"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
