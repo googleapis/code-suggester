@@ -30,6 +30,7 @@ describe('Branch', () => {
   const testErrorMessage = 'test-error-message';
   const sandbox = sinon.createSandbox();
   const origin = {owner: 'octocat', repo: 'HelloWorld'};
+  const upstream = {owner: 'octocat-upstream', repo: 'HelloWorld-upstream'};
   const branchName = 'test-branch';
   afterEach(() => {
     sandbox.restore();
@@ -59,7 +60,7 @@ describe('Branch', () => {
     });
   });
 
-  it('The create branch function returns the primary SHA when branching is successful', async () => {
+  it('The create branch function returns the primary SHA when create branching is successful', async () => {
     // setup
     const branchResponseBody = await import(
       './fixtures/get-branch-response.json'
@@ -69,6 +70,33 @@ describe('Branch', () => {
       status: 200,
       url: 'http://fake-url.com',
       data: branchResponseBody,
+    };
+
+    const listResponseBody = [
+      {
+        name: 'master',
+        commit: {
+          sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
+          url:
+            'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
+        },
+        protected: true,
+        protection: {
+          enabled: true,
+          required_status_checks: {
+            enforcement_level: 'non_admins',
+            contexts: ['ci-test', 'linter'],
+          },
+        },
+        protection_url:
+          'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
+      },
+    ];
+    const listBranchResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: listResponseBody,
     };
 
     const createRefResponse = {
@@ -91,16 +119,23 @@ describe('Branch', () => {
     const getBranchStub = sandbox
       .stub(octokit.repos, 'getBranch')
       .resolves(branchResponse);
+    const listBranchStub = sandbox
+      .stub(octokit.repos, 'listBranches')
+      .resolves(listBranchResponse);
     const createRefStub = sandbox
       .stub(octokit.git, 'createRef')
       .resolves(createRefResponse);
     // tests
-    const sha = await branch(octokit, origin, branchName, 'master');
+    const sha = await branch(octokit, origin, upstream, branchName, 'master');
     expect(sha).to.equal(branchResponse.data.commit.sha);
     sandbox.assert.calledOnceWithExactly(getBranchStub, {
+      owner: upstream.owner,
+      repo: upstream.repo,
+      branch: 'master',
+    });
+    sandbox.assert.calledOnceWithExactly(listBranchStub, {
       owner: origin.owner,
       repo: origin.repo,
-      branch: 'master',
     });
     sandbox.assert.calledOnceWithExactly(createRefStub, {
       owner: origin.owner,
@@ -109,10 +144,117 @@ describe('Branch', () => {
       sha: branchResponse.data.commit.sha,
     });
   });
+
+  it('When there is an existing branch the primary HEAD sha is still returned and no new branch is created', async () => {
+    // setup
+    const branchResponseBody = await import(
+      './fixtures/get-branch-response.json'
+    );
+    const branchResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: branchResponseBody,
+    };
+
+    const listResponseBody = [
+      {
+        name: 'master',
+        commit: {
+          sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
+          url:
+            'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
+        },
+        protected: true,
+        protection: {
+          enabled: true,
+          required_status_checks: {
+            enforcement_level: 'non_admins',
+            contexts: ['ci-test', 'linter'],
+          },
+        },
+        protection_url:
+          'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
+      },
+      {
+        name: 'existing-branch',
+        commit: {
+          sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
+          url:
+            'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
+        },
+        protected: true,
+        protection: {
+          enabled: true,
+          required_status_checks: {
+            enforcement_level: 'non_admins',
+            contexts: ['ci-test', 'linter'],
+          },
+        },
+        protection_url:
+          'https://api.github.com/repos/octocat/hello-world/existing-branch/master/protection',
+      },
+    ];
+    const listBranchResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: listResponseBody,
+    };
+
+    const getBranchStub = sandbox
+      .stub(octokit.repos, 'getBranch')
+      .resolves(branchResponse);
+    const listBranchStub = sandbox
+      .stub(octokit.repos, 'listBranches')
+      .resolves(listBranchResponse);
+    const createRefStub = sandbox.stub(octokit.git, 'createRef');
+    // tests
+    const sha = await branch(
+      octokit,
+      origin,
+      upstream,
+      'existing-branch',
+      'master'
+    );
+    expect(sha).to.equal(branchResponse.data.commit.sha);
+    sandbox.assert.calledOnceWithExactly(getBranchStub, {
+      owner: upstream.owner,
+      repo: upstream.repo,
+      branch: 'master',
+    });
+    sandbox.assert.calledOnceWithExactly(listBranchStub, {
+      owner: origin.owner,
+      repo: origin.repo,
+    });
+    sandbox.assert.notCalled(createRefStub);
+  });
+
   it('Branching fails when Octokit get branch fails', async () => {
     sandbox.stub(octokit.repos, 'getBranch').rejects(Error(testErrorMessage));
     try {
-      await branch(octokit, origin, branchName, 'master');
+      await branch(octokit, origin, upstream, branchName, 'master');
+      assert.fail();
+    } catch (err) {
+      expect(err.message).to.equal(testErrorMessage);
+    }
+  });
+  it('Branching fails when Octokit list branch fails', async () => {
+    const branchResponseBody = await import(
+      './fixtures/get-branch-response.json'
+    );
+    const branchResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: branchResponseBody,
+    };
+    sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
+    sandbox
+      .stub(octokit.repos, 'listBranches')
+      .rejects(Error(testErrorMessage));
+    try {
+      await branch(octokit, origin, upstream, branchName, 'master');
       assert.fail();
     } catch (err) {
       expect(err.message).to.equal(testErrorMessage);
@@ -129,44 +271,56 @@ describe('Branch', () => {
       data: branchResponseBody,
     };
 
+    const listResponseBody = [
+      {
+        name: 'master',
+        commit: {
+          sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
+          url:
+            'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
+        },
+        protected: true,
+        protection: {
+          enabled: true,
+          required_status_checks: {
+            enforcement_level: 'non_admins',
+            contexts: ['ci-test', 'linter'],
+          },
+        },
+        protection_url:
+          'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
+      },
+    ];
+    const listBranchResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: listResponseBody,
+    };
+
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
+    sandbox.stub(octokit.repos, 'listBranches').resolves(listBranchResponse);
     sandbox.stub(octokit.git, 'createRef').rejects(Error(testErrorMessage));
     try {
-      await branch(octokit, origin, branchName, 'master');
+      await branch(octokit, origin, upstream, branchName, 'master');
       assert.fail();
     } catch (err) {
       expect(err.message).to.equal(testErrorMessage);
     }
   });
   it('Branching fails when primary branch specified did not match any of the branches returned', async () => {
-    const listBranchesResponse = {
+    const branchResponseBody = await import(
+      './fixtures/get-branch-response.json'
+    );
+    const branchResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
-      data: [
-        {
-          name: 'master',
-          commit: {
-            sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-            url:
-              'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-          },
-          protected: true,
-          protection: {
-            enabled: true,
-            required_status_checks: {
-              enforcement_level: 'non_admins',
-              contexts: ['ci-test', 'linter'],
-            },
-          },
-          protection_url:
-            'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
-        },
-      ],
+      data: branchResponseBody,
     };
-    sandbox.stub(octokit.repos, 'listBranches').resolves(listBranchesResponse);
+    sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
     try {
-      await branch(octokit, origin, branchName, 'non-master-branch');
+      await branch(octokit, origin, upstream, branchName, 'non-master-branch');
       assert.fail();
     } catch (err) {
       assert.isOk(true);
