@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.1](https://www.github.com/googleapis/code-suggester/compare/v1.0.0...v1.0.1) (2020-08-04)
+
+
+### Bug Fixes
+
+* command and public package alias ([#61](https://www.github.com/googleapis/code-suggester/issues/61)) ([79b540d](https://www.github.com/googleapis/code-suggester/commit/79b540d72011ac98089374d5504b07d4546020dd))
+
 ## 1.0.0 (2020-08-04)
 
 
