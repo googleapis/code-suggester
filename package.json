@@ -1,5 +1,5 @@
 {
-  "name": "@google-cloud/code-suggester",
+  "name": "code-suggester",
   "description": "Library to propose code changes",
   "version": "1.0.0",
   "license": "Apache-2.0",
@@ -8,7 +8,7 @@
     "node": ">=8.10.0"
   },
   "bin": {
-    "code-suggest": "./build/src/bin/code-suggester.js"
+    "code-suggester": "./build/src/bin/code-suggester.js"
   },
   "repository": "googleapis/code-suggester",
   "main": "build/src/index.js",
