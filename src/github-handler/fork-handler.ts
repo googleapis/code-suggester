@@ -38,7 +38,6 @@ async function fork(
       })
     ).data;
     logger.info(`Fork successfully exists on ${upstream.repo}`);
-    // TODO autosync
     return {
       repo: forkedRepo.name,
       owner: forkedRepo.owner.login,

@@ -23,60 +23,115 @@ before(() => {
 });
 
 describe('Opening a pull request', async () => {
+  const sandbox = sinon.createSandbox();
   const upstream = {owner: 'upstream-owner', repo: 'upstream-repo'};
   const origin = {
     owner: 'origin-owner',
     repo: 'origin-repo',
     branch: 'pr-test-branch',
   };
-  const responseData = await import('./fixtures/create-pr-response.json');
   const description = {
     title: 'PR-TITLE',
     body: 'PR-DESCRIPTION',
   };
+  afterEach(() => {
+    sandbox.restore();
+  });
 
-  describe('Octokit create function', () => {
-    it('Is called with the correct values and defaults', async () => {
-      const createRefResponse = {
-        headers: {},
-        status: 200,
-        url: 'http://fake-url.com',
-        data: responseData,
-      };
-      // setup
-      const stub = sinon
-        .stub(octokit.pulls, 'create')
-        .resolves(createRefResponse);
-      // tests
-      await openPullRequest(octokit, upstream, origin, description);
-      sinon.assert.calledOnceWithExactly(stub, {
-        owner: upstream.owner,
-        repo: origin.repo,
-        title: description.title,
-        head: 'origin-owner:pr-test-branch',
-        base: 'master',
-        body: description.body,
-        maintainer_can_modify: true,
-      });
-      // restore
-      stub.restore();
+  it('Invokes octokit pull create when there is not an existing pull request open', async () => {
+    // setup
+    const responseCreatePullData = await import('./fixtures/create-pr-response.json');
+    const createPrResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: responseCreatePullData,
+    };
+    const listPullResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: [],
+    };
+    sandbox
+      .stub(octokit.pulls, 'list')
+      .resolves(listPullResponse);
+    const stub = sandbox
+      .stub(octokit.pulls, 'create')
+      .resolves(createPrResponse);
+    // tests
+    await openPullRequest(octokit, upstream, origin, description);
+    sandbox.assert.calledOnceWithExactly(stub, {
+      owner: upstream.owner,
+      repo: origin.repo,
+      title: description.title,
+      head: 'origin-owner:pr-test-branch',
+      base: 'master',
+      body: description.body,
+      maintainer_can_modify: true,
     });
   });
 
-  describe('Open PR function', () => {
-    it('Passes up the error message with a throw when octokit fails', async () => {
-      // setup
-      const errorMsg = 'Error message';
-      const stub = sinon.stub(octokit.pulls, 'create').rejects(Error(errorMsg));
-      try {
-        await openPullRequest(octokit, upstream, origin, description);
-        expect.fail();
-      } catch (err) {
-        expect(err.message).to.equal(errorMsg);
-      } finally {
-        // restore
-        stub.restore();
-      }
+  it('Does not invoke octokit pull create when there is an existing pull request open', async () => {
+    // setup
+    const responseListPullData = await import('./fixtures/list-pulls-response.json');
+    const listPullResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: responseListPullData,
+    };
+    
+    const conflictingOrigin = {
+      owner: 'octocat',
+      repo: 'Hello-World',
+      branch: 'new-topic',
+    };
+    const listStub = sandbox
+      .stub(octokit.pulls, 'list')
+      .resolves(listPullResponse);
+    const createStub = sandbox
+      .stub(octokit.pulls, 'create');
+    // tests
+    await openPullRequest(octokit, upstream, conflictingOrigin, description);
+    sandbox.assert.calledOnceWithExactly(listStub, {
+      owner: upstream.owner,
+      repo: conflictingOrigin.repo,
+      head: 'octocat:new-topic'
     });
+    sandbox.assert.notCalled(createStub);
+  });
+
+  it('Passes up the error message with a throw when octokit list pull fails', async () => {
+    // setup
+    const errorMsg = 'Error message';
+    sandbox.stub(octokit.pulls, 'list').rejects(Error(errorMsg));
+    try {
+      await openPullRequest(octokit, upstream, origin, description);
+      expect.fail();
+    } catch (err) {
+      expect(err.message).to.equal(errorMsg);
+    }
+  });
+
+  it('Passes up the error message with a throw when octokit create pull fails', async () => {
+    // setup
+    const listPullResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: [],
+    };
+    sandbox
+      .stub(octokit.pulls, 'list')
+      .resolves(listPullResponse);
+    const errorMsg = 'Error message';
+    sandbox.stub(octokit.pulls, 'create').rejects(Error(errorMsg));
+    try {
+      await openPullRequest(octokit, upstream, origin, description);
+      expect.fail();
+    } catch (err) {
+      expect(err.message).to.equal(errorMsg);
+    }
   });
 });

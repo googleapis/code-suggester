@@ -37,7 +37,15 @@ async function openPullRequest(
   maintainersCanModify = true,
   upstreamPrimary: string = DEFAULT_PRIMARY
 ): Promise<void> {
-  // TODO - autosync fork, update branch, and re-apply changes
+  const existingPullRequests = (await octokit.pulls.list({
+    owner: upstream.owner,
+    repo: origin.repo,
+    head: `${origin.owner}:${origin.branch}`
+  })).data;
+  if (existingPullRequests.length) {
+    logger.info(`Found existing pull request for reference ${origin.owner}:${origin.branch}. Skipping creating a new pull request.`);
+    return;
+  }
   const pullResponseData = (
     await octokit.pulls.create({
       owner: upstream.owner,
