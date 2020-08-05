@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {expect} from 'chai';
-import {describe, it, before} from 'mocha';
+import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {openPullRequest} from '../src/github-handler/pull-request-handler';
@@ -40,7 +40,9 @@ describe('Opening a pull request', async () => {
 
   it('Invokes octokit pull create when there is not an existing pull request open', async () => {
     // setup
-    const responseCreatePullData = await import('./fixtures/create-pr-response.json');
+    const responseCreatePullData = await import(
+      './fixtures/create-pr-response.json'
+    );
     const createPrResponse = {
       headers: {},
       status: 200,
@@ -53,9 +55,7 @@ describe('Opening a pull request', async () => {
       url: 'http://fake-url.com',
       data: [],
     };
-    sandbox
-      .stub(octokit.pulls, 'list')
-      .resolves(listPullResponse);
+    sandbox.stub(octokit.pulls, 'list').resolves(listPullResponse);
     const stub = sandbox
       .stub(octokit.pulls, 'create')
       .resolves(createPrResponse);
@@ -74,14 +74,16 @@ describe('Opening a pull request', async () => {
 
   it('Does not invoke octokit pull create when there is an existing pull request open', async () => {
     // setup
-    const responseListPullData = await import('./fixtures/list-pulls-response.json');
+    const responseListPullData = await import(
+      './fixtures/list-pulls-response.json'
+    );
     const listPullResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
       data: responseListPullData,
     };
-    
+
     const conflictingOrigin = {
       owner: 'octocat',
       repo: 'Hello-World',
@@ -90,14 +92,13 @@ describe('Opening a pull request', async () => {
     const listStub = sandbox
       .stub(octokit.pulls, 'list')
       .resolves(listPullResponse);
-    const createStub = sandbox
-      .stub(octokit.pulls, 'create');
+    const createStub = sandbox.stub(octokit.pulls, 'create');
     // tests
     await openPullRequest(octokit, upstream, conflictingOrigin, description);
     sandbox.assert.calledOnceWithExactly(listStub, {
       owner: upstream.owner,
       repo: conflictingOrigin.repo,
-      head: 'octocat:new-topic'
+      head: 'octocat:new-topic',
     });
     sandbox.assert.notCalled(createStub);
   });
@@ -122,9 +123,7 @@ describe('Opening a pull request', async () => {
       url: 'http://fake-url.com',
       data: [],
     };
-    sandbox
-      .stub(octokit.pulls, 'list')
-      .resolves(listPullResponse);
+    sandbox.stub(octokit.pulls, 'list').resolves(listPullResponse);
     const errorMsg = 'Error message';
     sandbox.stub(octokit.pulls, 'create').rejects(Error(errorMsg));
     try {
