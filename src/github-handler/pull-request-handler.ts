@@ -37,14 +37,16 @@ async function openPullRequest(
   maintainersCanModify = true,
   upstreamPrimary: string = DEFAULT_PRIMARY
 ): Promise<void> {
-  const existingPullRequests = (
-    await octokit.pulls.list({
-      owner: upstream.owner,
-      repo: origin.repo,
-      head: `${origin.owner}:${origin.branch}`,
-    })
-  ).data;
-  if (existingPullRequests.length) {
+  const head = `${origin.owner}:${origin.branch}`;
+  const existingPullRequest =
+    (
+      await octokit.pulls.list({
+        owner: upstream.owner,
+        repo: origin.repo,
+        head,
+      })
+    ).data.findIndex(pr => pr.head.label === head) >= 0;
+  if (existingPullRequest) {
     logger.info(
       `Found existing pull request for reference ${origin.owner}:${origin.branch}. Skipping creating a new pull request.`
     );

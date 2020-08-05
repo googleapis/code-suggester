@@ -72,6 +72,94 @@ describe('Opening a pull request', async () => {
     });
   });
 
+  it('Invokes octokit pull create when there are similar refs with pull requests open, but not exact refs', async () => {
+    // setup
+    const responseCreatePullData = await import(
+      './fixtures/create-pr-response.json'
+    );
+    const responseListPullData = await import(
+      './fixtures/list-pulls-response.json'
+    );
+    const createPrResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: responseCreatePullData,
+    };
+    const listPullResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: responseListPullData,
+    };
+    sandbox.stub(octokit.pulls, 'list').resolves(listPullResponse);
+    const stub = sandbox
+      .stub(octokit.pulls, 'create')
+      .resolves(createPrResponse);
+
+    const similarOrigin1 = {
+      owner: 'octocat',
+      repo: 'Hello-World',
+      branch: 'new-topic-1',
+    };
+    const similarOrigin2 = {
+      owner: 'octocat',
+      repo: 'Hello-World',
+      branch: 'new-topic1',
+    };
+    const similarOrigin3 = {
+      owner: 'octocat',
+      repo: 'Hello-World',
+      branch: 'New-topic',
+    };
+    const similarOrigin4 = {
+      owner: 'octocat',
+      repo: 'Hello-World',
+      branch: 'new-topi',
+    };
+    // tests
+    await openPullRequest(octokit, upstream, similarOrigin1, description);
+    sandbox.assert.calledWithExactly(stub, {
+      owner: upstream.owner,
+      repo: similarOrigin1.repo,
+      title: description.title,
+      head: 'octocat:new-topic-1',
+      base: 'master',
+      body: description.body,
+      maintainer_can_modify: true,
+    });
+    await openPullRequest(octokit, upstream, similarOrigin2, description);
+    sandbox.assert.calledWithExactly(stub, {
+      owner: upstream.owner,
+      repo: similarOrigin2.repo,
+      title: description.title,
+      head: 'octocat:new-topic1',
+      base: 'master',
+      body: description.body,
+      maintainer_can_modify: true,
+    });
+    await openPullRequest(octokit, upstream, similarOrigin3, description);
+    sandbox.assert.calledWithExactly(stub, {
+      owner: upstream.owner,
+      repo: similarOrigin3.repo,
+      title: description.title,
+      head: 'octocat:New-topic',
+      base: 'master',
+      body: description.body,
+      maintainer_can_modify: true,
+    });
+    await openPullRequest(octokit, upstream, similarOrigin4, description);
+    sandbox.assert.calledWithExactly(stub, {
+      owner: upstream.owner,
+      repo: similarOrigin4.repo,
+      title: description.title,
+      head: 'octocat:new-topi',
+      base: 'master',
+      body: description.body,
+      maintainer_can_modify: true,
+    });
+  });
+
   it('Does not invoke octokit pull create when there is an existing pull request open', async () => {
     // setup
     const responseListPullData = await import(
