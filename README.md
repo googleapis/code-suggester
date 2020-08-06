@@ -15,7 +15,7 @@
 Code-suggester automates the steps involved in making code changes or code suggestions to your [GitHub](https://github.com/) repository! Code-suggester
 1. can be imported as a [library](#Core-Library), or
 2. used as a [CLI](#CLI) tool, or
-2. configured in a [GitHub Action](#Action)
+3. configured in a [GitHub Action](#Action)
 
 
 
