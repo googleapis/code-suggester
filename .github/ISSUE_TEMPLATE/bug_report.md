@@ -26,7 +26,7 @@ If the support paths suggested above still do not result in a resolution, please
   - OS:
   - Node.js version:
   - npm version:
-  - `@google-cloud/code-suggester` version:
+  - `code-suggester` version:
 
 #### Steps to reproduce
 
