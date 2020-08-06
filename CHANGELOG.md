@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.2](https://www.github.com/googleapis/code-suggester/compare/v1.0.1...v1.0.2) (2020-08-06)
+
+
+### Bug Fixes
+
+* **core-library:** do not create pr when a pr already exists for a ref ([#66](https://www.github.com/googleapis/code-suggester/issues/66)) ([4c7b259](https://www.github.com/googleapis/code-suggester/commit/4c7b259e7025d5a5a4357cbb588a7cfa66869023)), closes [#17](https://www.github.com/googleapis/code-suggester/issues/17)
+
 ### [1.0.1](https://www.github.com/googleapis/code-suggester/compare/v1.0.0...v1.0.1) (2020-08-04)
 
 
