@@ -1,0 +1,6 @@
+name: Code-Suggester
+description: An action-wrapper for the npm cli code-suggester. It suggests code to your repository
+inputs:
+runs:
+  using: docker
+  image: Dockerfile
