@@ -129,6 +129,10 @@ npm i code-suggester -g
 
 `code-suggester pr [options] --upstream-repo=<string> --upstream-owner=<string>`
 
+#### Environment Variables
+#### `ACCESS_TOKEN`
+*string* <br>
+**Required.** The GitHub access token which has permissions to fork, write to its forked repo and its branches, as well as create Pull Requests on the upstream repository.
 
 #### Options
 
@@ -184,6 +188,10 @@ Opens a GitHub Pull Request against the upstream primary branch with the provide
 
 `pr --upstream-repo=<string> --upstream-owner=<string> --title=<string> --description=<string> --message=<string> [options] `
 
+#### Environment Variables
+#### `ACCESS_TOKEN`
+*string* <br>
+**Required.** The GitHub access token which has permissions to fork, write to its forked repo and its branches, as well as create Pull Requests on the upstream repository. We recommend storing it as a secret in your GitHub repository.
 
 #### Options
 
@@ -239,11 +247,13 @@ on:
   pull_request:
 name: ci
 jobs:
-  test:
+  add-license:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node: [10, 12, 13]
+    env:
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: googleapis/code-suggester@v1
