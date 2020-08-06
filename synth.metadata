@@ -4,7 +4,7 @@
       "git": {
         "name": ".",
         "remote": "https://github.com/googleapis/code-suggester.git",
-        "sha": "339a7a63eded600c4d6dcdecb6902f181382ce86"
+        "sha": "8e152d12c70cec6b48fa6b596a0f80f636264bfe"
       }
     },
     {
