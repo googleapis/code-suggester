@@ -195,45 +195,45 @@ Opens a GitHub Pull Request against the upstream primary branch with the provide
 
 #### Options
 
-#### `--upstream-repo, -r`
+#### `upstream_repo`
 *string* <br>
 **Required.** The repository to create the fork off of.
 
 
-#### `--upstream-owner, -o`
+#### `upstream_owner`
 *string* <br>
 **Required.** The owner of the upstream repository.
 
 
-#### `--description, -d`
+#### `description`
 *string* <br>
 **Required.** The GitHub Pull Request description.
 
-#### `--title, -t`
+#### `title`
 *string* <br>
 **Required.** The GitHub Pull Request title.
 
-#### `--branch, -b`
+#### `branch`
 *string* <br>
 The GitHub working branch name. Default value is: `'code-suggestions'`.
 
-#### `--primary, -p`
+#### `primary`
 *string* <br>
 The primary upstream branch to open a PR against. Default value is: `'master'`.
 
-#### `--message, -m`
+#### `message`
 *string* <br>
 **Required.** The GitHub commit message.
 
-#### `--force, -f`
+#### `force`
 *boolean* <br>
 Whether or not to force push a reference with different commit history before the remote reference HEAD. Default value is: `false`.
 
-#### `--maintainers-can-modify, --modify`
+#### `maintainers_can_modify`
 *boolean* <br>
 Whether or not maintainers can modify the pull request. Default value is: `true`.
 
-#### `--git-dir`
+#### `git_dir`
 *string* <br>
 **Required.** The path of a git directory. Relative to `$GITHUB_WORKSPACE`.
 
@@ -252,7 +252,6 @@ jobs:
       ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v2
-      - uses: googleapis/code-suggester@v1
       - name: <YOUR CHANGES> # the physical changes you want to make to your repository
         run: (curl http://www.apache.org/licenses/LICENSE-2.0.txt) > LICENSE # For example adding LICENSE file
       - uses: googleapis/code-suggester@v1 # takes the changes from git directory

@@ -17,25 +17,38 @@ inputs:
   title:
     description: 'The GitHub Pull Request title.'
     required: true
+  message:
+    description: 'The GitHub commit message.'
+    required: true
   branch:
     description: 'The GitHub working branch name.'
     required: true
   primary:
     description: 'The primary upstream branch to open a PR against.'
-    required: true
-  message:
-    description: 'The GitHub commit message.'
-    required: true
+    default: master
   force:
     description: >-
       Whether or not to force push a reference with different commit history
       before the remote reference HEAD. Default is false
+    default: false
   maintainers_can_modify:
     description: 'Whether or not maintainers can modify the pull request.'
+    default: true
   git_dir:
     description: 'The path of a git directory'
-    required: true
-    default: ${GITHUB_WORKSPACE}
+    default: .
 runs:
   using: docker
   image: Dockerfile
+  args:
+    - ${{ inputs.command }}
+    - ${{ inputs.upstream_repo }}
+    - ${{ inputs.upstream_owner }}
+    - ${{ inputs.description }}
+    - ${{ inputs.title }}
+    - ${{ inputs.branch }}
+    - ${{ inputs.primary }}
+    - ${{ inputs.message }}
+    - ${{ inputs.force }}
+    - ${{ inputs.maintainers_can_modify }}
+    - ${{ inputs.git_dir }}
