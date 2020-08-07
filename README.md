@@ -14,7 +14,9 @@
 ## Description
 Code-suggester automates the steps involved in making code changes or code suggestions to your [GitHub](https://github.com/) repository! Code-suggester
 1. can be imported as a [library](#Core-Library), or
-2. used as a [CLI](#CLI) tool
+2. used as a [CLI](#CLI) tool, or
+3. configured in a [GitHub Action](#Action)
+
 
 
 ## Core Library
@@ -127,6 +129,10 @@ npm i code-suggester -g
 
 `code-suggester pr [options] --upstream-repo=<string> --upstream-owner=<string>`
 
+#### Environment Variables
+#### `ACCESS_TOKEN`
+*string* <br>
+**Required.** The GitHub access token which has permissions to fork, write to its forked repo and its branches, as well as create Pull Requests on the upstream repository.
 
 #### Options
 
@@ -171,6 +177,93 @@ Whether or not to force push a reference with different commit history before th
 ### Example
 ```
 code-suggester pr -o foo -r bar -d 'description' -t 'title' -m 'message' --git-dir=.
+```
+
+## Action
+
+### create a pull request
+Opens a GitHub Pull Request against the upstream primary branch with the provided git directory. By default the git directory is the same as the `$GITHUB_WORKSPACE` directory.
+
+#### Syntax
+
+`pr --upstream-repo=<string> --upstream-owner=<string> --title=<string> --description=<string> --message=<string> [options] `
+
+#### Environment Variables
+#### `ACCESS_TOKEN`
+*string* <br>
+**Required.** The GitHub access token which has permissions to fork, write to its forked repo and its branches, as well as create Pull Requests on the upstream repository. We recommend storing it as a secret in your GitHub repository.
+
+#### Options
+
+#### `upstream_repo`
+*string* <br>
+**Required.** The repository to create the fork off of.
+
+
+#### `upstream_owner`
+*string* <br>
+**Required.** The owner of the upstream repository.
+
+
+#### `description`
+*string* <br>
+**Required.** The GitHub Pull Request description.
+
+#### `title`
+*string* <br>
+**Required.** The GitHub Pull Request title.
+
+#### `branch`
+*string* <br>
+The GitHub working branch name. Default value is: `'code-suggestions'`.
+
+#### `primary`
+*string* <br>
+The primary upstream branch to open a PR against. Default value is: `'master'`.
+
+#### `message`
+*string* <br>
+**Required.** The GitHub commit message.
+
+#### `force`
+*boolean* <br>
+Whether or not to force push a reference with different commit history before the remote reference HEAD. Default value is: `false`.
+
+#### `maintainers_can_modify`
+*boolean* <br>
+Whether or not maintainers can modify the pull request. Default value is: `true`.
+
+#### `git_dir`
+*string* <br>
+**Required.** The path of a git directory. Relative to `$GITHUB_WORKSPACE`.
+
+### Example
+The following example is a `.github/workflows/main.yaml` file in repo `Octocat/HelloWorld`. This would add a LICENSE folder to the root `HelloWorld` repo on every pull request if it is not already there.
+```yaml
+on:
+  push:
+    branches:
+      - master
+name: ci
+jobs:
+  add-license:
+    runs-on: ubuntu-latest
+    env:
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: <YOUR CHANGES> # the physical changes you want to make to your repository
+        run: (curl http://www.apache.org/licenses/LICENSE-2.0.txt) > LICENSE # For example adding LICENSE file
+      - uses: googleapis/code-suggester@v1 # takes the changes from git directory
+        with:
+          command: pr
+          upstream_owner: Octocat
+          upstream_repo: HelloWorld
+          description: 'This pull request is adding a LICENSE file'
+          title: 'chore(license): add license file'
+          message: 'chore(license): add license file'
+          branch: my-branch
+          git_dir: '.'
 ```
 
 ## Supported Node.js Versions
