@@ -244,31 +244,27 @@ on:
   push:
     branches:
       - master
-  pull_request:
 name: ci
 jobs:
   add-license:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [10, 12, 13]
     env:
       ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: googleapis/code-suggester@v1
-      - run: (curl http://www.apache.org/licenses/LICENSE-2.0.txt) > LICENSE
-      - uses: googleapis/code-suggester@v1
+      - name: <YOUR CHANGES> # the physical changes you want to make to your repository
+        run: (curl http://www.apache.org/licenses/LICENSE-2.0.txt) > LICENSE # For example adding LICENSE file
+      - uses: googleapis/code-suggester@v1 # takes the changes from git directory
         with:
-          args: >-
-            pr
-            -o Octocat
-            -r HelloWorld
-            -d 'This pull request is adding a LICENSE file'
-            -t 'chore(license): add license file'
-            -m 'chore(license): add license file'
-            -b 'my-branch'
-            --git-dir='.'
+          command: pr
+          upstream_owner: Octocat
+          upstream_repo: HelloWorld
+          description: 'This pull request is adding a LICENSE file'
+          title: 'chore(license): add license file'
+          message: 'chore(license): add license file'
+          branch: my-branch
+          git_dir: '.'
 ```
 
 ## Supported Node.js Versions

@@ -1,6 +1,41 @@
 name: Code-Suggester
+author: googleapis
 description: An action-wrapper for the npm cli code-suggester. It suggests code to your repository
 inputs:
+  command:
+    description: 'The command for code-suggester to run'
+    required: true
+  upstream_repo:
+    description: 'The repository to create the fork off of.'
+    required: true
+  upstream_owner:
+    description: 'The owner of the upstream repository.'
+    required: true
+  description:
+    description: 'The GitHub Pull Request description.'
+    required: true
+  title:
+    description: 'The GitHub Pull Request title.'
+    required: true
+  branch:
+    description: 'The GitHub working branch name.'
+    required: true
+  primary:
+    description: 'The primary upstream branch to open a PR against.'
+    required: true
+  message:
+    description: 'The GitHub commit message.'
+    required: true
+  force:
+    description: >-
+      Whether or not to force push a reference with different commit history
+      before the remote reference HEAD. Default is false
+  maintainers_can_modify:
+    description: 'Whether or not maintainers can modify the pull request.'
+  git_dir:
+    description: 'The path of a git directory'
+    required: true
+    default: ${GITHUB_WORKSPACE}
 runs:
   using: docker
   image: Dockerfile
