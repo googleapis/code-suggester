@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Logger, Level} from 'pino';
+import {Logger, Level, LogFn} from 'pino';
 import * as Pino from 'pino';
 let logger: Logger;
 
@@ -20,4 +20,4 @@ function setupLogger(userLogger: Logger = Pino()) {
   logger = userLogger;
 }
 
-export {logger, Logger, Level, setupLogger};
+export {logger, Logger, Level, setupLogger, LogFn};

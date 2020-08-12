@@ -25,6 +25,7 @@ import {Octokit} from '@octokit/rest';
 import {Logger} from 'pino';
 import {logger, setupLogger} from './logger';
 import {addPullRequestDefaults} from './default-options-handler';
+import * as retry from 'async-retry';
 
 /**
  * Make a new GitHub Pull Request with a set of changes applied on top of primary branch HEAD.
@@ -65,13 +66,42 @@ async function createPullRequest(
     ...origin,
     branch: gitHubConfigs.branch,
   };
-  const refHeadSha: string = await handler.branch(
-    octokit,
-    origin,
-    upstream,
-    originBranch.branch,
-    gitHubConfigs.primary
+  const deadline = 300 * 1000 + Date.now();
+  const refHeadSha: string = await retry(
+    async () => {
+      if (Date.now() > deadline) {
+        try {
+          await handler.branch(
+            octokit,
+            origin,
+            upstream,
+            originBranch.branch,
+            gitHubConfigs.primary
+          );
+        } catch (err) {
+          logger.error(
+            'Retry time exceeded 5 minutes. Check if your fork is unavailable. If so, contact your github administrator.'
+          );
+          throw err;
+        }
+      }
+      return await handler.branch(
+        octokit,
+        origin,
+        upstream,
+        originBranch.branch,
+        gitHubConfigs.primary
+      );
+    },
+    {
+      minTimeout: 3000,
+      randomize: false,
+      onRetry: () => {
+        logger.info('Retrying at a later time...');
+      },
+    }
   );
+
   await handler.commitAndPush(
     octokit,
     refHeadSha,

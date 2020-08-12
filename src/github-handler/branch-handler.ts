@@ -70,9 +70,11 @@ export async function existsBranchWithName(
     })
   ).data;
   const match = branches.some(branch => branch.name === name);
-  logger.info(
-    `Existing remote branch ${name} found on ${remote.owner}/${remote.repo}`
-  );
+  if (match) {
+    logger.info(
+      `Existing remote branch ${name} found on ${remote.owner}/${remote.repo}`
+    );
+  }
   return match;
 }
 
