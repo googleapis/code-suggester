@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-code-suggester $INPUT_COMMAND \
+if code-suggester $INPUT_COMMAND \
 --upstream-repo="$INPUT_UPSTREAM_REPO" \
 --upstream-owner="$INPUT_UPSTREAM_OWNER" \
 --description="$INPUT_DESCRIPTION" \
@@ -24,4 +24,8 @@ code-suggester $INPUT_COMMAND \
 --message="$INPUT_MESSAGE" \
 --force="$INPUT_FORCE" \
 --maintainers-can-modify="$INPUT_MAINTAINERS_CAN_MODIFY" \
---git-dir="$INPUT_GIT_DIR"
+--git-dir="$INPUT_GIT_DIR"; then
+    exit 0
+else
+    exit 1
+fi

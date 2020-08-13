@@ -103,4 +103,4 @@ yargs
 /**
  * Parse yargs, get change object, invoke framework-core library!
  */
-main();
+main().catch(() => { process.exit(1) });
