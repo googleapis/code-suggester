@@ -19,11 +19,12 @@ import * as sinon from 'sinon';
 import {Changes, FileData, CreatePullRequestUserOptions} from '../src/types';
 import {Octokit} from '@octokit/rest';
 import * as proxyquire from 'proxyquire';
-
+import * as retry from 'async-retry';
 before(() => {
   setup();
 });
 
+/* eslint-disable  @typescript-eslint/no-unused-vars */
 // tslint:disable:no-unused-expression
 // .true triggers ts-lint failure, but is valid chai
 describe('Make PR main function', () => {
@@ -144,7 +145,6 @@ describe('Make PR main function', () => {
   });
   it('Passes up the error message with a throw when create branch helper fails', async () => {
     // setup
-
     const stubHelperHandlers = {
       fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
         expect(upstream.owner).equals(upstreamOwner);
@@ -160,6 +160,18 @@ describe('Make PR main function', () => {
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,
+      'async-retry': async (
+        fn: Function,
+        options: {[index: string]: unknown}
+      ) => {
+        expect(options.retries).equals(5);
+        expect(options.factor).equals(2.8411);
+        expect(options.minTimeout).equals(3000);
+        expect(options.randomize).equals(false);
+        await retry(() => fn(), {
+          retries: 0,
+        });
+      },
     });
     try {
       await stubMakePr.createPullRequest(octokit, changes, options);

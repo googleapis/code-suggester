@@ -18,7 +18,8 @@ import {logger} from '../logger';
 
 /**
  * Fork the GitHub owner's repository.
- * Returns the fork owner and fork repo if successful. Otherwise throws error.
+ * Returns the fork owner and fork repo when the fork creation request to GitHub succeeds.
+ * Otherwise throws error.
  *
  * If fork already exists no new fork is created, no error occurs, and the existing Fork data is returned
  * with the `updated_at` + any historical repo changes.
@@ -37,11 +38,14 @@ async function fork(
         repo: upstream.repo,
       })
     ).data;
-    logger.info(`Fork successfully exists on ${upstream.repo}`);
-    return {
+    const origin: RepoDomain = {
       repo: forkedRepo.name,
       owner: forkedRepo.owner.login,
     };
+    logger.info(
+      `Create fork request was successful for ${origin.owner}/${origin.repo}`
+    );
+    return origin;
   } catch (err) {
     logger.error('Error when forking');
     throw Error(err.toString());
