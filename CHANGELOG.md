@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.1.1](https://www.github.com/googleapis/code-suggester/compare/v1.1.0...v1.1.1) (2020-08-13)
+
+
+### Bug Fixes
+
+* **cli,action:** when process fails, make exit code 1 ([#81](https://www.github.com/googleapis/code-suggester/issues/81)) ([c1495cb](https://www.github.com/googleapis/code-suggester/commit/c1495cb5010c6df55ef91616d0a1c3e5a508ffc7)), closes [#72](https://www.github.com/googleapis/code-suggester/issues/72)
+* **framework-core:** retry mechanism for when forked git object isn't quite ready ([#78](https://www.github.com/googleapis/code-suggester/issues/78)) ([326145f](https://www.github.com/googleapis/code-suggester/commit/326145f138dbd50ba455175c473a58d5717aeafe))
+
 ## [1.1.0](https://www.github.com/googleapis/code-suggester/compare/v1.0.1...v1.1.0) (2020-08-07)
 
 
