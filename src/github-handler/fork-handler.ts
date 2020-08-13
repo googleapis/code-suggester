@@ -38,11 +38,13 @@ async function fork(
         repo: upstream.repo,
       })
     ).data;
-    const origin: RepoDomain =  {
+    const origin: RepoDomain = {
       repo: forkedRepo.name,
       owner: forkedRepo.owner.login,
     };
-    logger.info(`Create fork request was successful for ${origin.owner}/${origin.repo}`);
+    logger.info(
+      `Create fork request was successful for ${origin.owner}/${origin.repo}`
+    );
     return origin;
   } catch (err) {
     logger.error('Error when forking');
