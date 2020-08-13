@@ -18,7 +18,7 @@ import {logger} from '../logger';
 
 /**
  * Fork the GitHub owner's repository.
- * Returns the fork owner and fork repo when the fork creation request is successful.
+ * Returns the fork owner and fork repo when the fork git data is ready to access.
  * Otherwise throws error.
  *
  * If fork already exists no new fork is created, no error occurs, and the existing Fork data is returned
@@ -32,17 +32,17 @@ async function fork(
   upstream: RepoDomain
 ): Promise<RepoDomain> {
   try {
-    const forkedRepo = await octokit.repos.createFork({
-      owner: upstream.owner,
-      repo: upstream.repo,
-    });
-    const origin: RepoDomain = {
-      repo: forkedRepo.data.name,
-      owner: forkedRepo.data.owner.login,
+    const forkedRepo = (
+      await octokit.repos.createFork({
+        owner: upstream.owner,
+        repo: upstream.repo,
+      })
+    ).data;
+    const origin: RepoDomain =  {
+      repo: forkedRepo.name,
+      owner: forkedRepo.owner.login,
     };
-    logger.info(
-      `Completed create fork request for: ${origin.owner}/${origin.repo}.`
-    );
+    logger.info(`Create fork request was successful for ${origin.owner}/${origin.repo}`);
     return origin;
   } catch (err) {
     logger.error('Error when forking');
