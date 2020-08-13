@@ -18,7 +18,7 @@ import {logger} from '../logger';
 
 /**
  * Fork the GitHub owner's repository.
- * Returns the fork owner and fork repo when the fork git data is ready to access.
+ * Returns the fork owner and fork repo when the fork creation request to GitHub succeeds.
  * Otherwise throws error.
  *
  * If fork already exists no new fork is created, no error occurs, and the existing Fork data is returned
