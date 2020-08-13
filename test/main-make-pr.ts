@@ -160,7 +160,14 @@ describe('Make PR main function', () => {
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,
-      'async-retry': async (fn: Function, options: unknown) => {
+      'async-retry': async (
+        fn: Function,
+        options: {[index: string]: unknown}
+      ) => {
+        expect(options.retries).equals(5);
+        expect(options.factor).equals(2.8411);
+        expect(options.minTimeout).equals(3000);
+        expect(options.randomize).equals(false);
         await retry(() => fn(), {
           retries: 0,
         });

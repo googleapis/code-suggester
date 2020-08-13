@@ -76,34 +76,18 @@ async function createPullRequest(
     ...origin,
     branch: gitHubConfigs.branch,
   };
-  const deadline = 300 * 1000 + Date.now();
   const refHeadSha: string = await retry(
-    async () => {
-      if (Date.now() > deadline) {
-        try {
-          await handler.branch(
-            octokit,
-            origin,
-            upstream,
-            originBranch.branch,
-            gitHubConfigs.primary
-          );
-        } catch (err) {
-          logger.error(
-            'Retry time exceeded 5 minutes. Check if your fork is unavailable. If so, contact your github administrator.'
-          );
-          throw err;
-        }
-      }
-      return await handler.branch(
+    async () =>
+      await handler.branch(
         octokit,
         origin,
         upstream,
         originBranch.branch,
         gitHubConfigs.primary
-      );
-    },
+      ),
     {
+      retries: 5,
+      factor: 2.8411, // https://www.wolframalpha.com/input/?i=Sum%5B3000*x%5Ek%2C+%7Bk%2C+0%2C+4%7D%5D+%3D+5+*+60+*+1000
       minTimeout: 3000,
       randomize: false,
       onRetry: () => {
