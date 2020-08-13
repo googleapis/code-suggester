@@ -16,7 +16,7 @@
 
 import * as yargs from 'yargs';
 import {CREATE_PR_COMMAND, main} from './workflow';
-import { logger } from '../logger';
+import {logger} from '../logger';
 
 // tslint:disable:no-unused-expression
 // yargs actually is a used expression. TS-lint does not detect it.
@@ -104,7 +104,10 @@ yargs
 /**
  * Parse yargs, get change object, invoke framework-core library!
  */
-main().catch((err) => {
+main().catch(err => {
   logger.error(err);
+  /* eslint-disable  no-process-exit */
+  // If just rethrow, the application exists with code 0.
+  // Need exit code 1 to fail GitHub Actions step if the process fails.
   process.exit(1);
 });
