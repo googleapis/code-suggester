@@ -18,17 +18,8 @@ import {logger} from '../logger';
 
 /**
  * Fork the GitHub owner's repository.
- * Returns the fork owner and fork repo when the fork git data is ready to access.
+ * Returns the fork owner and fork repo when the fork creation request is successful.
  * Otherwise throws error.
- * Also throws error if git data is not ready in 5 minutes.
- *
- * From the docs
- * https://developer.github.com/v3/repos/forks/#create-a-fork
- * """
- * Forking a Repository happens asynchronously.
- * You may have to wait a short period of time before you can access the git objects.
- * If this takes longer than 5 minutes, be sure to contact GitHub Support or GitHub Premium Support.
- * """
  *
  * If fork already exists no new fork is created, no error occurs, and the existing Fork data is returned
  * with the `updated_at` + any historical repo changes.
