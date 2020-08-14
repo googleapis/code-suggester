@@ -116,3 +116,36 @@ export interface CreatePullRequest {
   // Whether or not maintainers can modify the PR.
   maintainersCanModify: boolean;
 }
+
+export class RawContent {
+  public readonly old_content: string;
+  public readonly new_content: string;
+  constructor(old_content: string, new_content: string) {
+    this.old_content = old_content;
+    this.new_content = new_content;
+  }
+}
+export class Range {
+  public start: number;
+  public end: number;
+  constructor(start: number, end: number) {
+    this.start = start;
+    this.end = end;
+  }
+}
+
+export class Patch {
+  public start: number;
+  public end: number;
+  public content: string;
+  constructor(start: number, end: number, content: string) {
+    this.start = start;
+    this.end = end;
+    this.content = content;
+  }
+}
+
+export type FilePatches = Map<string, Patch[]>;
+export type RawChanges = Map<string, RawContent>;
+export type PatchText = Map<string, string>;
+export type FileRanges = Map<string, Range[]>;
