@@ -53,8 +53,8 @@ export function getDiffPatchMatchPatchRange(
     const patchData = patch[index].split(',');
     // the char position of the hunk
     const start = parseInt(patchData[0]); // start of change
-    const end = parseInt(patchData[1]); // diff-match-patch returns the offset from start char
-    const range = new Range(start, start + end);
+    const offset = parseInt(patchData[1]); // diff-match-patch returns the offset from start char
+    const range = new Range(start, start + offset);
     ranges.push(range);
   }
   return ranges;
@@ -76,8 +76,8 @@ export function getGitHubPatchRanges(patchText: string): Range[] {
     const patchData = patch[INDEX_UPDATED].split(',');
     // the line number ranges of the updated text
     const start = parseInt(patchData[0]);
-    const end = parseInt(patchData[1]);
-    const range = new Range(start, start + end);
+    const offset = parseInt(patchData[1]);
+    const range = new Range(start, start + offset);
     ranges.push(range);
   }
   for (
@@ -89,8 +89,8 @@ export function getGitHubPatchRanges(patchText: string): Range[] {
     const patchData = patch[INDEX_UPDATED].split(',');
     // the line number ranges of the updated text
     const start = parseInt(patchData[0]);
-    const end = parseInt(patchData[1]);
-    const range = new Range(start, start + end);
+    const offset = parseInt(patchData[1]);
+    const range = new Range(start, start + offset);
     ranges.push(range);
   }
   for (
