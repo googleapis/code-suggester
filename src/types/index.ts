@@ -116,3 +116,31 @@ export interface CreatePullRequest {
   // Whether or not maintainers can modify the PR.
   maintainersCanModify: boolean;
 }
+
+/**
+ * The file content of the original content and the patched content
+ */
+export interface RawContent {
+  readonly old_content: string;
+  readonly new_content: string;
+}
+
+/**
+ * A range object defined by lower boundary as 'start' and upper boundary as 'end'
+ */
+export interface Range {
+  readonly start: number;
+  readonly end: number;
+}
+
+/**
+ * The range of a patch along with the raw file content
+ */
+export interface Patch extends Range {
+  readonly raw_content: string;
+}
+
+export type FilePatches = Map<string, Patch[]>;
+export type RawChanges = Map<string, RawContent>;
+export type PatchText = Map<string, string>;
+export type FileRanges = Map<string, Range[]>;
