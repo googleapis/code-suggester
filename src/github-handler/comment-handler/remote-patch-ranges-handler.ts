@@ -18,12 +18,13 @@ import {getGitHubPatchRanges} from './github-patch-format-handler';
 import {logger} from '../../logger';
 
 /**
- * Get each pull request remote file's patch text asynchronously
+ * For a pull request, get each remote file's patch text asynchronously
+ * Also get the list of files whose patch data could not be returned
  * @param {Octokit} octokit the authenticated octokit instance
  * @param {RepoDomain} remote the remote repository domain information
  * @param {number} pullNumber the pull request number
  * @param {number} pageSize the number of results to return per page
- * @returns {Promise<Promise<Object<PatchText, string[]>>>} the stringified patch data for each file and the list of files whose patch data could not be resolved
+ * @returns {Promise<Object<PatchText, string[]>>} the stringified patch data for each file and the list of files whose patch data could not be resolved
  */
 export async function getCurrentPulLRequestPatches(
   octokit: Octokit,
@@ -91,14 +92,16 @@ export function patchTextToRanges(validPatches: PatchText): FileRanges {
 }
 
 /**
- * Get each pull request remote file's current patch range to identify the scope of each patch
+ * For a pull request, get each remote file's current patch range to identify the scope of each patch as a Map,
+ * as well as a list of files that cannot have suggestions applied to it within the Pull Request.
+ * The list of files are a subset of the total out-of-scope files.
  * @param {Octokit} octokit the authenticated octokit instance
  * @param {RepoDomain} remote the remote repository domain information
  * @param {number} pullNumber the pull request number
  * @param {number} pageSize the number of files to return per pull request list files query
  * @returns {Promise<Object<FileRanges, string[]>>} the scope of each file in the pull request and the list of files whose patch data could not be resolved
  */
-export async function getAllValidFileRanges(
+export async function getPullRequestScope(
   octokit: Octokit,
   remote: RepoDomain,
   pullNumber: number,

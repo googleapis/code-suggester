@@ -19,7 +19,7 @@ import * as sinon from 'sinon';
 import {
   patchTextToRanges,
   getCurrentPulLRequestPatches,
-  getAllValidFileRanges,
+  getPullRequestScope,
 } from '../src/github-handler/comment-handler/remote-patch-ranges-handler';
 import {Range} from '../src/types';
 import {Octokit} from '@octokit/rest';
@@ -418,12 +418,10 @@ describe('Getting the pull request files updated patch lines', () => {
       .resolves(listFilesOfPRResult);
 
     // tests
-    const {validFileLines, invalidFiles: filesMissingPatch} = await getAllValidFileRanges(
-      octokit,
-      upstream,
-      pullNumber,
-      pageSize
-    );
+    const {
+      validFileLines,
+      invalidFiles: filesMissingPatch,
+    } = await getPullRequestScope(octokit, upstream, pullNumber, pageSize);
     sandbox.assert.calledOnceWithExactly(stub, {
       owner: upstream.owner,
       repo: upstream.repo,
@@ -445,9 +443,9 @@ describe('Getting the pull request files updated patch lines', () => {
 
     // tests
     try {
-      await getAllValidFileRanges(octokit, upstream, pullNumber, pageSize);
+      await getPullRequestScope(octokit, upstream, pullNumber, pageSize);
       expect.fail(
-        'The getAllValidFileRanges function should have failed because Octokit failed.'
+        'The getPullRequestScope function should have failed because Octokit failed.'
       );
     } catch (err) {
       expect(err.message).equals(errorMsg);
