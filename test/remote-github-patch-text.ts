@@ -418,7 +418,7 @@ describe('Getting the pull request files updated patch lines', () => {
       .resolves(listFilesOfPRResult);
 
     // tests
-    const {validFileLines, filesMissingPatch} = await getAllValidFileRanges(
+    const {validFileLines, invalidFiles: filesMissingPatch} = await getAllValidFileRanges(
       octokit,
       upstream,
       pullNumber,

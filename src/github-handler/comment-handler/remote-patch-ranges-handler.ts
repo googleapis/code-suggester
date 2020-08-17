@@ -103,7 +103,7 @@ export async function getAllValidFileRanges(
   remote: RepoDomain,
   pullNumber: number,
   pageSize: number
-): Promise<{validFileLines: FileRanges; filesMissingPatch: string[]}> {
+): Promise<{validFileLines: FileRanges; invalidFiles: string[]}> {
   try {
     const {patches, filesMissingPatch} = await getCurrentPulLRequestPatches(
       octokit,
@@ -112,7 +112,7 @@ export async function getAllValidFileRanges(
       pageSize
     );
     const validFileLines = patchTextToRanges(patches);
-    return {validFileLines, filesMissingPatch};
+    return {validFileLines, invalidFiles: filesMissingPatch};
   } catch (err) {
     logger.error(
       'Could not convert the remote pull request file patch text to ranges'
