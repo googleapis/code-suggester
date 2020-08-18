@@ -117,6 +117,13 @@ export interface CreatePullRequest {
   maintainersCanModify: boolean;
 }
 
+export class PatchSyntaxError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PatchSyntaxError';
+  }
+}
+
 /**
  * The file content of the original content and the patched content
  */

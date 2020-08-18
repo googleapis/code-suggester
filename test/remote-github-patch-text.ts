@@ -18,10 +18,9 @@ import {setup} from './util';
 import * as sinon from 'sinon';
 import {
   patchTextToRanges,
-  getCurrentPulLRequestPatches,
+  getCurrentPullRequestPatches,
   getPullRequestScope,
 } from '../src/github-handler/comment-handler/remote-patch-ranges-handler';
-import {Range} from '../src/types';
 import {Octokit} from '@octokit/rest';
 import {logger} from '../src/logger';
 
@@ -29,7 +28,7 @@ before(() => {
   setup();
 });
 
-describe('Listing pull request files', () => {
+describe('getCurrentPullRequestPatches', () => {
   const sandbox = sinon.createSandbox();
   afterEach(() => {
     sandbox.restore();
@@ -69,7 +68,7 @@ describe('Listing pull request files', () => {
       .resolves(listFilesOfPRResult);
 
     // tests
-    await getCurrentPulLRequestPatches(octokit, upstream, pullNumber, pageSize);
+    await getCurrentPullRequestPatches(octokit, upstream, pullNumber, pageSize);
     sandbox.assert.calledOnceWithExactly(stub, {
       owner: upstream.owner,
       repo: upstream.repo,
@@ -135,7 +134,7 @@ describe('Listing pull request files', () => {
     sandbox.stub(octokit.pulls, 'listFiles').resolves(listFilesOfPRResult);
 
     // tests
-    const {patches, filesMissingPatch} = await getCurrentPulLRequestPatches(
+    const {patches, filesMissingPatch} = await getCurrentPullRequestPatches(
       octokit,
       upstream,
       pullNumber,
@@ -143,13 +142,13 @@ describe('Listing pull request files', () => {
     );
     expect(patches.size).equals(3);
     expect(patches.get(listFilesOfPRResult.data[0].filename)).equals(
-      listFilesOfPRResult.data[0].patch
+      '@@ -1,2 +1,5 @@\n Hello world\n-!\n+Goodbye World\n+gOodBYE world\n+\n+Goodbye World'
     );
     expect(patches.get(listFilesOfPRResult.data[1].filename)).equals(
-      listFilesOfPRResult.data[1].patch
+      '@@ -1 +1 @@\n-Hello foo\n+'
     );
     expect(patches.get(listFilesOfPRResult.data[2].filename)).equals(
-      listFilesOfPRResult.data[2].patch
+      '@@ -1 +0,0 @@\n-hello world'
     );
     expect(filesMissingPatch.length).equals(0);
   });
@@ -158,7 +157,7 @@ describe('Listing pull request files', () => {
     const errorMsg = 'Error message';
     sandbox.stub(octokit.pulls, 'listFiles').rejects(Error(errorMsg));
     try {
-      await getCurrentPulLRequestPatches(
+      await getCurrentPullRequestPatches(
         octokit,
         upstream,
         pullNumber,
@@ -181,7 +180,7 @@ describe('Listing pull request files', () => {
     };
     sandbox.stub(octokit.pulls, 'listFiles').resolves(listFilesOfPRResult);
     try {
-      await getCurrentPulLRequestPatches(
+      await getCurrentPullRequestPatches(
         octokit,
         upstream,
         pullNumber,
@@ -230,7 +229,7 @@ describe('Listing pull request files', () => {
       .resolves(listFilesOfPRResult as any);
 
     // tests
-    const {filesMissingPatch} = await getCurrentPulLRequestPatches(
+    const {filesMissingPatch} = await getCurrentPullRequestPatches(
       octokit,
       upstream,
       pullNumber,
@@ -238,33 +237,27 @@ describe('Listing pull request files', () => {
     );
     sandbox.assert.called(stub);
     expect(filesMissingPatch.length).equals(1);
-    expect(filesMissingPatch[0]).equals(listFilesOfPRResult.data[0].filename);
+    expect(filesMissingPatch[0]).equals('Readme.md');
   });
 });
 
-describe('Extracting multiple GitHub files ranges from patch text', () => {
+describe('patchTextToRanges', () => {
   it('Returns an empty range file record when there is no patch text', () => {
     const patchText = new Map<string, string>();
     const ranges = patchTextToRanges(patchText);
     expect(ranges.size).equals(0);
   });
-  it('Throws an error when the patch text is an empty string', () => {
+  it('Does not throw an error when the patch text is an empty string and does not add the patch to the valid range map', () => {
     const patchText = new Map<string, string>();
     patchText.set('invalid-patch.txt', '');
-    try {
-      patchTextToRanges(patchText);
-    } catch (err) {
-      expect(err.message).equals('Unexpected patch text format');
-    }
+    const ranges = patchTextToRanges(patchText);
+    expect(ranges.get('invalid-patch.txt')).equals(undefined);
   });
-  it('Throws an error when the patch text is a string that does not contain patch data', () => {
+  it('Does not throw an error when the patch text is a string that does not contain patch data add the patch to the valid range map', () => {
     const patchText = new Map<string, string>();
     patchText.set('invalid-patch.txt', '@@ this is some invalid patch data @@');
-    try {
-      patchTextToRanges(patchText);
-    } catch (err) {
-      expect(err.message).equals('Unexpected patch text format');
-    }
+    const ranges = patchTextToRanges(patchText);
+    expect(ranges.get('invalid-patch.txt')).equals(undefined);
   });
   it('Calculates ranges with an inclusive lower bound and an exclusive upper bound', () => {
     const multiline_patch =
@@ -278,19 +271,19 @@ describe('Extracting multiple GitHub files ranges from patch text', () => {
     const ranges = patchTextToRanges(patchText);
     expect(ranges.get(multiline_file_name)).not.equals(null);
     expect(ranges.get(multiline_file_name)?.length).equals(1);
-    expect((ranges.get(multiline_file_name) as Range[])[0].start).equals(1);
-    expect((ranges.get(multiline_file_name) as Range[])[0].end).not.equals(5);
-    expect((ranges.get(multiline_file_name) as Range[])[0].end).equals(6);
+    expect(ranges.get(multiline_file_name)![0].start).equals(1);
+    expect(ranges.get(multiline_file_name)![0].end).not.equals(5);
+    expect(ranges.get(multiline_file_name)![0].end).equals(6);
     expect(ranges.get(milti_to_singleline_file_name)).not.equals(null);
     expect(ranges.get(milti_to_singleline_file_name)?.length).equals(1);
     expect(
-      (ranges.get(milti_to_singleline_file_name) as Range[])[0].start
+      ranges.get(milti_to_singleline_file_name)![0].start
     ).equals(1);
     expect(
-      (ranges.get(milti_to_singleline_file_name) as Range[])[0].end
+      ranges.get(milti_to_singleline_file_name)![0].end
     ).not.equals(1);
     expect(
-      (ranges.get(milti_to_singleline_file_name) as Range[])[0].end
+      ranges.get(milti_to_singleline_file_name)![0].end
     ).equals(2);
   });
   it('Returns a single range file record when there is a single multiline patch hunk', () => {
@@ -303,8 +296,8 @@ describe('Extracting multiple GitHub files ranges from patch text', () => {
     expect(ranges.size).equals(1);
     expect(ranges.get(multiline_file_name)).not.equals(null);
     expect(ranges.get(multiline_file_name)?.length).equals(1);
-    expect((ranges.get(multiline_file_name) as Range[])[0].start).equals(1);
-    expect((ranges.get(multiline_file_name) as Range[])[0].end).equals(6);
+    expect(ranges.get(multiline_file_name)![0].start).equals(1);
+    expect(ranges.get(multiline_file_name)![0].end).equals(6);
   });
   it('Returns a single range file record when there is a single 1 line patch hunk', () => {
     const first_line_patch = '@@ -1 +1 @@\n-Hello foo\n+';
@@ -315,8 +308,8 @@ describe('Extracting multiple GitHub files ranges from patch text', () => {
     expect(ranges.size).equals(1);
     expect(ranges.get(singleline_file_name)).not.equals(null);
     expect(ranges.get(singleline_file_name)?.length).equals(1);
-    expect((ranges.get(singleline_file_name) as Range[])[0].start).equals(1);
-    expect((ranges.get(singleline_file_name) as Range[])[0].end).equals(2);
+    expect(ranges.get(singleline_file_name)![0].start).equals(1);
+    expect(ranges.get(singleline_file_name)![0].end).equals(2);
   });
   it('Returns a single range file record when there is a single 1 line to multiline line patch hunk', () => {
     const single_line_to_multiline_format = '@@ -1 +0,0 @@\n-hello world';
@@ -331,10 +324,10 @@ describe('Extracting multiple GitHub files ranges from patch text', () => {
     expect(ranges.get(singleline_to_multi_file_name)).not.equals(null);
     expect(ranges.get(singleline_to_multi_file_name)?.length).equals(1);
     expect(
-      (ranges.get(singleline_to_multi_file_name) as Range[])[0].start
+      ranges.get(singleline_to_multi_file_name)![0].start
     ).equals(0);
     expect(
-      (ranges.get(singleline_to_multi_file_name) as Range[])[0].end
+      ranges.get(singleline_to_multi_file_name)![0].end
     ).equals(0);
   });
   it('Returns a single range file record when there is a single multiline to 1 line patch hunk', () => {
@@ -347,10 +340,10 @@ describe('Extracting multiple GitHub files ranges from patch text', () => {
     expect(ranges.get(milti_to_singleline_file_name)).not.equals(null);
     expect(ranges.get(milti_to_singleline_file_name)?.length).equals(1);
     expect(
-      (ranges.get(milti_to_singleline_file_name) as Range[])[0].start
+      ranges.get(milti_to_singleline_file_name)![0].start
     ).equals(1);
     expect(
-      (ranges.get(milti_to_singleline_file_name) as Range[])[0].end
+      ranges.get(milti_to_singleline_file_name)![0].end
     ).equals(2);
   });
   it('Returns a single range file record when there is a single multiline to 1 line patch hunk', () => {
@@ -363,22 +356,22 @@ describe('Extracting multiple GitHub files ranges from patch text', () => {
     expect(ranges.size).equals(1);
     expect(ranges.get(multiple_patches_file_name)).not.equals(null);
     expect(ranges.get(multiple_patches_file_name)?.length).equals(2);
-    expect((ranges.get(multiple_patches_file_name) as Range[])[0].start).equals(
+    expect(ranges.get(multiple_patches_file_name)![0].start).equals(
       356
     );
-    expect((ranges.get(multiple_patches_file_name) as Range[])[0].end).equals(
+    expect(ranges.get(multiple_patches_file_name)![0].end).equals(
       363
     );
-    expect((ranges.get(multiple_patches_file_name) as Range[])[1].start).equals(
+    expect(ranges.get(multiple_patches_file_name)![1].start).equals(
       6577
     );
-    expect((ranges.get(multiple_patches_file_name) as Range[])[1].end).equals(
+    expect(ranges.get(multiple_patches_file_name)![1].end).equals(
       6584
     );
   });
 });
 
-describe('Getting the pull request files updated patch lines', () => {
+describe('getPullRequestScope', () => {
   const upstream = {owner: 'upstream-owner', repo: 'upstream-repo'};
   const pullNumber = 10;
   const pageSize = 80;
@@ -431,8 +424,8 @@ describe('Getting the pull request files updated patch lines', () => {
     expect(validFileLines.size).equals(1);
     expect(validFileLines.get('Readme.md')).not.equals(null);
     expect(validFileLines.get('Readme.md')?.length).equals(1);
-    expect((validFileLines.get('Readme.md') as Range[])[0].start).equals(1);
-    expect((validFileLines.get('Readme.md') as Range[])[0].end).equals(6);
+    expect(validFileLines.get('Readme.md')![0].start).equals(1);
+    expect(validFileLines.get('Readme.md')![0].end).equals(6);
     expect(filesMissingPatch.length).equals(0);
   });
 

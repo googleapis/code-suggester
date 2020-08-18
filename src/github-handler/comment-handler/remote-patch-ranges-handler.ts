@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import {Octokit} from '@octokit/rest';
-import {FileRanges, PatchText, Range, RepoDomain} from '../../types';
+import {
+  FileRanges,
+  PatchText,
+  Range,
+  RepoDomain,
+} from '../../types';
 import {getGitHubPatchRanges} from './github-patch-format-handler';
 import {logger} from '../../logger';
 
@@ -26,7 +31,7 @@ import {logger} from '../../logger';
  * @param {number} pageSize the number of results to return per page
  * @returns {Promise<Object<PatchText, string[]>>} the stringified patch data for each file and the list of files whose patch data could not be resolved
  */
-export async function getCurrentPulLRequestPatches(
+export async function getCurrentPullRequestPatches(
   octokit: Octokit,
   remote: RepoDomain,
   pullNumber: number,
@@ -51,10 +56,10 @@ export async function getCurrentPulLRequestPatches(
   }
   files.forEach(file => {
     if (file.patch === undefined) {
-      // files that are too large do not return the patch text by default
-      // TODO handle files that are too large
+      // files whose patch is too large do not return the patch text by default
+      // TODO handle file patches that are too large
       logger.warn(
-        `File ${file.filename} is too large to display patch object.`
+        `File ${file.filename} may have a patch that is too large to display patch object.`
       );
       filesMissingPatch.push(file.filename);
     } else {
@@ -79,14 +84,14 @@ export function patchTextToRanges(validPatches: PatchText): FileRanges {
   const allValidLineRanges: FileRanges = new Map<string, Range[]>();
   validPatches.forEach((patch, filename) => {
     // get each hunk range in the patch string
-    const validLineRanges = getGitHubPatchRanges(patch);
-    if (!validLineRanges.length) {
-      logger.error(
-        `Unexpected input patch text provided. Expected "${patch}" to be of format @@ -<number>[,<number>] +<number>[,<number>] @@`
+    try {
+      const validLineRanges = getGitHubPatchRanges(patch);
+      allValidLineRanges.set(filename, validLineRanges);
+    } catch (err) {
+      logger.info(
+        `Failed to parse the patch of file ${filename}. Resuming parsing patches...`
       );
-      throw Error('Unexpected patch text format');
     }
-    allValidLineRanges.set(filename, validLineRanges);
   });
   return allValidLineRanges;
 }
@@ -108,7 +113,7 @@ export async function getPullRequestScope(
   pageSize: number
 ): Promise<{validFileLines: FileRanges; invalidFiles: string[]}> {
   try {
-    const {patches, filesMissingPatch} = await getCurrentPulLRequestPatches(
+    const {patches, filesMissingPatch} = await getCurrentPullRequestPatches(
       octokit,
       remote,
       pullNumber,

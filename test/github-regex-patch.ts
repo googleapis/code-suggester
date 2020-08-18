@@ -15,6 +15,7 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
 import {getGitHubPatchRanges} from '../src/github-handler/comment-handler/github-patch-format-handler';
+import { PatchSyntaxError } from '../src/types';
 
 describe('Getting patch range from GitHub patch text', async () => {
   it('parses original text for multiline modifies', () => {
@@ -55,5 +56,41 @@ describe('Getting patch range from GitHub patch text', async () => {
     expect(ranges[1].start).equals(6577);
     expect(ranges[1].end).equals(6584);
     expect(ranges.length).equals(2);
+  });
+  it('throws an error when the patch text is null', () => {
+    const patch = (null as unknown) as string;
+    try {
+      getGitHubPatchRanges(patch);
+      expect.fail('Should have filed because an invalid input was given');
+    } catch (err) {
+      expect(err instanceof TypeError).equals(true);
+    }
+  });
+  it('throws an error when the patch text is undefined', () => {
+    const patch = (undefined as unknown) as string;
+    try {
+      getGitHubPatchRanges(patch);
+      expect.fail('Should have filed because an invalid input was given');
+    } catch (err) {
+      expect(err instanceof TypeError).equals(true);
+    }
+  });
+  it('throws an error when the patch text does not contain hunk ranges and contains other text', () => {
+    const patch = '@ 1 1 @ invalid patch because it needs a + and - sign'
+    try {
+      getGitHubPatchRanges(patch);
+      expect.fail('Should have filed because an invalid input was given');
+    } catch (err) {
+      expect(err instanceof PatchSyntaxError).equals(true);
+    }
+  });
+  it('throws an error when the patch text does not contain hunk ranges because it is an empty string', () => {
+    const patch = '';
+    try {
+      getGitHubPatchRanges(patch);
+      expect.fail('Should have filed because an invalid input was given');
+    } catch (err) {
+      expect(err instanceof PatchSyntaxError).equals(true);
+    }
   });
 });
