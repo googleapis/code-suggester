@@ -128,8 +128,8 @@ export class PatchSyntaxError extends Error {
  * The file content of the original content and the patched content
  */
 export interface RawContent {
-  readonly old_content: string;
-  readonly new_content: string;
+  readonly oldContent: string;
+  readonly newContent: string;
 }
 
 /**
@@ -140,14 +140,22 @@ export interface Range {
   readonly end: number;
 }
 
+export interface Hunk {
+  readonly oldStart: number;
+  readonly oldEnd: number;
+  readonly newStart: number;
+  readonly newEnd: number;
+}
+
 /**
  * The range of a patch along with the raw file content
  */
 export interface Patch extends Range {
-  readonly raw_content: string;
+  readonly newContent: string;
 }
 
 export type FilePatches = Map<string, Patch[]>;
+export type FileHunks = Map<string, Hunk[]>;
 export type RawChanges = Map<string, RawContent>;
 export type PatchText = Map<string, string>;
 export type FileRanges = Map<string, Range[]>;
