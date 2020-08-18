@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Range} from '../../types';
+import {PatchSyntaxError, Range} from '../../types';
+import {logger} from '../../logger';
 
 const REGEX_INDEX_OF_UPDATED_HUNK = 2;
 
@@ -39,8 +40,9 @@ const REGEX_ONELINE_RANGE = /@@ -([0-9]+) \+([0-9]+) @@/g;
 const REGEX_MULTILINE_TO_ONELINE_RANGE = /@@ -([0-9]+,[0-9]+) \+([0-9]+) @@/g;
 
 /**
- * Parses the GitHub line-based patch text
- * Example output of one output of one regex exec
+ * Parses the GitHub line-based patch text.
+ * Throws an error if the patch text is undefined, null, or not a patch text.
+ * Example output of one output of one regex exec:
  *
  * '@@ -0,0 +1,12 @@\n', // original text
  * '0,0', // original hunk
@@ -52,6 +54,9 @@ const REGEX_MULTILINE_TO_ONELINE_RANGE = /@@ -([0-9]+,[0-9]+) \+([0-9]+) @@/g;
  * @returns patch ranges
  */
 export function getGitHubPatchRanges(patchText: string): Range[] {
+  if (typeof patchText !== 'string') {
+    throw new TypeError('GitHub patch text must be a string');
+  }
   const ranges: Range[] = [];
   // CASE I: multiline patch ranges
   // includes non-first single-line patches
@@ -108,6 +113,12 @@ export function getGitHubPatchRanges(patchText: string): Range[] {
     const start = parseInt(patch[REGEX_INDEX_OF_UPDATED_HUNK]);
     const range: Range = {start, end: start + 1};
     ranges.push(range);
+  }
+  if (!ranges.length) {
+    logger.error(
+      `Unexpected input patch text provided. Expected "${patchText}" to be of format @@ -<number>[,<number>] +<number>[,<number>] @@`
+    );
+    throw new PatchSyntaxError('Unexpected patch text format');
   }
   return ranges;
 }
