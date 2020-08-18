@@ -295,15 +295,15 @@ describe('patchTextToRanges', () => {
   });
   it('Returns a single range file record when there is a single 1 line patch hunk', () => {
     const firstLinePatch = '@@ -1 +1 @@\n-Hello foo\n+';
-    const singlelineFIleName = 'single-line-patch.txt';
+    const singleLineFileName = 'single-line-patch.txt';
     const patchText = new Map<string, string>();
-    patchText.set(singlelineFIleName, firstLinePatch);
+    patchText.set(singleLineFileName, firstLinePatch);
     const ranges = patchTextToRanges(patchText);
     expect(ranges.size).equals(1);
-    expect(ranges.get(singlelineFIleName)).not.equals(null);
-    expect(ranges.get(singlelineFIleName)?.length).equals(1);
-    expect(ranges.get(singlelineFIleName)![0].start).equals(1);
-    expect(ranges.get(singlelineFIleName)![0].end).equals(2);
+    expect(ranges.get(singleLineFileName)).not.equals(null);
+    expect(ranges.get(singleLineFileName)?.length).equals(1);
+    expect(ranges.get(singleLineFileName)![0].start).equals(1);
+    expect(ranges.get(singleLineFileName)![0].end).equals(2);
   });
   it('Returns a single range file record when there is a single 1 line to multiline line patch hunk', () => {
     const singleToMultilineFormat = '@@ -1 +0,0 @@\n-hello world';
