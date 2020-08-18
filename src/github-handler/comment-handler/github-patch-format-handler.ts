@@ -40,8 +40,9 @@ const REGEX_ONELINE_RANGE = /@@ -([0-9]+) \+([0-9]+) @@/g;
 const REGEX_MULTILINE_TO_ONELINE_RANGE = /@@ -([0-9]+,[0-9]+) \+([0-9]+) @@/g;
 
 /**
- * Parses the GitHub line-based patch text
- * Example output of one output of one regex exec
+ * Parses the GitHub line-based patch text.
+ * Throws an error if the patch text is undefined, null, or not a patch text.
+ * Example output of one output of one regex exec:
  *
  * '@@ -0,0 +1,12 @@\n', // original text
  * '0,0', // original hunk
