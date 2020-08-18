@@ -13,12 +13,7 @@
 // limitations under the License.
 
 import {Octokit} from '@octokit/rest';
-import {
-  FileRanges,
-  PatchText,
-  Range,
-  RepoDomain,
-} from '../../types';
+import {FileRanges, PatchText, Range, RepoDomain} from '../../types';
 import {getGitHubPatchRanges} from './github-patch-format-handler';
 import {logger} from '../../logger';
 

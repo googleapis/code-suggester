@@ -115,9 +115,9 @@ export function getGitHubPatchRanges(patchText: string): Range[] {
   }
   if (!ranges.length) {
     logger.error(
-    `Unexpected input patch text provided. Expected "${patchText}" to be of format @@ -<number>[,<number>] +<number>[,<number>] @@`
-  );
-  throw new PatchSyntaxError('Unexpected patch text format');
+      `Unexpected input patch text provided. Expected "${patchText}" to be of format @@ -<number>[,<number>] +<number>[,<number>] @@`
+    );
+    throw new PatchSyntaxError('Unexpected patch text format');
   }
   return ranges;
 }

@@ -276,15 +276,9 @@ describe('patchTextToRanges', () => {
     expect(ranges.get(multiline_file_name)![0].end).equals(6);
     expect(ranges.get(milti_to_singleline_file_name)).not.equals(null);
     expect(ranges.get(milti_to_singleline_file_name)?.length).equals(1);
-    expect(
-      ranges.get(milti_to_singleline_file_name)![0].start
-    ).equals(1);
-    expect(
-      ranges.get(milti_to_singleline_file_name)![0].end
-    ).not.equals(1);
-    expect(
-      ranges.get(milti_to_singleline_file_name)![0].end
-    ).equals(2);
+    expect(ranges.get(milti_to_singleline_file_name)![0].start).equals(1);
+    expect(ranges.get(milti_to_singleline_file_name)![0].end).not.equals(1);
+    expect(ranges.get(milti_to_singleline_file_name)![0].end).equals(2);
   });
   it('Returns a single range file record when there is a single multiline patch hunk', () => {
     const multiline_patch =
@@ -323,12 +317,8 @@ describe('patchTextToRanges', () => {
     expect(ranges.size).equals(1);
     expect(ranges.get(singleline_to_multi_file_name)).not.equals(null);
     expect(ranges.get(singleline_to_multi_file_name)?.length).equals(1);
-    expect(
-      ranges.get(singleline_to_multi_file_name)![0].start
-    ).equals(0);
-    expect(
-      ranges.get(singleline_to_multi_file_name)![0].end
-    ).equals(0);
+    expect(ranges.get(singleline_to_multi_file_name)![0].start).equals(0);
+    expect(ranges.get(singleline_to_multi_file_name)![0].end).equals(0);
   });
   it('Returns a single range file record when there is a single multiline to 1 line patch hunk', () => {
     const first_line_patch = "@@ -0,0 +1 @@\n+console.log('Hello World!');";
@@ -339,12 +329,8 @@ describe('patchTextToRanges', () => {
     expect(ranges.size).equals(1);
     expect(ranges.get(milti_to_singleline_file_name)).not.equals(null);
     expect(ranges.get(milti_to_singleline_file_name)?.length).equals(1);
-    expect(
-      ranges.get(milti_to_singleline_file_name)![0].start
-    ).equals(1);
-    expect(
-      ranges.get(milti_to_singleline_file_name)![0].end
-    ).equals(2);
+    expect(ranges.get(milti_to_singleline_file_name)![0].start).equals(1);
+    expect(ranges.get(milti_to_singleline_file_name)![0].end).equals(2);
   });
   it('Returns a single range file record when there is a single multiline to 1 line patch hunk', () => {
     const multiple_patches =
@@ -356,18 +342,10 @@ describe('patchTextToRanges', () => {
     expect(ranges.size).equals(1);
     expect(ranges.get(multiple_patches_file_name)).not.equals(null);
     expect(ranges.get(multiple_patches_file_name)?.length).equals(2);
-    expect(ranges.get(multiple_patches_file_name)![0].start).equals(
-      356
-    );
-    expect(ranges.get(multiple_patches_file_name)![0].end).equals(
-      363
-    );
-    expect(ranges.get(multiple_patches_file_name)![1].start).equals(
-      6577
-    );
-    expect(ranges.get(multiple_patches_file_name)![1].end).equals(
-      6584
-    );
+    expect(ranges.get(multiple_patches_file_name)![0].start).equals(356);
+    expect(ranges.get(multiple_patches_file_name)![0].end).equals(363);
+    expect(ranges.get(multiple_patches_file_name)![1].start).equals(6577);
+    expect(ranges.get(multiple_patches_file_name)![1].end).equals(6584);
   });
 });
 

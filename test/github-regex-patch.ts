@@ -15,7 +15,7 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
 import {getGitHubPatchRanges} from '../src/github-handler/comment-handler/github-patch-format-handler';
-import { PatchSyntaxError } from '../src/types';
+import {PatchSyntaxError} from '../src/types';
 
 describe('Getting patch range from GitHub patch text', async () => {
   it('parses original text for multiline modifies', () => {
@@ -76,7 +76,7 @@ describe('Getting patch range from GitHub patch text', async () => {
     }
   });
   it('throws an error when the patch text does not contain hunk ranges and contains other text', () => {
-    const patch = '@ 1 1 @ invalid patch because it needs a + and - sign'
+    const patch = '@ 1 1 @ invalid patch because it needs a + and - sign';
     try {
       getGitHubPatchRanges(patch);
       expect.fail('Should have filed because an invalid input was given');
