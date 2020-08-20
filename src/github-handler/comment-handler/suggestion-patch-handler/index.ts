@@ -42,17 +42,14 @@ export function getValidSuggestionHunks(
   );
   const inScopeByFileName = getInScopeByFileName(invalidFiles, totalfileHunks);
 
-  const scopifiedHunks = getInScopeHunks(
-    validFileLines,
-    inScopeByFileName
-  );
+  const scopifiedHunks = getInScopeHunks(validFileLines, inScopeByFileName);
   const outOfScopeSuggestions = mergeOutOfScopeSuggestions(
     outofScopeByFilename,
     scopifiedHunks.outOfScopeFilesHunks
   );
   return {
     inScopeSuggestions: scopifiedHunks.inScopeFilesHunks,
-    outOfScopeSuggestions
+    outOfScopeSuggestions,
   };
 }
 

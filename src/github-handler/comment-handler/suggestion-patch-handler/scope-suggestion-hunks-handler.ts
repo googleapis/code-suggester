@@ -122,6 +122,14 @@ export function getInScopeByFileName(
   return inScopeFiles;
 }
 
+/**
+ * Get the suggestions who are out of scope because their file name has
+ * been recorded in the invalid file list. The suggestions should be the original
+ * unfiltered suggestions, otherwise the method will return a subset of the possible
+ * out of scope file names (and their respective hunks)
+ * @param {string} invalidFiles
+ * @param {Map<string, Hunk[]>} suggestions the unfiltered suggestions
+ */
 export function getOutOfScopeByFileName(
   invalidFiles: string[],
   suggestions: Map<string, Hunk[]>
@@ -135,14 +143,19 @@ export function getOutOfScopeByFileName(
   return invalidFileSuggestions;
 }
 
+/**
+ * Get all the out of scope suggestions
+ * @param {Map<string, Hunk[]>} outOfScopeFileNameSuggestions
+ * @param {Map<string, Hunk[]>} outOfScopeHunkSuggestions
+ */
 export function mergeOutOfScopeSuggestions(
-  invalidFileNameSuggestions: Map<string, Hunk[]>,
-  invalidHunkSuggestions: Map<string, Hunk[]>
+  outOfScopeFileNameSuggestions: Map<string, Hunk[]>,
+  outOfScopeHunkSuggestions: Map<string, Hunk[]>
 ): Map<string, Hunk[]> {
   const invalidSuggestions: Map<string, Hunk[]> = new Map(
-    invalidHunkSuggestions
+    outOfScopeHunkSuggestions
   );
-  invalidFileNameSuggestions.forEach((hunks: Hunk[], fileName: string) => {
+  outOfScopeFileNameSuggestions.forEach((hunks: Hunk[], fileName: string) => {
     // invalid file name suggestions should be a superset of invalid hunk suggestions
     invalidSuggestions.set(fileName, hunks);
   });

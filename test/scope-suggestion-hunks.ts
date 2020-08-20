@@ -20,7 +20,7 @@ import {
   getInScopeHunks,
   getInScopeByFileName,
   getOutOfScopeByFileName,
-  mergeOutOfScopeSuggestions
+  mergeOutOfScopeSuggestions,
 } from '../src/github-handler/comment-handler/suggestion-patch-handler/scope-suggestion-hunks-handler';
 import {Range, Hunk} from '../src/types';
 
@@ -100,18 +100,15 @@ describe('getInScopeHunks', () => {
     const {inScopeFilesHunks} = getInScopeHunks(scope, suggestions);
     expect(inScopeFilesHunks.size).equals(1);
     expect(inScopeFilesHunks.get(fileName1)!).deep.equals([
-      {oldStart: 1, oldEnd: 20, newStart: 1, newEnd: 30}
+      {oldStart: 1, oldEnd: 20, newStart: 1, newEnd: 30},
     ]);
   });
 
   it('Calculates file hunks that are out of scope for the pull request even if the suggestions are a subset of the total PR scope', () => {
     suggestions.set(fileName1, [
-      {oldStart: 1, oldEnd: 20, newStart: 1, newEnd: 30}
+      {oldStart: 1, oldEnd: 20, newStart: 1, newEnd: 30},
     ]);
-    const {outOfScopeFilesHunks} = getInScopeHunks(
-      scope,
-      suggestions
-    );
+    const {outOfScopeFilesHunks} = getInScopeHunks(scope, suggestions);
     expect(outOfScopeFilesHunks.size).equals(0);
   });
 
@@ -258,7 +255,10 @@ describe('mergeOutOfScopeSuggestions', () => {
     invalidHunkSuggestions.set(fileName3, [
       {oldStart: 2, oldEnd: 54, newStart: 2, newEnd: 10},
     ]);
-    const outOfScope = mergeOutOfScopeSuggestions(invalidFileNameSuggestions, invalidHunkSuggestions);
+    const outOfScope = mergeOutOfScopeSuggestions(
+      invalidFileNameSuggestions,
+      invalidHunkSuggestions
+    );
     expect(outOfScope.size).equals(3);
     expect(outOfScope.get(fileName1)).deep.equals([
       {oldStart: 1, oldEnd: 20, newStart: 1, newEnd: 30},
@@ -278,9 +278,12 @@ describe('mergeOutOfScopeSuggestions', () => {
       {oldStart: 1000, oldEnd: 1200, newStart: 1000, newEnd: 1300},
     ]);
     invalidHunkSuggestions.set(fileName1, [
-      {oldStart: 1, oldEnd: 20, newStart: 1, newEnd: 30}
+      {oldStart: 1, oldEnd: 20, newStart: 1, newEnd: 30},
     ]);
-    const outOfScope = mergeOutOfScopeSuggestions(invalidFileNameSuggestions, invalidHunkSuggestions);
+    const outOfScope = mergeOutOfScopeSuggestions(
+      invalidFileNameSuggestions,
+      invalidHunkSuggestions
+    );
     expect(outOfScope.size).equals(1);
     expect(outOfScope.get(fileName1)).deep.equals([
       {oldStart: 1, oldEnd: 20, newStart: 1, newEnd: 30},

@@ -139,7 +139,11 @@ describe('getValidSuggestionHunks', () => {
     expect(suggestions.inScopeSuggestions.size).equals(1);
     expect(suggestions.inScopeSuggestions.has(fileName2)).equals(true);
     expect(suggestions.outOfScopeSuggestions.size).equals(3);
-    expect(suggestions.outOfScopeSuggestions.has('non-existant-file-that-is-not-invalid.txt')).equals(true);
+    expect(
+      suggestions.outOfScopeSuggestions.has(
+        'non-existant-file-that-is-not-invalid.txt'
+      )
+    ).equals(true);
     expect(suggestions.outOfScopeSuggestions.has(invalidFile)).equals(true);
     expect(suggestions.outOfScopeSuggestions.has(fileName1)).equals(true);
   });
