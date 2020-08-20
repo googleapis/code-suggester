@@ -153,9 +153,3 @@ export interface Hunk {
 export interface Patch extends Range {
   readonly newContent: string;
 }
-
-export type FilePatches = Map<string, Patch[]>;
-export type FileHunks = Map<string, Hunk[]>;
-export type RawChanges = Map<string, RawContent>;
-export type PatchText = Map<string, string>;
-export type FileRanges = Map<string, Range[]>;

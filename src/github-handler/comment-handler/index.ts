@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {RawChanges, RepoDomain} from '../../types';
+import {RawContent, RepoDomain} from '../../types';
 import {getPullRequestScope} from './remote-patch-ranges-handler';
 import {Octokit} from '@octokit/rest';
 import {getSuggestionPatches} from './suggestion-patch-handler';
@@ -23,14 +23,14 @@ import {getSuggestionPatches} from './suggestion-patch-handler';
  * @param {RepoDomain} remote the Pull Request repository
  * @param {number} pullNumber the Pull Request number
  * @param {number} pageSize the number of files to comment on // TODO pagination
- * @param {RawChanges} rawChanges the old and new contents of the files to suggest
+ * @param {Map<string, RawContent>} rawChanges the old and new contents of the files to suggest
  */
 export async function comment(
   octokit: Octokit,
   remote: RepoDomain,
   pullNumber: number,
   pageSize: number,
-  rawChanges: RawChanges
+  rawChanges: Map<string, RawContent>
 ): Promise<void> {
   const {invalidFiles, validFileLines} = await getPullRequestScope(
     octokit,

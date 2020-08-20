@@ -19,7 +19,7 @@ import {
   generateHunks,
   getRawSuggestionHunks,
 } from '../src/github-handler/comment-handler/suggestion-patch-handler/suggestion-hunk-handler';
-import {RawChanges, RawContent} from '../src/types';
+import {RawContent} from '../src/types';
 
 before(() => {
   setup();
@@ -58,7 +58,7 @@ describe('generateHunks', () => {
 });
 
 describe('getRawSuggestionHunks', () => {
-  const rawChange: RawChanges = new Map();
+  const rawChange: Map<string, RawContent> = new Map();
   const rawContent1: RawContent = {oldContent: 'foo', newContent: 'FOO'};
   const rawContent2: RawContent = {
     oldContent:

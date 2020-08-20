@@ -16,27 +16,27 @@ import {expect} from 'chai';
 import {describe, it, before, beforeEach} from 'mocha';
 import {setup} from './util';
 import {getValidSuggestionHunks} from '../src/github-handler/comment-handler/suggestion-patch-handler';
-import {FileRanges, RawChanges} from '../src/types';
+import {Range, RawContent} from '../src/types';
 
 before(() => {
   setup();
 });
 
 describe('getValidSuggestionHunks', () => {
-  const scope: FileRanges = new Map();
+  const scope: Map<string, Range[]> = new Map();
   const fileName1 = 'foo.txt';
   const fileName2 = 'bar.txt';
   const invalidFile = 'baz.txt';
   const invalidFiles = [invalidFile];
   scope.set(fileName1, [{start: 1, end: 2}]);
   scope.set(fileName2, [{start: 2, end: 11}]);
-  const rawChanges: RawChanges = new Map();
+  const rawChanges: Map<string, RawContent> = new Map();
 
   beforeEach(() => {
     rawChanges.clear();
   });
 
-  it('Keeps file hunks that are in scope for the pull request', () => {
+  it('Finds file hunks that are in scope for the pull request', () => {
     rawChanges.set(fileName2, {
       oldContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar',
@@ -48,10 +48,10 @@ describe('getValidSuggestionHunks', () => {
       invalidFiles,
       scope
     );
-    expect(suggestions.size).equals(1);
+    expect(suggestions.inScopeSuggestions.size).equals(1);
   });
 
-  it('Removes file hunks that are not in scope for the pull request', () => {
+  it('Excludes file hunks that are not in scope for the pull request', () => {
     rawChanges.set(fileName1, {
       oldContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo',
@@ -63,10 +63,10 @@ describe('getValidSuggestionHunks', () => {
       invalidFiles,
       scope
     );
-    expect(suggestions.size).equals(0);
+    expect(suggestions.inScopeSuggestions.size).equals(0);
   });
 
-  it('Removes suggestion files that are not in scope because the file is not in scope', () => {
+  it('Excludes suggestion files that are not in scope because the file is not in scope', () => {
     rawChanges.set('non-existant-file-that-is-not-invalid.txt', {
       oldContent: 'foo',
       newContent: 'bar',
@@ -76,26 +76,71 @@ describe('getValidSuggestionHunks', () => {
       invalidFiles,
       scope
     );
-    expect(suggestions.size).equals(0);
+    expect(suggestions.inScopeSuggestions.size).equals(0);
   });
 
-  it('Removes suggestion files that are not in scope because the file is invalid', () => {
+  it('Excludes suggestion files that are not in scope because the file is invalid', () => {
     rawChanges.set(invalidFile, {oldContent: 'foo', newContent: 'bar'});
     const suggestions = getValidSuggestionHunks(
       rawChanges,
       invalidFiles,
       scope
     );
-    expect(suggestions.size).equals(0);
+    expect(suggestions.inScopeSuggestions.size).equals(0);
   });
 
-  it('Removes suggestion files that have no change', () => {
+  it('Does not include suggestion files that have no change', () => {
     rawChanges.set(fileName1, {oldContent: 'foo', newContent: 'foo'});
     const suggestions = getValidSuggestionHunks(
       rawChanges,
       invalidFiles,
       scope
     );
-    expect(suggestions.size).equals(0);
+    expect(suggestions.inScopeSuggestions.size).equals(0);
+  });
+
+  it('Calculates in scope and out of scope files that are mutually exclusive', () => {
+    // in scope hunk
+    rawChanges.set(fileName2, {
+      oldContent:
+        'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar',
+      newContent:
+        'bar\nbar\nbar\nbar\nbar\nbar\nfoo\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar',
+    });
+    // out of scope hunks
+    rawChanges.set(fileName1, {
+      oldContent:
+        'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo',
+      newContent:
+        'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar',
+    });
+    // same before and after
+    rawChanges.set('same-before-and-after.text', {
+      oldContent:
+        'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo',
+      newContent:
+        'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo',
+    });
+    // out of scope file name
+    rawChanges.set('non-existant-file-that-is-not-invalid.txt', {
+      oldContent: 'foo',
+      newContent: 'bar',
+    });
+    // out of scope file name
+    rawChanges.set(invalidFile, {
+      oldContent: 'foo',
+      newContent: 'bar',
+    });
+    const suggestions = getValidSuggestionHunks(
+      rawChanges,
+      invalidFiles,
+      scope
+    );
+    expect(suggestions.inScopeSuggestions.size).equals(1);
+    expect(suggestions.inScopeSuggestions.has(fileName2)).equals(true);
+    expect(suggestions.outOfScopeSuggestions.size).equals(3);
+    expect(suggestions.outOfScopeSuggestions.has('non-existant-file-that-is-not-invalid.txt')).equals(true);
+    expect(suggestions.outOfScopeSuggestions.has(invalidFile)).equals(true);
+    expect(suggestions.outOfScopeSuggestions.has(fileName1)).equals(true);
   });
 });

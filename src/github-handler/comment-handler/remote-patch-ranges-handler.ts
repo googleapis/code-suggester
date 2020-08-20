@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Octokit} from '@octokit/rest';
-import {FileRanges, PatchText, Range, RepoDomain} from '../../types';
+import {Range, RepoDomain} from '../../types';
 import {getGitHubPatchRanges} from './github-patch-format-handler';
 import {logger} from '../../logger';
 
@@ -31,7 +31,7 @@ export async function getCurrentPullRequestPatches(
   remote: RepoDomain,
   pullNumber: number,
   pageSize: number
-): Promise<{patches: PatchText; filesMissingPatch: string[]}> {
+): Promise<{patches: Map<string, string>; filesMissingPatch: string[]}> {
   // TODO support pagination
   const filesMissingPatch: string[] = [];
   const files = (
@@ -42,7 +42,7 @@ export async function getCurrentPullRequestPatches(
       per_page: pageSize,
     })
   ).data;
-  const patches: PatchText = new Map<string, string>();
+  const patches: Map<string, string> = new Map<string, string>();
   if (files.length === 0) {
     logger.error(
       `0 file results have returned from list files query for Pull Request #${pullNumber}. Cannot make suggestions on an empty Pull Request`
@@ -72,11 +72,13 @@ export async function getCurrentPullRequestPatches(
 /**
  * Given the patch text (for a whole file) for each file,
  * get each file's hunk's (part of a file's) range
- * @param {PatchText} validPatches patch text from the remote github file
- * @returns {FileRanges} the range of the remote patch
+ * @param {Map<string, string>} validPatches patch text from the remote github file
+ * @returns {Map<string, Range[]>} the range of the remote patch
  */
-export function patchTextToRanges(validPatches: PatchText): FileRanges {
-  const allValidLineRanges: FileRanges = new Map<string, Range[]>();
+export function patchTextToRanges(
+  validPatches: Map<string, string>
+): Map<string, Range[]> {
+  const allValidLineRanges: Map<string, Range[]> = new Map<string, Range[]>();
   validPatches.forEach((patch, filename) => {
     // get each hunk range in the patch string
     try {
@@ -99,14 +101,14 @@ export function patchTextToRanges(validPatches: PatchText): FileRanges {
  * @param {RepoDomain} remote the remote repository domain information
  * @param {number} pullNumber the pull request number
  * @param {number} pageSize the number of files to return per pull request list files query
- * @returns {Promise<Object<FileRanges, string[]>>} the scope of each file in the pull request and the list of files whose patch data could not be resolved
+ * @returns {Promise<Object<Map<string, Range[]>, string[]>>} the scope of each file in the pull request and the list of files whose patch data could not be resolved
  */
 export async function getPullRequestScope(
   octokit: Octokit,
   remote: RepoDomain,
   pullNumber: number,
   pageSize: number
-): Promise<{validFileLines: FileRanges; invalidFiles: string[]}> {
+): Promise<{validFileLines: Map<string, Range[]>; invalidFiles: string[]}> {
   try {
     const {patches, filesMissingPatch} = await getCurrentPullRequestPatches(
       octokit,

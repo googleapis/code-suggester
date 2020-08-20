@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Hunk, FileHunks, RawChanges, RawContent} from '../../../types';
+import {Hunk, RawContent} from '../../../types';
 import {logger} from '../../../logger';
 import {structuredPatch, Hunk as RawHunk} from 'diff';
 
@@ -49,11 +49,13 @@ export function generateHunks(
  * compute the hunk for each file whose old and new contents differ.
  * Do not compute the hunk if the old content is the same as the new content.
  * The hunk list is sorted and each interval is disjoint.
- * @param rawChanges a map of the original file contents and the new file contents
+ * @param {Map<string, RawContent>} rawChanges a map of the original file contents and the new file contents
  * @returns the hunks for each file whose old and new contents differ
  */
-export function getRawSuggestionHunks(rawChanges: RawChanges): FileHunks {
-  const fileHunks: FileHunks = new Map();
+export function getRawSuggestionHunks(
+  rawChanges: Map<string, RawContent>
+): Map<string, Hunk[]> {
+  const fileHunks: Map<string, Hunk[]> = new Map();
   rawChanges.forEach((rawContent: RawContent, fileName: string) => {
     // if identical don't calculate the hunk and continue in the loop
     if (rawContent.oldContent === rawContent.newContent) {

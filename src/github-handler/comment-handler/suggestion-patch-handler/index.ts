@@ -14,42 +14,62 @@
 
 import {getRawSuggestionHunks} from './suggestion-hunk-handler';
 import {
-  filterOutOfScopeHunks,
-  filterOutOfScopeFiles,
-} from './fix-suggestion-hunks-handler';
-import {RawChanges, FileHunks, FileRanges, FilePatches} from '../../../types';
+  getInScopeHunks,
+  getInScopeByFileName,
+  getOutOfScopeByFileName,
+  mergeOutOfScopeSuggestions,
+} from './scope-suggestion-hunks-handler';
+import {RawContent, Hunk, Range, Patch} from '../../../types';
 
 /**
- * Get the valid hunks and files
- * @param {RawChanges} rawChanges the raw old content and new content of a file
+ * Get the in scope (of the corresponding pull request's) hunks and files
+ * @param {Map<string, RawContent>} rawChanges the raw old content and new content of a file
  * @param {string[]} invalidFiles list of invalid files
- * @param {FileRanges} validFileLines a map of each file's valid lines for a Pull Request
+ * @param {Map<string, Range[]>} validFileLines a map of each file's in scope lines for a Pull Request
  */
 export function getValidSuggestionHunks(
-  rawChanges: RawChanges,
+  rawChanges: Map<string, RawContent>,
   invalidFiles: string[],
-  validFileLines: FileRanges
-): FileHunks {
-  const fileHunks = getRawSuggestionHunks(rawChanges);
-  filterOutOfScopeFiles(invalidFiles, fileHunks);
-  filterOutOfScopeHunks(validFileLines, fileHunks);
-  return fileHunks;
+  validFileLines: Map<string, Range[]>
+): {
+  inScopeSuggestions: Map<string, Hunk[]>;
+  outOfScopeSuggestions: Map<string, Hunk[]>;
+} {
+  const totalfileHunks = getRawSuggestionHunks(rawChanges);
+  const outofScopeByFilename = getOutOfScopeByFileName(
+    invalidFiles,
+    totalfileHunks
+  );
+  const inScopeByFileName = getInScopeByFileName(invalidFiles, totalfileHunks);
+
+  const scopifiedHunks = getInScopeHunks(
+    validFileLines,
+    inScopeByFileName
+  );
+  const outOfScopeSuggestions = mergeOutOfScopeSuggestions(
+    outofScopeByFilename,
+    scopifiedHunks.outOfScopeFilesHunks
+  );
+  return {
+    inScopeSuggestions: scopifiedHunks.inScopeFilesHunks,
+    outOfScopeSuggestions
+  };
 }
 
 /**
  * Get the range of the old version of every file and the corresponding new text for that range
  * whose old and new contents differ, under the constraints that the file
  * is in scope for Pull Request, as well as its lines.
- * @param {RawChanges} rawChanges the raw old content and new content of a file
+ * @param {Map<string, RawContent>} rawChanges the raw old content and new content of a file
  * @param {string[]} invalidFiles list of invalid files
- * @param {FileRanges} validFileLines a map of each file's valid lines for a Pull Request
+ * @param {Map<string, Range[]>} validFileLines a map of each file's in scope lines for a Pull Request
  */
 export function getSuggestionPatches(
-  rawChanges: RawChanges,
+  rawChanges: Map<string, RawContent>,
   invalidFiles: string[],
-  validFileLines: FileRanges
-): FilePatches {
-  const filePatches: FilePatches = new Map();
+  validFileLines: Map<string, Range[]>
+): Map<string, Patch> {
+  const filePatches: Map<string, Patch> = new Map();
   getValidSuggestionHunks(rawChanges, invalidFiles, validFileLines);
   // TODO get patches from getValidSuggestionHunks output
   return filePatches;
