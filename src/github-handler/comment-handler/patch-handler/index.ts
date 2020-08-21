@@ -12,8 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {generatePatches} from './hunk-to-patch-handler';
 import {getValidSuggestionHunks} from './in-scope-hunks-handler';
-import {RawContent, Range, Patch} from '../../../types';
+import {Hunk, RawContent, Range, Patch} from '../../../types';
+
+interface PatchesAndOutOfScopeSuggestions {
+  filePatches: Map<string, Patch[]>;
+  outOfScopeSuggestions: Map<string, Hunk[]>;
+}
 
 /**
  * Get the range of the old version of every file and the corresponding new text for that range
@@ -27,9 +33,15 @@ export function getSuggestionPatches(
   rawChanges: Map<string, RawContent>,
   invalidFiles: string[],
   validFileLines: Map<string, Range[]>
-): Map<string, Patch> {
-  const filePatches: Map<string, Patch> = new Map();
-  getValidSuggestionHunks(rawChanges, invalidFiles, validFileLines);
-  // TODO get patches from getValidSuggestionHunks output
-  return filePatches;
+): PatchesAndOutOfScopeSuggestions {
+  const {inScopeSuggestions, outOfScopeSuggestions} = getValidSuggestionHunks(
+    rawChanges,
+    invalidFiles,
+    validFileLines
+  );
+  const filePatches: Map<string, Patch[]> = generatePatches(
+    inScopeSuggestions,
+    rawChanges
+  );
+  return {filePatches, outOfScopeSuggestions};
 }
