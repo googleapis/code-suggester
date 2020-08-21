@@ -14,7 +14,7 @@
 
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import {getGitHubPatchRanges} from '../src/github-handler/comment-handler/github-patch-format-handler';
+import {getGitHubPatchRanges} from '../src/github-handler/comment-handler/get-hunk-scope-handler/github-patch-text-handler';
 import {PatchSyntaxError} from '../src/types';
 
 describe('Getting patch range from GitHub patch text', async () => {

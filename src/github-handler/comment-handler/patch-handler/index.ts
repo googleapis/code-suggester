@@ -12,46 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {getRawSuggestionHunks} from './suggestion-hunk-handler';
-import {
-  getInScopeHunks,
-  getInScopeByFileName,
-  getOutOfScopeByFileName,
-  mergeOutOfScopeSuggestions,
-} from './scope-suggestion-hunks-handler';
-import {RawContent, Hunk, Range, Patch} from '../../../types';
-
-/**
- * Get the in scope (of the corresponding pull request's) hunks and files
- * @param {Map<string, RawContent>} rawChanges the raw old content and new content of a file
- * @param {string[]} invalidFiles list of invalid files
- * @param {Map<string, Range[]>} validFileLines a map of each file's in scope lines for a Pull Request
- */
-export function getValidSuggestionHunks(
-  rawChanges: Map<string, RawContent>,
-  invalidFiles: string[],
-  validFileLines: Map<string, Range[]>
-): {
-  inScopeSuggestions: Map<string, Hunk[]>;
-  outOfScopeSuggestions: Map<string, Hunk[]>;
-} {
-  const totalfileHunks = getRawSuggestionHunks(rawChanges);
-  const outofScopeByFilename = getOutOfScopeByFileName(
-    invalidFiles,
-    totalfileHunks
-  );
-  const inScopeByFileName = getInScopeByFileName(invalidFiles, totalfileHunks);
-
-  const scopifiedHunks = getInScopeHunks(validFileLines, inScopeByFileName);
-  const outOfScopeSuggestions = mergeOutOfScopeSuggestions(
-    outofScopeByFilename,
-    scopifiedHunks.outOfScopeFilesHunks
-  );
-  return {
-    inScopeSuggestions: scopifiedHunks.inScopeFilesHunks,
-    outOfScopeSuggestions,
-  };
-}
+import {getValidSuggestionHunks} from './in-scope-hunks-handler';
+import {RawContent, Range, Patch} from '../../../types';
 
 /**
  * Get the range of the old version of every file and the corresponding new text for that range

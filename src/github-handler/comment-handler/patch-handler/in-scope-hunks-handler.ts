@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Hunk, Range} from '../../../types';
+import {Hunk, Range, RawContent} from '../../../types';
+import {getRawSuggestionHunks} from './raw-hunk-handler';
 
 /**
  * Given a value and a list of ranges, find the index of the range domain
@@ -45,7 +46,7 @@ export function findRange(ranges: Range[], value: number, from = 0): number {
  * @param {Range[]} scope the list of valid ranges that a hunk can fit between
  * @param {Hunk[]} suggestedHunks the hunks for the file to suggest
  */
-function getValidSuggestionHunks(
+function getScopeSuggestionHunks(
   scope: Range[],
   suggestedHunks: Hunk[]
 ): {inScopeHunks: Hunk[]; outOfScopeHunks: Hunk[]} {
@@ -87,7 +88,7 @@ export function getInScopeHunks(
     if (!scope) {
       outOfScopeFilesHunks.set(fileName, suggestedHunks);
     } else {
-      const {inScopeHunks, outOfScopeHunks} = getValidSuggestionHunks(
+      const {inScopeHunks, outOfScopeHunks} = getScopeSuggestionHunks(
         scope,
         suggestedHunks
       );
@@ -160,4 +161,36 @@ export function mergeOutOfScopeSuggestions(
     invalidSuggestions.set(fileName, hunks);
   });
   return invalidSuggestions;
+}
+
+/**
+ * Get the in scope (of the corresponding pull request's) hunks and files
+ * @param {Map<string, RawContent>} rawChanges the raw old content and new content of a file
+ * @param {string[]} invalidFiles list of invalid files
+ * @param {Map<string, Range[]>} validFileLines a map of each file's in scope lines for a Pull Request
+ */
+export function getValidSuggestionHunks(
+  rawChanges: Map<string, RawContent>,
+  invalidFiles: string[],
+  validFileLines: Map<string, Range[]>
+): {
+  inScopeSuggestions: Map<string, Hunk[]>;
+  outOfScopeSuggestions: Map<string, Hunk[]>;
+} {
+  const totalfileHunks = getRawSuggestionHunks(rawChanges);
+  const outofScopeByFilename = getOutOfScopeByFileName(
+    invalidFiles,
+    totalfileHunks
+  );
+  const inScopeByFileName = getInScopeByFileName(invalidFiles, totalfileHunks);
+
+  const scopifiedHunks = getInScopeHunks(validFileLines, inScopeByFileName);
+  const outOfScopeSuggestions = mergeOutOfScopeSuggestions(
+    outofScopeByFilename,
+    scopifiedHunks.outOfScopeFilesHunks
+  );
+  return {
+    inScopeSuggestions: scopifiedHunks.inScopeFilesHunks,
+    outOfScopeSuggestions,
+  };
 }
