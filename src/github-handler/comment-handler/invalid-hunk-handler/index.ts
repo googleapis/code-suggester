@@ -22,6 +22,10 @@ function fileErrorMessage(filename: string, hunks: Hunk[]): string {
   return `* ${filename}\n` + hunks.map(hunkErrorMessage).join('\n');
 }
 
+/**
+ * Build an error message based on invalid hunks.
+ * @param invalidHunks a map of filename to hunks that are not suggestable
+ */
 export function buildErrorMessage(invalidHunks: Map<string, Hunk[]>): string {
   if (invalidHunks.size === 0) {
     return '';
