@@ -14,6 +14,18 @@
 
 import {Hunk} from '../../../types';
 
+function fileErrorMessage(filename: string, hunks: Hunk[]): string {
+  return `* ${filename}`;
+}
+
 export function buildErrorMessage(invalidHunks: Map<string, Hunk[]>): string {
-  return 'FIXME';
+  if (invalidHunks.size === 0) {
+    return '';
+  }
+  return (
+    'Some suggestions could not be made:\n' +
+    Array.from(invalidHunks, ([filename, hunks]) =>
+      fileErrorMessage(filename, hunks)
+    ).join('\n')
+  );
 }

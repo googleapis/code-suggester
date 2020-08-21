@@ -53,7 +53,7 @@ describe('buildErrorMessage', () => {
       {oldStart: 3, oldEnd: 4, newStart: 3, newEnd: 4},
     ]);
     const expectedMessage = `Some suggestions could not be made:
-    * foo.txt`;
+* foo.txt`;
 
     const errorMessage = buildErrorMessage(invalidHunks);
     expect(errorMessage).to.be.equal(expectedMessage);
