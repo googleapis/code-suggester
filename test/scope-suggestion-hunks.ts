@@ -21,7 +21,7 @@ import {
   getInScopeByFileName,
   getOutOfScopeByFileName,
   mergeOutOfScopeSuggestions,
-} from '../src/github-handler/comment-handler/patch-handler/in-scope-hunks-handler';
+} from '../src/github-handler/comment-handler/raw-patch-handler/in-scope-hunks-handler';
 import {Range, Hunk} from '../src/types';
 
 before(() => {

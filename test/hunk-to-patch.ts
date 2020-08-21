@@ -15,7 +15,7 @@
 import {expect} from 'chai';
 import {describe, it, before, beforeEach} from 'mocha';
 import {setup} from './util';
-import {generatePatches} from '../src/github-handler/comment-handler/patch-handler/hunk-to-patch-handler';
+import {generatePatches} from '../src/github-handler/comment-handler/raw-patch-handler/hunk-to-patch-handler';
 import {Hunk, RawContent} from '../src/types';
 
 before(() => {

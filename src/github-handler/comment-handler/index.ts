@@ -15,7 +15,10 @@
 import {RawContent, RepoDomain} from '../../types';
 import {getPullRequestScope} from './get-hunk-scope-handler/remote-patch-ranges-handler';
 import {Octokit} from '@octokit/rest';
-import {getSuggestionPatches} from './patch-handler';
+import {getSuggestionPatches} from './raw-patch-handler';
+import {makeInlineSuggestion} from './valid-patch-handler';
+import {makeTimeLineComment} from './invalid-hunk-handler';
+import {logger} from '../../logger';
 
 /**
  * Comment on a Pull Request
@@ -32,12 +35,27 @@ export async function comment(
   pageSize: number,
   rawChanges: Map<string, RawContent>
 ): Promise<void> {
-  const {invalidFiles, validFileLines} = await getPullRequestScope(
-    octokit,
-    remote,
-    pullNumber,
-    pageSize
-  );
-  getSuggestionPatches(rawChanges, invalidFiles, validFileLines);
-  // TODO get the raw file content from the new range of the hunk and make a PR with that
+  try {
+    const {invalidFiles, validFileLines} = await getPullRequestScope(
+      octokit,
+      remote,
+      pullNumber,
+      pageSize
+    );
+    const {filePatches, outOfScopeSuggestions} = getSuggestionPatches(
+      rawChanges,
+      invalidFiles,
+      validFileLines
+    );
+    await makeInlineSuggestion(octokit, filePatches, remote, pullNumber);
+    await makeTimeLineComment(
+      octokit,
+      outOfScopeSuggestions,
+      remote,
+      pullNumber
+    );
+  } catch (err) {
+    logger.error('Failed to suggest');
+    throw err;
+  }
 }

@@ -18,7 +18,7 @@ import {setup} from './util';
 import {
   generateHunks,
   getRawSuggestionHunks,
-} from '../src/github-handler/comment-handler/patch-handler/raw-hunk-handler';
+} from '../src/github-handler/comment-handler/raw-patch-handler/raw-hunk-handler';
 import {RawContent} from '../src/types';
 
 before(() => {

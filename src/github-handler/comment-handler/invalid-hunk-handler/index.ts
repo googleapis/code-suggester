@@ -12,29 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Hunk} from '../../../types';
-
-function hunkErrorMessage(hunk: Hunk): string {
-  return `  * lines ${hunk.oldStart}-${hunk.oldEnd}`;
-}
-
-function fileErrorMessage(filename: string, hunks: Hunk[]): string {
-  return `* ${filename}\n` + hunks.map(hunkErrorMessage).join('\n');
-}
+import {Octokit} from '@octokit/rest';
+import {Hunk, RepoDomain} from '../../../types';
+import {buildErrorMessage} from './message-handler';
+import {logger} from '../../../logger';
 
 /**
- * Build an error message based on invalid hunks.
- * Returns an empty string if the provided hunks are empty.
- * @param invalidHunks a map of filename to hunks that are not suggestable
+ * From the invalid hunks provided, make a comment on the pull request
+ * timeline detailing what hunks and files could not be commented on.
+ * @param octokit
+ * @param invalidHunks
+ * @param remote
+ * @param pullNumber
  */
-export function buildErrorMessage(invalidHunks: Map<string, Hunk[]>): string {
-  if (invalidHunks.size === 0) {
-    return '';
+export async function makeTimeLineComment(
+  octokit: Octokit,
+  invalidHunks: Map<string, Hunk[]>,
+  remote: RepoDomain,
+  pullNumber: number
+): Promise<void> {
+  try {
+    const errorMessage = buildErrorMessage(invalidHunks);
+    if (errorMessage) {
+      await octokit.issues.createComment({
+        owner: remote.owner,
+        repo: remote.repo,
+        issue_number: pullNumber,
+        body: errorMessage,
+      });
+    }
+  } catch (err) {
+    logger.error('Failed to make a timeline comment');
+    throw err;
   }
-  return (
-    'Some suggestions could not be made:\n' +
-    Array.from(invalidHunks, ([filename, hunks]) =>
-      fileErrorMessage(filename, hunks)
-    ).join('\n')
-  );
 }
