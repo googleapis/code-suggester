@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {PatchSyntaxError, Range} from '../../types';
-import {logger} from '../../logger';
+import {PatchSyntaxError, Range} from '../../../types';
+import {logger} from '../../../logger';
 
 const REGEX_INDEX_OF_UPDATED_HUNK = 2;
 

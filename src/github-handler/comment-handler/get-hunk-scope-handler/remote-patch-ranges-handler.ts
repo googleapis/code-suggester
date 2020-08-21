@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {Octokit} from '@octokit/rest';
-import {Range, RepoDomain} from '../../types';
-import {getGitHubPatchRanges} from './github-patch-format-handler';
-import {logger} from '../../logger';
+import {Range, RepoDomain} from '../../../types';
+import {getGitHubPatchRanges} from './github-patch-text-handler';
+import {logger} from '../../../logger';
 
 /**
  * For a pull request, get each remote file's patch text asynchronously

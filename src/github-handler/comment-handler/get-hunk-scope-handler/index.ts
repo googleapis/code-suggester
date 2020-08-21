@@ -1,0 +1,1 @@
+export {getPullRequestScope} from './remote-patch-ranges-handler'

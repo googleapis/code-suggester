@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {RawContent, RepoDomain} from '../../types';
-import {getPullRequestScope} from './remote-patch-ranges-handler';
+import {getPullRequestScope} from './get-hunk-scope-handler/remote-patch-ranges-handler';
 import {Octokit} from '@octokit/rest';
-import {getSuggestionPatches} from './suggestion-patch-handler';
+import {getSuggestionPatches} from './patch-handler';
 
 /**
  * Comment on a Pull Request

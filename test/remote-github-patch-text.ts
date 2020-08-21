@@ -20,7 +20,7 @@ import {
   patchTextToRanges,
   getCurrentPullRequestPatches,
   getPullRequestScope,
-} from '../src/github-handler/comment-handler/remote-patch-ranges-handler';
+} from '../src/github-handler/comment-handler/get-hunk-scope-handler/remote-patch-ranges-handler';
 import {Octokit} from '@octokit/rest';
 import {logger} from '../src/logger';
 
