@@ -40,7 +40,7 @@ export function generatePatches(
         hunk.oldStart < 1 ||
         hunk.oldEnd < 1
       ) {
-        throw new RangeError('The file lines provided should be at least 1');
+        throw new RangeError('The file line value should be at least 1');
       }
       const newContent = lines.slice(hunk.newStart - 1, hunk.newEnd - 1);
       const patch: Patch = {

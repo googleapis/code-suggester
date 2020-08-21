@@ -16,7 +16,7 @@ import {generatePatches} from './hunk-to-patch-handler';
 import {getValidSuggestionHunks} from './in-scope-hunks-handler';
 import {Hunk, RawContent, Range, Patch} from '../../../types';
 
-interface PatchesAndOutOfScopeSuggestions {
+interface SuggestionPatches {
   filePatches: Map<string, Patch[]>;
   outOfScopeSuggestions: Map<string, Hunk[]>;
 }
@@ -33,7 +33,7 @@ export function getSuggestionPatches(
   rawChanges: Map<string, RawContent>,
   invalidFiles: string[],
   validFileLines: Map<string, Range[]>
-): PatchesAndOutOfScopeSuggestions {
+): SuggestionPatches {
   const {inScopeSuggestions, outOfScopeSuggestions} = getValidSuggestionHunks(
     rawChanges,
     invalidFiles,
