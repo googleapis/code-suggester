@@ -24,6 +24,7 @@ function fileErrorMessage(filename: string, hunks: Hunk[]): string {
 
 /**
  * Build an error message based on invalid hunks.
+ * Returns an empty string if the provided hunks are empty.
  * @param invalidHunks a map of filename to hunks that are not suggestable
  */
 export function buildErrorMessage(invalidHunks: Map<string, Hunk[]>): string {
