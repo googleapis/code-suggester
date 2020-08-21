@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {getPullRequestScope} from './remote-patch-ranges-handler'
+export {getPullRequestScope} from './remote-patch-ranges-handler';

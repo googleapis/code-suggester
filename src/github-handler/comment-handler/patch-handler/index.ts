@@ -15,7 +15,6 @@
 import {getValidSuggestionHunks} from './in-scope-hunks-handler';
 import {RawContent, Range, Patch} from '../../../types';
 
-
 /**
  * Get the range of the old version of every file and the corresponding new text for that range
  * whose old and new contents differ, under the constraints that the file
