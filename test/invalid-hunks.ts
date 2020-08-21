@@ -40,7 +40,9 @@ describe('buildErrorMessage', () => {
     ]);
     const expectedMessage = `Some suggestions could not be made:
 * foo.txt
-* bar.txt`;
+  * lines 1-2
+* bar.txt
+  * lines 3-4`;
 
     const errorMessage = buildErrorMessage(invalidHunks);
     expect(errorMessage).to.be.equal(expectedMessage);
@@ -53,7 +55,9 @@ describe('buildErrorMessage', () => {
       {oldStart: 3, oldEnd: 4, newStart: 3, newEnd: 4},
     ]);
     const expectedMessage = `Some suggestions could not be made:
-* foo.txt`;
+* foo.txt
+  * lines 1-2
+  * lines 3-4`;
 
     const errorMessage = buildErrorMessage(invalidHunks);
     expect(errorMessage).to.be.equal(expectedMessage);

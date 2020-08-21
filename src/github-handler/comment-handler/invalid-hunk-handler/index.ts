@@ -14,8 +14,12 @@
 
 import {Hunk} from '../../../types';
 
+function hunkErrorMessage(hunk: Hunk): string {
+  return `  * lines ${hunk.oldStart}-${hunk.oldEnd}`;
+}
+
 function fileErrorMessage(filename: string, hunks: Hunk[]): string {
-  return `* ${filename}`;
+  return `* ${filename}\n` + hunks.map(hunkErrorMessage).join('\n');
 }
 
 export function buildErrorMessage(invalidHunks: Map<string, Hunk[]>): string {
