@@ -117,9 +117,7 @@ async function createPullRequest(
     gitHubConfigs.maintainersCanModify,
     gitHubConfigs.primary
   );
-  logger.info(
-    `Successfully opened pull request available at url: ${pullResponseData.url}.`
-  );
+  logger.info(`Successfully opened pull request: ${prNumber}.`);
   return prNumber;
 }
 
