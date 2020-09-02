@@ -63,7 +63,7 @@ async function createPullRequest(
     logger.info(
       'Empty change set provided. No changes need to be made. Cancelling workflow.'
     );
-    return -1;
+    return 0;
   }
   const gitHubConfigs = addPullRequestDefaults(options);
   logger.info('Starting GitHub PR workflow...');
