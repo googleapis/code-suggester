@@ -60,7 +60,12 @@ describe('Opening a pull request', async () => {
       .stub(octokit.pulls, 'create')
       .resolves(createPrResponse);
     // tests
-    await openPullRequest(octokit, upstream, origin, description);
+    const number = await openPullRequest(
+      octokit,
+      upstream,
+      origin,
+      description
+    );
     sandbox.assert.calledOnceWithExactly(stub, {
       owner: upstream.owner,
       repo: origin.repo,
@@ -70,6 +75,7 @@ describe('Opening a pull request', async () => {
       body: description.body,
       maintainer_can_modify: true,
     });
+    expect(number).to.equal(1347);
   });
 
   describe('When there are similar refs with pull requests open, the current new and unique ref still opens a pr', async () => {

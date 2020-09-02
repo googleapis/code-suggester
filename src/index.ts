@@ -55,7 +55,7 @@ async function createPullRequest(
   changes: Changes | null | undefined,
   options: CreatePullRequestUserOptions,
   loggerOption?: Logger
-): Promise<void> {
+): Promise<number> {
   setupLogger(loggerOption);
   // if null undefined, or the empty map then no changes have been provided.
   // Do not execute GitHub workflow
@@ -63,7 +63,7 @@ async function createPullRequest(
     logger.info(
       'Empty change set provided. No changes need to be made. Cancelling workflow.'
     );
-    return;
+    return -1;
   }
   const gitHubConfigs = addPullRequestDefaults(options);
   logger.info('Starting GitHub PR workflow...');
@@ -109,7 +109,7 @@ async function createPullRequest(
     body: gitHubConfigs.description,
     title: gitHubConfigs.title,
   };
-  await handler.openPullRequest(
+  const prNumber = await handler.openPullRequest(
     octokit,
     upstream,
     originBranch,
@@ -118,6 +118,7 @@ async function createPullRequest(
     gitHubConfigs.primary
   );
   logger.info('Finished PR workflow');
+  return prNumber;
 }
 
 /**
