@@ -15,7 +15,7 @@
 import {expect} from 'chai';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
-import {buildErrorMessage} from '../src/github-handler/comment-handler/invalid-hunk-handler';
+import {buildErrorMessage} from '../src/github-handler/comment-handler/invalid-hunk-handler/message-handler';
 
 before(() => {
   setup();
