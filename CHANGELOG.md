@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://www.github.com/googleapis/code-suggester/compare/v1.1.1...v1.2.0) (2020-09-02)
+
+
+### Features
+
+* return the PR number created ([#95](https://www.github.com/googleapis/code-suggester/issues/95)) ([43bf6de](https://www.github.com/googleapis/code-suggester/commit/43bf6de31422729529e5d55f4e4382722fdcbb1b))
+
 ### [1.1.1](https://www.github.com/googleapis/code-suggester/compare/v1.1.0...v1.1.1) (2020-08-13)
 
 
