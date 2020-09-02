@@ -117,7 +117,9 @@ async function createPullRequest(
     gitHubConfigs.maintainersCanModify,
     gitHubConfigs.primary
   );
-  logger.info('Finished PR workflow');
+  logger.info(
+    `Successfully opened pull request available at url: ${pullResponseData.url}.`
+  );
   return prNumber;
 }
 
