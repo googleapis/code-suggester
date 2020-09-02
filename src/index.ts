@@ -48,7 +48,7 @@ import * as retry from 'async-retry';
  * @param {Changes | null | undefined} changes A set of changes. The changes may be empty
  * @param {CreatePullRequestUserOptions} options The configuration for interacting with GitHub provided by the user.
  * @param {Logger} logger The logger instance (optional).
- * @returns {Promise<void>} a void promise
+ * @returns {Promise<number>} a void promise
  */
 async function createPullRequest(
   octokit: Octokit,
