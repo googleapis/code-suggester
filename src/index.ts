@@ -48,14 +48,14 @@ import * as retry from 'async-retry';
  * @param {Changes | null | undefined} changes A set of changes. The changes may be empty
  * @param {CreatePullRequestUserOptions} options The configuration for interacting with GitHub provided by the user.
  * @param {Logger} logger The logger instance (optional).
- * @returns {Promise<void>} a void promise
+ * @returns {Promise<number>} a void promise
  */
 async function createPullRequest(
   octokit: Octokit,
   changes: Changes | null | undefined,
   options: CreatePullRequestUserOptions,
   loggerOption?: Logger
-): Promise<void> {
+): Promise<number> {
   setupLogger(loggerOption);
   // if null undefined, or the empty map then no changes have been provided.
   // Do not execute GitHub workflow
@@ -63,7 +63,7 @@ async function createPullRequest(
     logger.info(
       'Empty change set provided. No changes need to be made. Cancelling workflow.'
     );
-    return;
+    return 0;
   }
   const gitHubConfigs = addPullRequestDefaults(options);
   logger.info('Starting GitHub PR workflow...');
@@ -109,7 +109,7 @@ async function createPullRequest(
     body: gitHubConfigs.description,
     title: gitHubConfigs.title,
   };
-  await handler.openPullRequest(
+  const prNumber = await handler.openPullRequest(
     octokit,
     upstream,
     originBranch,
@@ -117,7 +117,8 @@ async function createPullRequest(
     gitHubConfigs.maintainersCanModify,
     gitHubConfigs.primary
   );
-  logger.info('Finished PR workflow');
+  logger.info(`Successfully opened pull request: ${prNumber}.`);
+  return prNumber;
 }
 
 /**
