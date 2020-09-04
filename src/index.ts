@@ -21,6 +21,7 @@ import {
   BranchDomain,
   FileData,
 } from './types';
+export {Changes} from './types';
 import {Octokit} from '@octokit/rest';
 import {Logger, LoggerOptions} from 'pino';
 import {logger, setupLogger} from './logger';
