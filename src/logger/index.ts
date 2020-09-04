@@ -16,8 +16,12 @@ import {Logger, Level} from 'pino';
 import * as Pino from 'pino';
 let logger: Logger;
 
-function setupLogger(userLogger: Logger = Pino()) {
-  logger = userLogger;
+function setupLogger(userLogger?: Logger|Pino.LoggerOptions) {
+  if (typeof userLogger === 'undefined' || typeof userLogger === 'object') {
+    logger = Pino(userLogger)
+  } else if (typeof userLogger === 'function') {
+    logger = userLogger as Logger;
+  }
 }
 
 export {logger, Logger, Level, setupLogger};
