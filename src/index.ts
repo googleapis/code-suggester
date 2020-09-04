@@ -23,7 +23,7 @@ import {
 } from './types';
 export {Changes} from './types';
 import {Octokit} from '@octokit/rest';
-import {Logger} from 'pino';
+import {Logger, LoggerOptions} from 'pino';
 import {logger, setupLogger} from './logger';
 import {addPullRequestDefaults} from './default-options-handler';
 import * as retry from 'async-retry';
@@ -55,7 +55,7 @@ async function createPullRequest(
   octokit: Octokit,
   changes: Changes | null | undefined,
   options: CreatePullRequestUserOptions,
-  loggerOption?: Logger
+  loggerOption?: Logger | LoggerOptions
 ): Promise<number> {
   setupLogger(loggerOption);
   // if null undefined, or the empty map then no changes have been provided.
