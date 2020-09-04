@@ -54,7 +54,7 @@ async function createPullRequest(
   octokit: Octokit,
   changes: Changes | null | undefined,
   options: CreatePullRequestUserOptions,
-  loggerOption?: Logger|LoggerOptions
+  loggerOption?: Logger | LoggerOptions
 ): Promise<number> {
   setupLogger(loggerOption);
   // if null undefined, or the empty map then no changes have been provided.
