@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://www.github.com/googleapis/code-suggester/compare/v1.2.0...v1.3.0) (2020-09-04)
+
+
+### Features
+
+* **logging:** allow pino to be configured ([#97](https://www.github.com/googleapis/code-suggester/issues/97)) ([d45e474](https://www.github.com/googleapis/code-suggester/commit/d45e474b534d28d08f3872a4f1bcc4969e6ff8bb))
+* **types:** make Changes type public ([#98](https://www.github.com/googleapis/code-suggester/issues/98)) ([8df9310](https://www.github.com/googleapis/code-suggester/commit/8df9310fdcda98d9f18366684adda02253bd0c06))
+
 ## [1.2.0](https://www.github.com/googleapis/code-suggester/compare/v1.1.1...v1.2.0) (2020-09-02)
 
 
