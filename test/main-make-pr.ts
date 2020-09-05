@@ -126,7 +126,7 @@ describe('Make PR main function', () => {
   it('does not create fork when fork is false', async () => {
     const stubHelperHandlers = {
       fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
-        // throw Error('should not call fork');
+        throw Error('should not call fork');
       },
       branch: (
         octokit: Octokit,
