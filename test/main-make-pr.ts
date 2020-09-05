@@ -123,6 +123,65 @@ describe('Make PR main function', () => {
     await stubMakePr.createPullRequest(octokit, changes, options);
   });
 
+  it('does not create fork when fork is false', async () => {
+    const stubHelperHandlers = {
+      fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
+        // throw Error('should not call fork');
+      },
+      branch: (
+        octokit: Octokit,
+        origin: {owner: string; repo: string},
+        upstream: {owner: string; repo: string},
+        testBranch: string,
+        testprimary: string
+      ) => {
+        expect(upstream.owner).equals(origin.owner);
+        expect(upstream.repo).equals(origin.repo);
+        return oldHeadSha;
+      },
+      commitAndPush: (
+        octokit: Octokit,
+        testOldHeadSha: string,
+        testChanges: Changes,
+        originBranch: {owner: string; repo: string; branch: string},
+        testMessage: string
+      ) => {
+        expect(testOldHeadSha).equals(oldHeadSha);
+        expect(originBranch.owner).equals(upstreamOwner);
+        expect(originBranch.repo).equals(upstreamRepo);
+        expect(originBranch.branch).equals(branch);
+        expect(testChanges).deep.equals(changes);
+        expect(testMessage).equals(message);
+      },
+      openPullRequest: (
+        octokit: Octokit,
+        upstream: {owner: string; repo: string},
+        originBranch: {owner: string; repo: string; branch: string},
+        testDescription: {title: string; body: string},
+        testMaintainersCanModify: boolean,
+        testPrimary: string
+      ) => {
+        expect(originBranch.owner).equals(upstreamOwner);
+        expect(originBranch.repo).equals(upstreamRepo);
+        expect(originBranch.branch).equals(branch);
+        expect(upstream.owner).equals(upstreamOwner);
+        expect(upstream.repo).equals(upstreamRepo);
+        expect(testDescription.body).equals(description);
+        expect(testDescription.title).equals(title);
+        expect(testMaintainersCanModify).equals(maintainersCanModify);
+        expect(testPrimary).equals(primary);
+      },
+    };
+    const stubMakePr = proxyquire.noCallThru()('../src/', {
+      './github-handler': stubHelperHandlers,
+    });
+    await stubMakePr.createPullRequest(
+      octokit,
+      changes,
+      Object.assign({fork: false}, options)
+    );
+  });
+
   it('Passes up the error message with a throw when create fork helper function fails', async () => {
     // setup
 
