@@ -60,7 +60,7 @@
     "@types/sinon": "^9.0.4",
     "c8": "^7.0.1",
     "chai": "^4.2.0",
-    "gts": "^2.0.0",
+    "gts": "^3.0.0-alpha.1",
     "jsdoc": "^3.6.4",
     "jsdoc-fresh": "^1.0.1",
     "jsdoc-region-tag": "^1.0.6",
