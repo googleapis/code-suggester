@@ -13,8 +13,15 @@
 # limitations under the License.
 
 FROM node:12
-RUN npm install code-suggester -g
+
 RUN apt-get -y install git
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod u+x /entrypoint.sh
-ENTRYPOINT  ["/entrypoint.sh"]
+
+RUN mkdir -p /workspace
+COPY . /workspace
+WORKDIR /workspace
+RUN npm install && \
+    npm run compile && \
+    npm link && \
+    chmod u+x entrypoint.sh
+
+ENTRYPOINT  ["/workspace/entrypoint.sh"]
