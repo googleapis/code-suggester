@@ -29,7 +29,7 @@ npm i code-suggester
 
 ### Example
 
-```
+```js
 const suggester = require("code-suggester");
 
 async function main() {
@@ -89,8 +89,7 @@ The `createPullRequest()` method creates a GitHub Pull request with the files gi
 |   primary	      |   `string`	| The primary upstream branch to open a PR against. Default is `'master'`.   |
 |   message     	|   `string`	| The commit message for the changes. Default is `'code suggestions'`. We recommend following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/).|
 |   force	        |   `boolean`	| Whether or not to force push the reference even if the ancestor commits differs. Default is `false`. |
-
-
+|   fork	        |   `boolean`	| Whether or not code suggestion should be made from a fork, defaults to `true` (_Note: forking does not work when using `secrets.GITHUB_TOKEN` in an action_). |
 
 #### `logger`
 *[Logger](https://www.npmjs.com/package/@types/pino)* <br>

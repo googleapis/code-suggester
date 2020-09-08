@@ -72,7 +72,8 @@ async function createPullRequest(
     owner: gitHubConfigs.upstreamOwner,
     repo: gitHubConfigs.upstreamRepo,
   };
-  const origin: RepoDomain = await handler.fork(octokit, upstream);
+  const origin: RepoDomain =
+    options.fork === false ? upstream : await handler.fork(octokit, upstream);
   const originBranch: BranchDomain = {
     ...origin,
     branch: gitHubConfigs.branch,

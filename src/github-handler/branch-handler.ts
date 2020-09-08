@@ -63,17 +63,19 @@ export async function existsBranchWithName(
   remote: RepoDomain,
   name: string
 ): Promise<boolean> {
-  const branches = (
-    await octokit.repos.listBranches({
-      owner: remote.owner,
-      repo: remote.repo,
-    })
-  ).data;
-  const match = branches.some(branch => branch.name === name);
-  logger.info(
-    `Existing remote branch ${name} found on ${remote.owner}/${remote.repo}`
-  );
-  return match;
+  try {
+    const data = (
+      await octokit.git.getRef({
+        owner: remote.owner,
+        repo: remote.repo,
+        ref: `heads/${name}`,
+      })
+    ).data;
+    return data.ref ? true : false;
+  } catch (err) {
+    if (err.status === 404) return false;
+    else throw err;
+  }
 }
 
 /**
