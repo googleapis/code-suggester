@@ -71,34 +71,6 @@ describe('Branch', () => {
       url: 'http://fake-url.com',
       data: branchResponseBody,
     };
-
-    const listResponseBody = [
-      {
-        name: 'master',
-        commit: {
-          sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-          url:
-            'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-        },
-        protected: true,
-        protection: {
-          enabled: true,
-          required_status_checks: {
-            enforcement_level: 'non_admins',
-            contexts: ['ci-test', 'linter'],
-          },
-        },
-        protection_url:
-          'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
-      },
-    ];
-    const listBranchResponse = {
-      headers: {},
-      status: 200,
-      url: 'http://fake-url.com',
-      data: listResponseBody,
-    };
-
     const createRefResponse = {
       headers: {},
       status: 200,
@@ -119,9 +91,11 @@ describe('Branch', () => {
     const getBranchStub = sandbox
       .stub(octokit.repos, 'getBranch')
       .resolves(branchResponse);
+    const getRefError = Error('Not Found');
+    Object.assign(getRefError, {status: 404});
     const listBranchStub = sandbox
-      .stub(octokit.repos, 'listBranches')
-      .resolves(listBranchResponse);
+      .stub(octokit.git, 'getRef')
+      .rejects(getRefError);
     const createRefStub = sandbox
       .stub(octokit.git, 'createRef')
       .resolves(createRefResponse);
@@ -136,6 +110,7 @@ describe('Branch', () => {
     sandbox.assert.calledOnceWithExactly(listBranchStub, {
       owner: origin.owner,
       repo: origin.repo,
+      ref: `heads/${branchName}`,
     });
     sandbox.assert.calledOnceWithExactly(createRefStub, {
       owner: origin.owner,
@@ -156,58 +131,19 @@ describe('Branch', () => {
       url: 'http://fake-url.com',
       data: branchResponseBody,
     };
-
-    const listResponseBody = [
-      {
-        name: 'master',
-        commit: {
-          sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-          url:
-            'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-        },
-        protected: true,
-        protection: {
-          enabled: true,
-          required_status_checks: {
-            enforcement_level: 'non_admins',
-            contexts: ['ci-test', 'linter'],
-          },
-        },
-        protection_url:
-          'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
-      },
-      {
-        name: 'existing-branch',
-        commit: {
-          sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-          url:
-            'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-        },
-        protected: true,
-        protection: {
-          enabled: true,
-          required_status_checks: {
-            enforcement_level: 'non_admins',
-            contexts: ['ci-test', 'linter'],
-          },
-        },
-        protection_url:
-          'https://api.github.com/repos/octocat/hello-world/existing-branch/master/protection',
-      },
-    ];
-    const listBranchResponse = {
+    const getRefResponseBody = await import('./fixtures/get-ref-response.json');
+    const getRefResponse = {
       headers: {},
-      status: 200,
+      status: 404,
       url: 'http://fake-url.com',
-      data: listResponseBody,
+      data: getRefResponseBody,
     };
-
     const getBranchStub = sandbox
       .stub(octokit.repos, 'getBranch')
       .resolves(branchResponse);
     const listBranchStub = sandbox
-      .stub(octokit.repos, 'listBranches')
-      .resolves(listBranchResponse);
+      .stub(octokit.git, 'getRef')
+      .resolves(getRefResponse);
     const createRefStub = sandbox.stub(octokit.git, 'createRef');
     // tests
     const sha = await branch(
@@ -226,6 +162,7 @@ describe('Branch', () => {
     sandbox.assert.calledOnceWithExactly(listBranchStub, {
       owner: origin.owner,
       repo: origin.repo,
+      ref: 'heads/existing-branch',
     });
     sandbox.assert.notCalled(createRefStub);
   });
@@ -250,9 +187,7 @@ describe('Branch', () => {
       data: branchResponseBody,
     };
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
-    sandbox
-      .stub(octokit.repos, 'listBranches')
-      .rejects(Error(testErrorMessage));
+    sandbox.stub(octokit.git, 'getRef').rejects(Error(testErrorMessage));
     try {
       await branch(octokit, origin, upstream, branchName, 'master');
       assert.fail();
@@ -270,36 +205,10 @@ describe('Branch', () => {
       url: 'http://fake-url.com',
       data: branchResponseBody,
     };
-
-    const listResponseBody = [
-      {
-        name: 'master',
-        commit: {
-          sha: 'c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-          url:
-            'https://api.github.com/repos/octocat/Hello-World/commits/c5b97d5ae6c19d5c5df71a34c7fbeeda2479ccbc',
-        },
-        protected: true,
-        protection: {
-          enabled: true,
-          required_status_checks: {
-            enforcement_level: 'non_admins',
-            contexts: ['ci-test', 'linter'],
-          },
-        },
-        protection_url:
-          'https://api.github.com/repos/octocat/hello-world/branches/master/protection',
-      },
-    ];
-    const listBranchResponse = {
-      headers: {},
-      status: 200,
-      url: 'http://fake-url.com',
-      data: listResponseBody,
-    };
-
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
-    sandbox.stub(octokit.repos, 'listBranches').resolves(listBranchResponse);
+    const getRefError = Error('Not Found');
+    Object.assign(getRefError, {status: 404});
+    sandbox.stub(octokit.git, 'getRef').rejects(getRefError);
     sandbox.stub(octokit.git, 'createRef').rejects(Error(testErrorMessage));
     try {
       await branch(octokit, origin, upstream, branchName, 'master');
