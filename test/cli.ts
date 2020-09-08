@@ -102,6 +102,7 @@ describe('Mapping pr yargs to create PR options', () => {
       force: false,
       primary: 'primary',
       maintainersCanModify: true,
+      fork: true,
     };
 
     sandbox.stub(yargs, 'argv').value({_: ['pr'], ...options});
