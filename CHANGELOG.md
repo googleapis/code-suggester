@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://www.github.com/googleapis/code-suggester/compare/v1.3.0...v1.4.0) (2020-09-08)
+
+
+### Features
+
+* make forking functionality optional ([#101](https://www.github.com/googleapis/code-suggester/issues/101)) ([1a25661](https://www.github.com/googleapis/code-suggester/commit/1a256613cf7bb9dad0e7b9480b2f8af5bc08e340))
+
+
+### Bug Fixes
+
+* listBranches fails if repo has many branches ([#102](https://www.github.com/googleapis/code-suggester/issues/102)) ([eda2336](https://www.github.com/googleapis/code-suggester/commit/eda2336acb72ebb4d8e4ac6b88ab742d4e4d9bcd))
+
 ## [1.3.0](https://www.github.com/googleapis/code-suggester/compare/v1.2.0...v1.3.0) (2020-09-04)
 
 
