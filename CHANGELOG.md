@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.4.1](https://www.github.com/googleapis/code-suggester/compare/v1.4.0...v1.4.1) (2020-09-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency yargs to v16 ([#111](https://www.github.com/googleapis/code-suggester/issues/111)) ([8a1ec95](https://www.github.com/googleapis/code-suggester/commit/8a1ec9575c46398cb7cf633a6a6bea7f79b99d37))
+
 ## [1.4.0](https://www.github.com/googleapis/code-suggester/compare/v1.3.0...v1.4.0) (2020-09-08)
 
 
