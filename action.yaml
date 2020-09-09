@@ -51,6 +51,10 @@ inputs:
   git_dir:
     description: 'The path of a git directory'
     default: .
+  fork:
+    description: >-
+      Whether or not to attempt forking to a separate repository. Default is true.
+    default: true
 runs:
   using: docker
   image: Dockerfile
