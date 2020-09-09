@@ -87,6 +87,12 @@ yargs
       type: 'string',
       demandOption: true,
     },
+    fork: {
+      describe:
+        'Whether or not to attempt forking to a separate repository. Default is true.',
+      default: true,
+      type: 'boolean',
+    },
   })
   .check(argv => {
     for (const key in argv) {

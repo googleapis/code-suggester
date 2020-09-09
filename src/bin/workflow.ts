@@ -21,6 +21,7 @@ export function coerceUserCreatePullRequestOptions(): CreatePullRequestUserOptio
     force: yargs.argv.force as boolean,
     primary: yargs.argv.primary as string,
     maintainersCanModify: yargs.argv.maintainersCanModify as boolean,
+    fork: yargs.argv.fork as boolean,
   };
 }
 
