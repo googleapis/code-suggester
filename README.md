@@ -51,6 +51,61 @@ async function main() {
 }
 
 ```
+### reviewPullRequest(options)
+
+The `reviewPullRequest()` method creates a code suggestion review on a GitHub Pull request with the files given as input.
+From these files, calculate the hunk diff and make all the multiline code suggestion review comments on a given pull request with these hunks given
+that they are in scope of the pull request. Outof scope suggestions are not made.
+
+In-scope suggestions are specifically: suggestions whose file is in-scope of the pull request,
+and suggestions whose diff hunk is a subset of the pull request's files hunks.
+ 
+ If a file is too large to load in the review, it is skipped in the suggestion phase.
+
+ If the program terminates without exception, a timeline comment will be made with all errors or suggestions that could not be made.
+
+#### Syntax
+`reviewPullRequest(octokit, rawChanges, config [, logger])`
+
+#### Parameters
+#### `octokit`
+*octokit* <br>
+**Required.** An authenticated [octokit](https://github.com/octokit/rest.js/) instance.
+
+#### `rawChanges`
+*Map<string, RawContent> | null | undefined* <br>
+**Required.** A set of files with their respective original raw file content and the new file content. If it is null, the empty map, or undefined, a review is not made.
+
+**RawContent Object**
+|      field      |     type  	|   description	|
+|---------------	|-----------	|-------------	|
+|   oldContent	|   `string`	| **Required.** The older version of a file.  |
+|   newContent	|   `string`	| **Required.** The newer version of a file. |
+
+#### `options`
+*Pull Request Options Object* <br>
+**Required.** Descriptive values or enforced rules for pull requests, branching, and commits.
+
+**Pull Request Options Object**
+|      field      |     type  	|   description	|
+|---------------	|-----------	|-------------	|
+|   upstreamRepo	|   `string`	| **Required.** The repository to suggest changes to.  |
+|   upstreamOwner	|   `string`	| **Required.** The owner of the upstream repository. |
+|   description	  |   `string`	| The GitHub Pull Request description. Default is `'code suggestions'`.  |
+|   title       	|   `string`	| The GitHub Pull Request title. Default is `'chore: code suggestions'`.      |
+|   branch	      |   `string`	| The branch containing the changes. Default is `'code-suggestions'`.   |
+|   primary	      |   `string`	| The primary upstream branch to open a PR against. Default is `'master'`.   |
+|   message     	|   `string`	| The commit message for the changes. Default is `'code suggestions'`. We recommend following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/).|
+|   force	        |   `boolean`	| Whether or not to force push the reference even if the ancestor commits differs. Default is `false`. |
+|   fork	        |   `boolean`	| Whether or not code suggestion should be made from a fork, defaults to `true` (_Note: forking does not work when using `secrets.GITHUB_TOKEN` in an action_). |
+
+#### `logger`
+*[Logger](https://www.npmjs.com/package/@types/pino)* <br>
+The default logger is [Pino](https://github.com/pinojs/pino). You can plug in any logger that conforms to [Pino's interface](https://www.npmjs.com/package/@types/pino)
+
+
+#### Exceptions
+The core-library will throw an exception if the [GitHub V3 API](https://developer.github.com/v3/) returns an error response, or if the response data format did not come back as expected. <br>
 
 ### createPullRequest(options)
 

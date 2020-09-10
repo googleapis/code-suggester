@@ -15,14 +15,20 @@
 import {expect} from 'chai';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
-import {CreatePullRequestUserOptions} from '../src/types';
-import {addPullRequestDefaults} from '../src/default-options-handler';
+import {
+  CreatePullRequestUserOptions,
+  CreateReviewCommentUserOptions,
+} from '../src/types';
+import {
+  addPullRequestDefaults,
+  addRevuewCommentsDefaults,
+} from '../src/default-options-handler';
 
 before(() => {
   setup();
 });
 
-describe('Create with defaults', () => {
+describe('addPullRequestDefaults', () => {
   it('Populates all un-specified parameters with a default', () => {
     const upstreamOnly: CreatePullRequestUserOptions = {
       upstreamOwner: 'owner',
@@ -97,5 +103,34 @@ describe('Create with defaults', () => {
     };
     const gitHubPr = addPullRequestDefaults(options);
     expect(gitHubPr).to.deep.equal(options);
+  });
+});
+
+describe('addRevuewCommentsDefaults', () => {
+  it('Populates all un-specified parameters with a default', () => {
+    const reviewOptionsWithDefaultPageSize: CreateReviewCommentUserOptions = {
+      owner: 'owner',
+      repo: 'repo',
+      pullNumber: 12345678,
+    };
+    const gitHubPrReview = addRevuewCommentsDefaults(
+      reviewOptionsWithDefaultPageSize
+    );
+    expect(gitHubPrReview).to.deep.equal({
+      owner: 'owner',
+      repo: 'repo',
+      pullNumber: 12345678,
+      pageSize: 100,
+    });
+  });
+  it("Uses all of user's provided options", () => {
+    const reviewOptions: CreateReviewCommentUserOptions = {
+      owner: 'owner',
+      repo: 'repo',
+      pullNumber: 12345678,
+      pageSize: 4321,
+    };
+    const gitHubPrReview = addRevuewCommentsDefaults(reviewOptions);
+    expect(gitHubPrReview).to.deep.equal(reviewOptions);
   });
 });
