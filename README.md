@@ -83,21 +83,16 @@ and suggestions whose diff hunk is a subset of the pull request's files hunks.
 |   newContent	|   `string`	| **Required.** The newer version of a file. |
 
 #### `options`
-*Pull Request Options Object* <br>
-**Required.** Descriptive values or enforced rules for pull requests, branching, and commits.
+*Review Pull Request Options Object* <br>
+**Required.**
 
-**Pull Request Options Object**
+**Review Pull Request Options Object**
 |      field      |     type  	|   description	|
 |---------------	|-----------	|-------------	|
-|   upstreamRepo	|   `string`	| **Required.** The repository to suggest changes to.  |
-|   upstreamOwner	|   `string`	| **Required.** The owner of the upstream repository. |
-|   description	  |   `string`	| The GitHub Pull Request description. Default is `'code suggestions'`.  |
-|   title       	|   `string`	| The GitHub Pull Request title. Default is `'chore: code suggestions'`.      |
-|   branch	      |   `string`	| The branch containing the changes. Default is `'code-suggestions'`.   |
-|   primary	      |   `string`	| The primary upstream branch to open a PR against. Default is `'master'`.   |
-|   message     	|   `string`	| The commit message for the changes. Default is `'code suggestions'`. We recommend following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/).|
-|   force	        |   `boolean`	| Whether or not to force push the reference even if the ancestor commits differs. Default is `false`. |
-|   fork	        |   `boolean`	| Whether or not code suggestion should be made from a fork, defaults to `true` (_Note: forking does not work when using `secrets.GITHUB_TOKEN` in an action_). |
+|   repo	|   `string`	| **Required.** The repository containing the pull request.  |
+|   owner	|   `string`	| **Required.** The owner of the repository. |
+|   pullNumber	  |   `number`	| **Required.** The GitHub Pull Request number.  |
+|   pageSize	  |   `number`	| **Required.** The number of files to return in the pull request list files query. Used when getting data on the remote PR's files. |
 
 #### `logger`
 *[Logger](https://www.npmjs.com/package/@types/pino)* <br>
