@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://www.github.com/googleapis/code-suggester/compare/v1.4.0...v1.5.0) (2020-09-10)
+
+
+### Features
+
+* **cli,action:** enable configuring --fork option ([#109](https://www.github.com/googleapis/code-suggester/issues/109)) ([fd77d4a](https://www.github.com/googleapis/code-suggester/commit/fd77d4aef388bb7948418dc4a2eef21610520f71))
+
+
+### Bug Fixes
+
+* **deps:** update dependency yargs to v16 ([#111](https://www.github.com/googleapis/code-suggester/issues/111)) ([8a1ec95](https://www.github.com/googleapis/code-suggester/commit/8a1ec9575c46398cb7cf633a6a6bea7f79b99d37))
+
 ## [1.4.0](https://www.github.com/googleapis/code-suggester/compare/v1.3.0...v1.4.0) (2020-09-08)
 
 
