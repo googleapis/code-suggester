@@ -58,16 +58,3 @@ inputs:
 runs:
   using: docker
   image: Dockerfile
-  args:
-    - ${{ inputs.command }}
-    - ${{ inputs.upstream_repo }}
-    - ${{ inputs.upstream_owner }}
-    - ${{ inputs.description }}
-    - ${{ inputs.title }}
-    - ${{ inputs.branch }}
-    - ${{ inputs.primary }}
-    - ${{ inputs.message }}
-    - ${{ inputs.force }}
-    - ${{ inputs.maintainers_can_modify }}
-    - ${{ inputs.git_dir }}
-    - ${{ inputs.fork }}
