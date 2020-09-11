@@ -21,7 +21,7 @@ import {
 } from '../src/types';
 import {
   addPullRequestDefaults,
-  addRevuewCommentsDefaults,
+  addReviewCommentsDefaults,
 } from '../src/default-options-handler';
 
 before(() => {
@@ -106,14 +106,14 @@ describe('addPullRequestDefaults', () => {
   });
 });
 
-describe('addRevuewCommentsDefaults', () => {
+describe('addReviewCommentsDefaults', () => {
   it('Populates all un-specified parameters with a default', () => {
     const reviewOptionsWithDefaultPageSize: CreateReviewCommentUserOptions = {
       owner: 'owner',
       repo: 'repo',
       pullNumber: 12345678,
     };
-    const gitHubPrReview = addRevuewCommentsDefaults(
+    const gitHubPrReview = addReviewCommentsDefaults(
       reviewOptionsWithDefaultPageSize
     );
     expect(gitHubPrReview).to.deep.equal({
@@ -130,7 +130,7 @@ describe('addRevuewCommentsDefaults', () => {
       pullNumber: 12345678,
       pageSize: 4321,
     };
-    const gitHubPrReview = addRevuewCommentsDefaults(reviewOptions);
+    const gitHubPrReview = addReviewCommentsDefaults(reviewOptions);
     expect(gitHubPrReview).to.deep.equal(reviewOptions);
   });
 });

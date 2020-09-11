@@ -57,10 +57,10 @@ export function addPullRequestDefaults(
  * @param options The user's options input for review comments
  * @returns the formatted version of user input for pull request review comments
  */
-export function addRevuewCommentsDefaults(
+export function addReviewCommentsDefaults(
   options: CreateReviewCommentUserOptions
-) {
-  const reviewCommentSettings: CreateReviewComment = {
+): CreateReviewComment {
+  const createReviewComment: CreateReviewComment = {
     repo: options.repo,
     owner: options.owner,
     pullNumber: options.pullNumber,
@@ -70,5 +70,5 @@ export function addRevuewCommentsDefaults(
         ? DEFAULT_PAGE_SIZE
         : options.pageSize,
   };
-  return reviewCommentSettings;
+  return createReviewComment;
 }

@@ -29,7 +29,7 @@ import {Logger, LoggerOptions} from 'pino';
 import {logger, setupLogger} from './logger';
 import {
   addPullRequestDefaults,
-  addRevuewCommentsDefaults,
+  addReviewCommentsDefaults,
 } from './default-options-handler';
 import * as retry from 'async-retry';
 
@@ -68,13 +68,13 @@ export async function reviewPullRequest(
     );
     return;
   }
-  const gitHubConfigs = addRevuewCommentsDefaults(options);
+  const gitHubConfigs = addReviewCommentsDefaults(options);
   const remote: RepoDomain = {
     owner: gitHubConfigs.owner,
     repo: gitHubConfigs.repo,
   };
   logger.info(
-    `Successfully created a review on pull requestt: ${gitHubConfigs.pullNumber}.`
+    `Successfully created a review on pull request: ${gitHubConfigs.pullNumber}.`
   );
   handler.reviewPullRequest(
     octokit,
