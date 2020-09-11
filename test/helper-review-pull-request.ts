@@ -120,7 +120,6 @@ describe('reviewPullRequest', () => {
   it('Executes patch handler without error when valid patch is passed', async () => {
     let numMockedHelpersCalled = 0;
     const validFileLines = new Map();
-    const outOfScopeSuggestions = new Map();
     const invalidFiles = [
       'invalid-file1.txt',
       'invalid-file2.txt',
