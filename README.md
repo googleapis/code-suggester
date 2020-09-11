@@ -223,6 +223,10 @@ Whether or not to force push a reference with different commit history before th
 *string* <br>
 **Required.** The path of a git directory
 
+#### `--fork`
+*boolean* <br>
+Whether or not to attempt forking to a separate repository. Default value is: `true`.
+
 ### Example
 ```
 code-suggester pr -o foo -r bar -d 'description' -t 'title' -m 'message' --git-dir=.
@@ -285,6 +289,10 @@ Whether or not maintainers can modify the pull request. Default value is: `true`
 #### `git_dir`
 *string* <br>
 **Required.** The path of a git directory. Relative to `$GITHUB_WORKSPACE`.
+
+#### `fork`
+*boolean* <br>
+Whether or not to attempt forking to a separate repository. Default value is: `true`.
 
 ### Example
 The following example is a `.github/workflows/main.yaml` file in repo `Octocat/HelloWorld`. This would add a LICENSE folder to the root `HelloWorld` repo on every pull request if it is not already there.

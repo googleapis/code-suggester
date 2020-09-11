@@ -26,4 +26,5 @@ code-suggester $INPUT_COMMAND \
 --message="$INPUT_MESSAGE" \
 --force="$INPUT_FORCE" \
 --maintainers-can-modify="$INPUT_MAINTAINERS_CAN_MODIFY" \
---git-dir="$INPUT_GIT_DIR"
+--git-dir="$INPUT_GIT_DIR" \
+--fork="$INPUT_FORK"
