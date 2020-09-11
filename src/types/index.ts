@@ -119,6 +119,34 @@ export interface CreatePullRequest {
   maintainersCanModify: boolean;
 }
 
+/**
+ * The user options for creating GitHub PR review comment
+ */
+export interface CreateReviewCommentUserOptions {
+  // the owner of the target fork repository
+  owner: string;
+  // the name of the target fork repository
+  repo: string;
+  // The pull request number
+  pullNumber: number;
+  // The number of files to return per pull request list files query. Used when getting data on the remote PR's files.
+  pageSize?: number;
+}
+
+/**
+ * The user options for creating GitHub PR review comment
+ */
+export interface CreateReviewComment {
+  // the owner of the target fork repository
+  owner: string;
+  // the name of the target fork repository
+  repo: string;
+  // The pull request number
+  pullNumber: number;
+  // The number of files to return per pull request list files query. Used when getting data on the remote PR's files.
+  pageSize: number;
+}
+
 export class PatchSyntaxError extends Error {
   constructor(message: string) {
     super(message);

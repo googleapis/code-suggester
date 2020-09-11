@@ -17,7 +17,7 @@ import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {
-  makeInlineSuggestion,
+  makeInlineSuggestions,
   buildReviewComments,
   PullsCreateReviewParamsComments,
 } from '../src/github-handler/comment-handler/valid-patch-handler/upload-comments-handler';
@@ -100,7 +100,7 @@ describe('buildFileComments', () => {
   });
 });
 
-describe('makeInlineSuggestion', () => {
+describe('makeInlineSuggestions', () => {
   const sandbox = sinon.createSandbox();
   const suggestions: Map<string, Patch[]> = new Map();
   afterEach(() => {
@@ -134,7 +134,7 @@ describe('makeInlineSuggestion', () => {
     const stubCreateReview = sandbox.stub(octokit.pulls, 'createReview');
     // tests
 
-    await makeInlineSuggestion(octokit, suggestions, remote, pullNumber);
+    await makeInlineSuggestions(octokit, suggestions, remote, pullNumber);
     sandbox.assert.calledOnceWithExactly(stubGetPulls, {
       owner: remote.owner,
       repo: remote.repo,
@@ -166,7 +166,7 @@ describe('makeInlineSuggestion', () => {
     const stubCreateReview = sandbox.stub(octokit.pulls, 'createReview');
     // tests
 
-    await makeInlineSuggestion(octokit, new Map(), remote, pullNumber);
+    await makeInlineSuggestions(octokit, new Map(), remote, pullNumber);
     sandbox.assert.notCalled(stubGetPulls);
     sandbox.assert.notCalled(stubCreateReview);
   });
@@ -180,7 +180,7 @@ describe('makeInlineSuggestion', () => {
     const stubCreateReview = sandbox.stub(octokit.pulls, 'createReview');
     // tests
     try {
-      await makeInlineSuggestion(octokit, suggestions, remote, pullNumber);
+      await makeInlineSuggestions(octokit, suggestions, remote, pullNumber);
       expect.fail('Should have failed because get pull request failed');
     } catch (err) {
       sandbox.assert.called(stubGetPulls);
@@ -209,7 +209,7 @@ describe('makeInlineSuggestion', () => {
       .rejects(new Error());
     // tests
     try {
-      await makeInlineSuggestion(octokit, suggestions, remote, pullNumber);
+      await makeInlineSuggestions(octokit, suggestions, remote, pullNumber);
       expect.fail(
         'Should have failed because create pull request review failed'
       );

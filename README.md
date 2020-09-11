@@ -51,6 +51,56 @@ async function main() {
 }
 
 ```
+### reviewPullRequest(options)
+
+The `reviewPullRequest()` method creates a code suggestion review on a GitHub Pull request with the files given as input.
+From these files, calculate the hunk diff and make all the multiline code suggestion review comments on a given pull request with these hunks given
+that they are in scope of the pull request. Outof scope suggestions are not made.
+
+In-scope suggestions are specifically: suggestions whose file is in-scope of the pull request,
+and suggestions whose diff hunk is a subset of the pull request's files hunks.
+ 
+ If a file is too large to load in the review, it is skipped in the suggestion phase.
+
+ If the program terminates without exception, a timeline comment will be made with all errors or suggestions that could not be made.
+
+#### Syntax
+`reviewPullRequest(octokit, rawChanges, config [, logger])`
+
+#### Parameters
+#### `octokit`
+*octokit* <br>
+**Required.** An authenticated [octokit](https://github.com/octokit/rest.js/) instance.
+
+#### `rawChanges`
+*Map<string, RawContent> | null | undefined* <br>
+**Required.** A set of files with their respective original raw file content and the new file content. If it is null, the empty map, or undefined, a review is not made.
+
+**RawContent Object**
+|      field      |     type  	|   description	|
+|---------------	|-----------	|-------------	|
+|   oldContent	|   `string`	| **Required.** The older version of a file.  |
+|   newContent	|   `string`	| **Required.** The newer version of a file. |
+
+#### `options`
+*Review Pull Request Options Object* <br>
+**Required.**
+
+**Review Pull Request Options Object**
+|      field      |     type  	|   description	|
+|---------------	|-----------	|-------------	|
+|   repo	|   `string`	| **Required.** The repository containing the pull request.  |
+|   owner	|   `string`	| **Required.** The owner of the repository. |
+|   pullNumber	  |   `number`	| **Required.** The GitHub Pull Request number.  |
+|   pageSize	  |   `number`	| **Required.** The number of files to return in the pull request list files query. Used when getting data on the remote PR's files. |
+
+#### `logger`
+*[Logger](https://www.npmjs.com/package/@types/pino)* <br>
+The default logger is [Pino](https://github.com/pinojs/pino). You can plug in any logger that conforms to [Pino's interface](https://www.npmjs.com/package/@types/pino)
+
+
+#### Exceptions
+The core-library will throw an exception if the [GitHub V3 API](https://developer.github.com/v3/) returns an error response, or if the response data format did not come back as expected. <br>
 
 ### createPullRequest(options)
 

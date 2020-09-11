@@ -77,7 +77,7 @@ export function buildReviewComments(
  * @param remote
  * @param pullNumber
  */
-export async function makeInlineSuggestion(
+export async function makeInlineSuggestions(
   octokit: Octokit,
   suggestions: Map<string, Patch[]>,
   remote: RepoDomain,

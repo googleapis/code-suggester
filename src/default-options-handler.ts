@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CreatePullRequest, CreatePullRequestUserOptions} from './types';
+import {
+  CreatePullRequest,
+  CreatePullRequestUserOptions,
+  CreateReviewComment,
+  CreateReviewCommentUserOptions,
+} from './types';
 
 const DEFAULT_BRANCH_NAME = 'code-suggestions';
 const DEFAULT_PRIMARY_BRANCH = 'master';
+const DEFAULT_PAGE_SIZE = 100;
 
 /**
  * Add defaults to GitHub Pull Request options.
@@ -25,7 +31,7 @@ const DEFAULT_PRIMARY_BRANCH = 'master';
  * @param {PullRequestUserOptions} options the user-provided github pull request options
  * @returns {CreatePullRequest} git hub context with defaults applied
  */
-function addPullRequestDefaults(
+export function addPullRequestDefaults(
   options: CreatePullRequestUserOptions
 ): CreatePullRequest {
   const pullRequestSettings: CreatePullRequest = {
@@ -46,4 +52,23 @@ function addPullRequestDefaults(
   return pullRequestSettings;
 }
 
-export {addPullRequestDefaults};
+/**
+ * Format user input for pull request review comments
+ * @param options The user's options input for review comments
+ * @returns the formatted version of user input for pull request review comments
+ */
+export function addReviewCommentsDefaults(
+  options: CreateReviewCommentUserOptions
+): CreateReviewComment {
+  const createReviewComment: CreateReviewComment = {
+    repo: options.repo,
+    owner: options.owner,
+    pullNumber: options.pullNumber,
+    // if zero set as 0
+    pageSize:
+      options.pageSize === null || options.pageSize === undefined
+        ? DEFAULT_PAGE_SIZE
+        : options.pageSize,
+  };
+  return createReviewComment;
+}

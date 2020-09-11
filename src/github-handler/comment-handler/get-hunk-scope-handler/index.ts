@@ -13,3 +13,4 @@
 // limitations under the License.
 
 export {getPullRequestScope} from './remote-patch-ranges-handler';
+export {getGitHubPatchRanges} from './github-patch-text-handler';

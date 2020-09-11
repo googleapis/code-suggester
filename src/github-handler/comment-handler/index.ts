@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {RawContent, RepoDomain} from '../../types';
-import {getPullRequestScope} from './get-hunk-scope-handler/remote-patch-ranges-handler';
+import {getPullRequestScope} from './get-hunk-scope-handler/';
 import {Octokit} from '@octokit/rest';
 import {getSuggestionPatches} from './raw-patch-handler';
-import {makeInlineSuggestion} from './valid-patch-handler';
+import {makeInlineSuggestions} from './valid-patch-handler';
 import {makeTimeLineComment} from './invalid-hunk-handler';
 import {logger} from '../../logger';
 
@@ -28,7 +28,7 @@ import {logger} from '../../logger';
  * @param {number} pageSize the number of files to comment on // TODO pagination
  * @param {Map<string, RawContent>} rawChanges the old and new contents of the files to suggest
  */
-export async function comment(
+export async function reviewPullRequest(
   octokit: Octokit,
   remote: RepoDomain,
   pullNumber: number,
@@ -47,7 +47,7 @@ export async function comment(
       invalidFiles,
       validFileLines
     );
-    await makeInlineSuggestion(octokit, filePatches, remote, pullNumber);
+    await makeInlineSuggestions(octokit, filePatches, remote, pullNumber);
     await makeTimeLineComment(
       octokit,
       outOfScopeSuggestions,
