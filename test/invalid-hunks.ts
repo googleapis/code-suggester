@@ -15,7 +15,7 @@
 import {expect} from 'chai';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
-import {buildErrorMessage} from '../src/github-handler/comment-handler/invalid-hunk-handler/message-handler';
+import {buildSummaryComment} from '../src/github-handler/comment-handler/make-review-handler/message-handler';
 
 before(() => {
   setup();
@@ -26,7 +26,7 @@ describe('buildErrorMessage', () => {
     const invalidHunks = new Map();
     const expectedMessage = '';
 
-    const errorMessage = buildErrorMessage(invalidHunks);
+    const errorMessage = buildSummaryComment(invalidHunks);
     expect(errorMessage).to.be.equal(expectedMessage);
   });
 
@@ -44,7 +44,7 @@ describe('buildErrorMessage', () => {
 * bar.txt
   * lines 3-4`;
 
-    const errorMessage = buildErrorMessage(invalidHunks);
+    const errorMessage = buildSummaryComment(invalidHunks);
     expect(errorMessage).to.be.equal(expectedMessage);
   });
 
@@ -59,7 +59,7 @@ describe('buildErrorMessage', () => {
   * lines 1-2
   * lines 3-4`;
 
-    const errorMessage = buildErrorMessage(invalidHunks);
+    const errorMessage = buildSummaryComment(invalidHunks);
     expect(errorMessage).to.be.equal(expectedMessage);
   });
 });
