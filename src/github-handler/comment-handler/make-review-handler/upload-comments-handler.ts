@@ -81,7 +81,7 @@ export function buildReviewComments(
 export async function makeInlineSuggestions(
   octokit: Octokit,
   suggestions: Map<string, Patch[]>,
-  failedSuggestions: Map<string, Hunk[]>,
+  outOfScopeSuggestions: Map<string, Hunk[]>,
   remote: RepoDomain,
   pullNumber: number
 ): Promise<void> {
@@ -99,9 +99,9 @@ export async function makeInlineSuggestions(
   if (!comments.length) {
     logger.info('No suggestions to make');
   }
-  const errorMessage = buildErrorMessage(failedSuggestions);
+  const errorMessage = buildErrorMessage(outOfScopeSuggestions);
   if (errorMessage) {
-    logger.info('Some suggestions could not be made');
+    logger.warn('Some suggestions could not be made');
   }
   await octokit.pulls.createReview({
     owner: remote.owner,

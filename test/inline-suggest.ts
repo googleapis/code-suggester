@@ -103,7 +103,7 @@ describe('buildFileComments', () => {
 describe('makeInlineSuggestions', () => {
   const sandbox = sinon.createSandbox();
   const suggestions: Map<string, Patch[]> = new Map();
-  const failedSuggestions: Map<string, Hunk[]> = new Map();
+  const outOfScopeSuggestions: Map<string, Hunk[]> = new Map();
   afterEach(() => {
     sandbox.restore();
     suggestions.clear();
@@ -135,7 +135,7 @@ describe('makeInlineSuggestions', () => {
     const stubCreateReview = sandbox.stub(octokit.pulls, 'createReview');
     // tests
 
-    await makeInlineSuggestions(octokit, suggestions, failedSuggestions, remote, pullNumber);
+    await makeInlineSuggestions(octokit, suggestions, outOfScopeSuggestions, remote, pullNumber);
     sandbox.assert.calledOnceWithExactly(stubGetPulls, {
       owner: remote.owner,
       repo: remote.repo,
@@ -171,7 +171,7 @@ describe('makeInlineSuggestions', () => {
     const stubCreateReview = sandbox.stub(octokit.pulls, 'createReview');
     // tests
     try {
-      await makeInlineSuggestions(octokit, suggestions, failedSuggestions, remote, pullNumber);
+      await makeInlineSuggestions(octokit, suggestions, outOfScopeSuggestions, remote, pullNumber);
       expect.fail('Should have failed because get pull request failed');
     } catch (err) {
       sandbox.assert.called(stubGetPulls);
@@ -200,7 +200,7 @@ describe('makeInlineSuggestions', () => {
       .rejects(new Error());
     // tests
     try {
-      await makeInlineSuggestions(octokit, suggestions, failedSuggestions, remote, pullNumber);
+      await makeInlineSuggestions(octokit, suggestions, outOfScopeSuggestions, remote, pullNumber);
       expect.fail(
         'Should have failed because create pull request review failed'
       );
