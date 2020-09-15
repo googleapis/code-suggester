@@ -46,7 +46,13 @@ export async function reviewPullRequest(
       invalidFiles,
       validFileLines
     );
-    await makeInlineSuggestions(octokit, filePatches, outOfScopeSuggestions, remote, pullNumber);
+    await makeInlineSuggestions(
+      octokit,
+      filePatches,
+      outOfScopeSuggestions,
+      remote,
+      pullNumber
+    );
   } catch (err) {
     logger.error('Failed to suggest');
     throw err;

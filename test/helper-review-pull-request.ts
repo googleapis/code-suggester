@@ -34,7 +34,7 @@ describe('reviewPullRequest', () => {
   const owner = 'helper-comment-review-owner';
   const remote: RepoDomain = {repo, owner};
 
-  it('All values are passed as expected', async () => {
+  it('Succeeds when all values are passed as expected', async () => {
     let numMockedHelpersCalled = 0;
     const validFileLines = new Map();
     const filePatches = new Map();

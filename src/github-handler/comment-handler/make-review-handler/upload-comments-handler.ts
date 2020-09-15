@@ -15,7 +15,7 @@
 import {Octokit} from '@octokit/rest';
 import {Hunk, Patch, RepoDomain} from '../../../types';
 import {logger} from '../../../logger';
-import {buildErrorMessage} from './message-handler';
+import {buildSummaryComment} from './message-handler';
 
 const COMFORT_PREVIEW_HEADER =
   'application/vnd.github.comfort-fade-preview+json';
@@ -85,6 +85,18 @@ export async function makeInlineSuggestions(
   remote: RepoDomain,
   pullNumber: number
 ): Promise<void> {
+  const comments = buildReviewComments(suggestions);
+  if (!comments.length) {
+    logger.info('No valid suggestions to make');
+  }
+  if (!comments.length && !outOfScopeSuggestions.size) {
+    logger.info('No suggestions were generated. Exiting...');
+    return;
+  }
+  const summaryComment = buildSummaryComment(outOfScopeSuggestions);
+  if (summaryComment) {
+    logger.warn('Some suggestions could not be made');
+  }
   // apply the suggestions to the latest sha
   // the latest Pull Request hunk range includes
   // all previous commit valid hunk ranges
@@ -95,21 +107,13 @@ export async function makeInlineSuggestions(
       pull_number: pullNumber,
     })
   ).data.head.sha;
-  const comments = buildReviewComments(suggestions);
-  if (!comments.length) {
-    logger.info('No suggestions to make');
-  }
-  const errorMessage = buildErrorMessage(outOfScopeSuggestions);
-  if (errorMessage) {
-    logger.warn('Some suggestions could not be made');
-  }
   await octokit.pulls.createReview({
     owner: remote.owner,
     repo: remote.repo,
     pull_number: pullNumber,
     commit_id: headSha,
     event: 'COMMENT',
-    body: errorMessage,
+    body: summaryComment,
     headers: {accept: COMFORT_PREVIEW_HEADER},
     // Octokit type definitions doesn't support mulitiline comments, but the GitHub API does
     comments: (comments as unknown) as PullsCreateReviewParamsComments[],
