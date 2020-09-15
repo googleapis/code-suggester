@@ -16,8 +16,7 @@ import {RawContent, RepoDomain} from '../../types';
 import {getPullRequestScope} from './get-hunk-scope-handler/';
 import {Octokit} from '@octokit/rest';
 import {getSuggestionPatches} from './raw-patch-handler';
-import {makeInlineSuggestions} from './valid-patch-handler';
-import {makeTimeLineComment} from './invalid-hunk-handler';
+import {makeInlineSuggestions} from './make-review-handler';
 import {logger} from '../../logger';
 
 /**
@@ -47,13 +46,7 @@ export async function reviewPullRequest(
       invalidFiles,
       validFileLines
     );
-    await makeInlineSuggestions(octokit, filePatches, remote, pullNumber);
-    await makeTimeLineComment(
-      octokit,
-      outOfScopeSuggestions,
-      remote,
-      pullNumber
-    );
+    await makeInlineSuggestions(octokit, filePatches, outOfScopeSuggestions, remote, pullNumber);
   } catch (err) {
     logger.error('Failed to suggest');
     throw err;

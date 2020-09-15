@@ -20,8 +20,8 @@ import {
   makeInlineSuggestions,
   buildReviewComments,
   PullsCreateReviewParamsComments,
-} from '../src/github-handler/comment-handler/valid-patch-handler/upload-comments-handler';
-import {Patch} from '../src/types';
+} from '../src/github-handler/comment-handler/make-review-handler/upload-comments-handler';
+import {Patch, Hunk} from '../src/types';
 
 before(() => {
   setup();
@@ -103,6 +103,7 @@ describe('buildFileComments', () => {
 describe('makeInlineSuggestions', () => {
   const sandbox = sinon.createSandbox();
   const suggestions: Map<string, Patch[]> = new Map();
+  const failedSuggestions: Map<string, Hunk[]> = new Map();
   afterEach(() => {
     sandbox.restore();
     suggestions.clear();
@@ -134,7 +135,7 @@ describe('makeInlineSuggestions', () => {
     const stubCreateReview = sandbox.stub(octokit.pulls, 'createReview');
     // tests
 
-    await makeInlineSuggestions(octokit, suggestions, remote, pullNumber);
+    await makeInlineSuggestions(octokit, suggestions, failedSuggestions, remote, pullNumber);
     sandbox.assert.calledOnceWithExactly(stubGetPulls, {
       owner: remote.owner,
       repo: remote.repo,
@@ -145,6 +146,7 @@ describe('makeInlineSuggestions', () => {
       repo: remote.repo,
       pull_number: pullNumber,
       commit_id: '6dcb09b5b57875f334f61aebed695e2e4193db5e',
+      body: '',
       comments: ([
         {
           body: '```suggestion\nFoo```',
@@ -159,17 +161,6 @@ describe('makeInlineSuggestions', () => {
       headers: {accept: 'application/vnd.github.comfort-fade-preview+json'},
     });
   });
-  it('Does not call octokit at all when there are no suggestions', async () => {
-    // setup
-    const stubGetPulls = sandbox.stub(octokit.pulls, 'get');
-
-    const stubCreateReview = sandbox.stub(octokit.pulls, 'createReview');
-    // tests
-
-    await makeInlineSuggestions(octokit, new Map(), remote, pullNumber);
-    sandbox.assert.notCalled(stubGetPulls);
-    sandbox.assert.notCalled(stubCreateReview);
-  });
   it('Throws and does not continue when get pull request fails', async () => {
     // setup
     suggestions.set(fileName1, [patch1]);
@@ -180,7 +171,7 @@ describe('makeInlineSuggestions', () => {
     const stubCreateReview = sandbox.stub(octokit.pulls, 'createReview');
     // tests
     try {
-      await makeInlineSuggestions(octokit, suggestions, remote, pullNumber);
+      await makeInlineSuggestions(octokit, suggestions, failedSuggestions, remote, pullNumber);
       expect.fail('Should have failed because get pull request failed');
     } catch (err) {
       sandbox.assert.called(stubGetPulls);
@@ -209,7 +200,7 @@ describe('makeInlineSuggestions', () => {
       .rejects(new Error());
     // tests
     try {
-      await makeInlineSuggestions(octokit, suggestions, remote, pullNumber);
+      await makeInlineSuggestions(octokit, suggestions, failedSuggestions, remote, pullNumber);
       expect.fail(
         'Should have failed because create pull request review failed'
       );
