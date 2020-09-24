@@ -73,10 +73,10 @@ export function buildReviewComments(
 
 /**
  * Make a request to GitHub to make review comments
- * @param octokit
- * @param suggestions
- * @param remote
- * @param pullNumber
+ * @param octokit an authenticated octokit instance
+ * @param suggestions code suggestions patches
+ * @param remote the repository domain
+ * @param pullNumber the pull request number to make a review on
  */
 export async function makeInlineSuggestions(
   octokit: Octokit,
@@ -84,14 +84,14 @@ export async function makeInlineSuggestions(
   outOfScopeSuggestions: Map<string, Hunk[]>,
   remote: RepoDomain,
   pullNumber: number
-): Promise<void> {
+): Promise<number | null> {
   const comments = buildReviewComments(suggestions);
   if (!comments.length) {
     logger.info('No valid suggestions to make');
   }
   if (!comments.length && !outOfScopeSuggestions.size) {
     logger.info('No suggestions were generated. Exiting...');
-    return;
+    return null;
   }
   const summaryComment = buildSummaryComment(outOfScopeSuggestions);
   if (summaryComment) {
@@ -107,15 +107,19 @@ export async function makeInlineSuggestions(
       pull_number: pullNumber,
     })
   ).data.head.sha;
-  await octokit.pulls.createReview({
-    owner: remote.owner,
-    repo: remote.repo,
-    pull_number: pullNumber,
-    commit_id: headSha,
-    event: 'COMMENT',
-    body: summaryComment,
-    headers: {accept: COMFORT_PREVIEW_HEADER},
-    // Octokit type definitions doesn't support mulitiline comments, but the GitHub API does
-    comments: (comments as unknown) as PullsCreateReviewParamsComments[],
-  });
+  const reviewNumber = (
+    await octokit.pulls.createReview({
+      owner: remote.owner,
+      repo: remote.repo,
+      pull_number: pullNumber,
+      commit_id: headSha,
+      event: 'COMMENT',
+      body: summaryComment,
+      headers: {accept: COMFORT_PREVIEW_HEADER},
+      // Octokit type definitions doesn't support mulitiline comments, but the GitHub API does
+      comments: (comments as unknown) as PullsCreateReviewParamsComments[],
+    })
+  ).data.id;
+  logger.info(`Successfully created a review on pull request: ${pullNumber}.`);
+  return reviewNumber;
 }

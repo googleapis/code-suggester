@@ -15,7 +15,7 @@
 import {assert, expect} from 'chai';
 import {describe, it, before} from 'mocha';
 import {octokit, setup} from './util';
-import {CreateReviewComment, RepoDomain, RawContent} from '../src/types';
+import {CreateReviewComment, RepoDomain, FileDiffContent} from '../src/types';
 import {Octokit} from '@octokit/rest';
 import * as proxyquire from 'proxyquire';
 before(() => {
@@ -26,8 +26,8 @@ before(() => {
 // tslint:disable:no-unused-expression
 // .true triggers ts-lint failure, but is valid chai
 describe('reviewPullRequest', () => {
-  const rawChanges: Map<string, RawContent> = new Map();
-  rawChanges.set('src/index.ts', {
+  const diffContents: Map<string, FileDiffContent> = new Map();
+  diffContents.set('src/index.ts', {
     newContent: 'hello world',
     oldContent: 'hello',
   });
@@ -50,20 +50,20 @@ describe('reviewPullRequest', () => {
         remote: RepoDomain,
         testPullNumber: number,
         testPPageSize: number,
-        testChanges: Map<string, RawContent>
+        testDiffContents: Map<string, FileDiffContent>
       ) => {
         expect(remote.owner).equals(owner);
         expect(remote.repo).equals(repo);
         expect(testPullNumber).equals(pullNumber);
         expect(testPPageSize).equals(pageSize);
-        expect(testChanges).equals(rawChanges);
+        expect(testDiffContents).equals(diffContents);
         numMockedHelpersCalled += 1;
       },
     };
     const stubReviewPr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,
     });
-    await stubReviewPr.reviewPullRequest(octokit, rawChanges, options);
+    await stubReviewPr.reviewPullRequest(octokit, diffContents, options);
     expect(numMockedHelpersCalled).equals(1);
   });
 
@@ -74,7 +74,7 @@ describe('reviewPullRequest', () => {
         remote: RepoDomain,
         pullNumber: number,
         pageSize: number,
-        testChanges: Map<string, RawContent>
+        testDiffContents: Map<string, FileDiffContent>
       ) => {
         assert.isOk(false);
       },
@@ -92,7 +92,7 @@ describe('reviewPullRequest', () => {
         remote: RepoDomain,
         pullNumber: number,
         pageSize: number,
-        testChanges: Map<string, RawContent>
+        testDiffContents: Map<string, FileDiffContent>
       ) => {
         assert.isOk(false);
       },
@@ -110,7 +110,7 @@ describe('reviewPullRequest', () => {
         remote: RepoDomain,
         pullNumber: number,
         pageSize: number,
-        testChanges: Map<string, RawContent>
+        testDiffContents: Map<string, FileDiffContent>
       ) => {
         assert.isOk(false);
       },
@@ -130,7 +130,7 @@ describe('reviewPullRequest', () => {
         remote: RepoDomain,
         pullNumber: number,
         pageSize: number,
-        testChanges: Map<string, RawContent>
+        testDiffContents: Map<string, FileDiffContent>
       ) => {
         throw Error('Review pull request helper failed');
       },
@@ -139,7 +139,7 @@ describe('reviewPullRequest', () => {
       './github-handler': stubHelperHandlers,
     });
     try {
-      await stubReviewPr.reviewPullRequest(octokit, rawChanges, options);
+      await stubReviewPr.reviewPullRequest(octokit, diffContents, options);
       expect.fail(
         'The main function should have errored because the sub-function failed.'
       );

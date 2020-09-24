@@ -16,14 +16,14 @@ import {expect} from 'chai';
 import {describe, it, before, beforeEach} from 'mocha';
 import {setup} from './util';
 import {generatePatches} from '../src/github-handler/comment-handler/raw-patch-handler/hunk-to-patch-handler';
-import {Hunk, RawContent} from '../src/types';
+import {Hunk, FileDiffContent} from '../src/types';
 
 before(() => {
   setup();
 });
 
 describe('generatePatches', () => {
-  const rawChanges: Map<string, RawContent> = new Map();
+  const diffContents: Map<string, FileDiffContent> = new Map();
   const filesHunks: Map<string, Hunk[]> = new Map();
 
   const fileName1Addition = 'file-1.txt';
@@ -34,12 +34,12 @@ describe('generatePatches', () => {
   const fileNameNonEmtpy = 'file-6.txt';
 
   beforeEach(() => {
-    rawChanges.clear();
+    diffContents.clear();
     filesHunks.clear();
   });
 
   it('Gets the correct substrings when there is 1 addition', () => {
-    rawChanges.set(fileName1Addition, {
+    diffContents.set(fileName1Addition, {
       oldContent:
         'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\n',
       newContent:
@@ -48,7 +48,7 @@ describe('generatePatches', () => {
     filesHunks.set(fileName1Addition, [
       {oldStart: 1, oldEnd: 6, newStart: 1, newEnd: 7},
     ]);
-    const filePatches = generatePatches(filesHunks, rawChanges);
+    const filePatches = generatePatches(filesHunks, diffContents);
     expect(filePatches.get(fileName1Addition)!).deep.equals([
       {
         start: 1,
@@ -59,7 +59,7 @@ describe('generatePatches', () => {
   });
 
   it('Gets the correct substrings when there is 2 additions', () => {
-    rawChanges.set(fileName2Addition, {
+    diffContents.set(fileName2Addition, {
       oldContent:
         'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\n',
       newContent:
@@ -69,7 +69,7 @@ describe('generatePatches', () => {
       {oldStart: 1, oldEnd: 6, newStart: 1, newEnd: 7},
       {oldStart: 9, oldEnd: 12, newStart: 10, newEnd: 13},
     ]);
-    const filePatches = generatePatches(filesHunks, rawChanges);
+    const filePatches = generatePatches(filesHunks, diffContents);
     expect(filePatches.get(fileName2Addition)!).deep.equals([
       {
         start: 1,
@@ -85,7 +85,7 @@ describe('generatePatches', () => {
   });
 
   it('Gets the correct substrings when there is 1 deletion', () => {
-    rawChanges.set(fileNameDelete, {
+    diffContents.set(fileNameDelete, {
       oldContent:
         'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\n',
       newContent:
@@ -94,7 +94,7 @@ describe('generatePatches', () => {
     filesHunks.set(fileNameDelete, [
       {oldStart: 9, oldEnd: 12, newStart: 9, newEnd: 11},
     ]);
-    const filePatches = generatePatches(filesHunks, rawChanges);
+    const filePatches = generatePatches(filesHunks, diffContents);
     expect(filePatches.get(fileNameDelete)!).deep.equals([
       {
         start: 9,
@@ -105,7 +105,7 @@ describe('generatePatches', () => {
   });
 
   it('Gets the correct substrings when there is a special patch char prepending the text', () => {
-    rawChanges.set(fileNameSpecialChar1, {
+    diffContents.set(fileNameSpecialChar1, {
       oldContent:
         'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\n',
       newContent:
@@ -115,7 +115,7 @@ describe('generatePatches', () => {
     filesHunks.set(fileNameSpecialChar1, [
       {oldStart: 1, oldEnd: 2, newStart: 1, newEnd: 2},
     ]);
-    const filePatches = generatePatches(filesHunks, rawChanges);
+    const filePatches = generatePatches(filesHunks, diffContents);
     expect(filePatches.get(fileNameSpecialChar1)!).deep.equals([
       {
         start: 1,
@@ -126,7 +126,7 @@ describe('generatePatches', () => {
   });
 
   it('Gets the correct substrings when the file is now an empty string', () => {
-    rawChanges.set(fileNameEmtpy, {
+    diffContents.set(fileNameEmtpy, {
       oldContent: 'line1',
       newContent: '',
     });
@@ -134,7 +134,7 @@ describe('generatePatches', () => {
     filesHunks.set(fileNameEmtpy, [
       {oldStart: 1, oldEnd: 2, newStart: 1, newEnd: 1},
     ]);
-    const filePatches = generatePatches(filesHunks, rawChanges);
+    const filePatches = generatePatches(filesHunks, diffContents);
     expect(filePatches.get(fileNameEmtpy)!).deep.equals([
       {
         start: 1,
@@ -145,7 +145,7 @@ describe('generatePatches', () => {
   });
 
   it('Gets the correct substrings when the empty string file is now has text', () => {
-    rawChanges.set(fileNameNonEmtpy, {
+    diffContents.set(fileNameNonEmtpy, {
       oldContent: '',
       newContent:
         'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\n',
@@ -154,7 +154,7 @@ describe('generatePatches', () => {
     filesHunks.set(fileNameNonEmtpy, [
       {oldStart: 1, oldEnd: 1, newStart: 1, newEnd: 12},
     ]);
-    const filePatches = generatePatches(filesHunks, rawChanges);
+    const filePatches = generatePatches(filesHunks, diffContents);
     expect(filePatches.get(fileNameNonEmtpy)!).deep.equals([
       {
         start: 1,
@@ -166,7 +166,7 @@ describe('generatePatches', () => {
   });
 
   it('Throws an error when the new start hunk line is 0', () => {
-    rawChanges.set(fileNameNonEmtpy, {
+    diffContents.set(fileNameNonEmtpy, {
       oldContent: '',
       newContent:
         'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\n',
@@ -175,7 +175,7 @@ describe('generatePatches', () => {
       {oldStart: 1, oldEnd: 1, newStart: 0, newEnd: 12},
     ]);
     try {
-      generatePatches(filesHunks, rawChanges);
+      generatePatches(filesHunks, diffContents);
       expect.fail(
         'Should have errored because the new start line is < 1. Value should be >= 1'
       );
@@ -184,7 +184,7 @@ describe('generatePatches', () => {
     }
   });
   it('Throws an error when the new end hunk line is 0', () => {
-    rawChanges.set(fileNameNonEmtpy, {
+    diffContents.set(fileNameNonEmtpy, {
       oldContent: '',
       newContent:
         'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\n',
@@ -193,7 +193,7 @@ describe('generatePatches', () => {
       {oldStart: 2, oldEnd: 1, newStart: 1, newEnd: 0},
     ]);
     try {
-      generatePatches(filesHunks, rawChanges);
+      generatePatches(filesHunks, diffContents);
       expect.fail(
         'Should have errored because the new end line is < 1. Value should be >= 1'
       );
@@ -202,7 +202,7 @@ describe('generatePatches', () => {
     }
   });
   it('Throws an error when the old start hunk line is 0', () => {
-    rawChanges.set(fileNameNonEmtpy, {
+    diffContents.set(fileNameNonEmtpy, {
       oldContent: '',
       newContent:
         'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\n',
@@ -211,7 +211,7 @@ describe('generatePatches', () => {
       {oldStart: 0, oldEnd: 1, newStart: 1, newEnd: 12},
     ]);
     try {
-      generatePatches(filesHunks, rawChanges);
+      generatePatches(filesHunks, diffContents);
       expect.fail(
         'Should have errored because the old start line is < 1. Value should be >= 1'
       );
@@ -220,7 +220,7 @@ describe('generatePatches', () => {
     }
   });
   it('Throws an error when theold end hunk line is 0', () => {
-    rawChanges.set(fileNameNonEmtpy, {
+    diffContents.set(fileNameNonEmtpy, {
       oldContent: '',
       newContent:
         'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\n',
@@ -229,7 +229,7 @@ describe('generatePatches', () => {
       {oldStart: 2, oldEnd: 0, newStart: 1, newEnd: 2},
     ]);
     try {
-      generatePatches(filesHunks, rawChanges);
+      generatePatches(filesHunks, diffContents);
       expect.fail(
         'Should have errored because the old end line is < 1. Value should be >= 1'
       );

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {RawContent, RepoDomain} from '../../types';
+import {FileDiffContent, RepoDomain} from '../../types';
 import {getPullRequestScope} from './get-hunk-scope-handler/';
 import {Octokit} from '@octokit/rest';
 import {getSuggestionPatches} from './raw-patch-handler';
@@ -25,15 +25,16 @@ import {logger} from '../../logger';
  * @param {RepoDomain} remote the Pull Request repository
  * @param {number} pullNumber the Pull Request number
  * @param {number} pageSize the number of files to comment on // TODO pagination
- * @param {Map<string, RawContent>} rawChanges the old and new contents of the files to suggest
+ * @param {Map<string, FileDiffContent>} diffContents the old and new contents of the files to suggest
+ * @returns the created review's id, or null if no review was made
  */
 export async function reviewPullRequest(
   octokit: Octokit,
   remote: RepoDomain,
   pullNumber: number,
   pageSize: number,
-  rawChanges: Map<string, RawContent>
-): Promise<void> {
+  diffContents: Map<string, FileDiffContent>
+): Promise<number | null> {
   try {
     const {invalidFiles, validFileLines} = await getPullRequestScope(
       octokit,
@@ -42,17 +43,18 @@ export async function reviewPullRequest(
       pageSize
     );
     const {filePatches, outOfScopeSuggestions} = getSuggestionPatches(
-      rawChanges,
+      diffContents,
       invalidFiles,
       validFileLines
     );
-    await makeInlineSuggestions(
+    const reviewNumber = await makeInlineSuggestions(
       octokit,
       filePatches,
       outOfScopeSuggestions,
       remote,
       pullNumber
     );
+    return reviewNumber;
   } catch (err) {
     logger.error('Failed to suggest');
     throw err;

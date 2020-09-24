@@ -157,7 +157,7 @@ export class PatchSyntaxError extends Error {
 /**
  * The file content of the original content and the patched content
  */
-export interface RawContent {
+export interface FileDiffContent {
   readonly oldContent: string;
   readonly newContent: string;
 }
@@ -178,7 +178,7 @@ export interface Hunk {
 }
 
 /**
- * The range of a patch along with the raw file content
+ * The range of a patch along with the raw text file content
  */
 export interface Patch extends Range {
   readonly newContent: string;

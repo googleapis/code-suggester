@@ -15,7 +15,7 @@
 import {assert, expect} from 'chai';
 import {describe, it, before} from 'mocha';
 import {octokit, setup} from './util';
-import {RepoDomain, RawContent, Patch, Hunk} from '../src/types';
+import {RepoDomain, FileDiffContent, Patch, Hunk} from '../src/types';
 import {Octokit} from '@octokit/rest';
 import * as proxyquire from 'proxyquire';
 before(() => {
@@ -23,8 +23,8 @@ before(() => {
 });
 
 describe('reviewPullRequest', () => {
-  const rawChanges: Map<string, RawContent> = new Map();
-  rawChanges.set('src/index.ts', {
+  const diffContents: Map<string, FileDiffContent> = new Map();
+  diffContents.set('src/index.ts', {
     newContent: 'hello world',
     oldContent: 'hello',
   });
@@ -66,11 +66,11 @@ describe('reviewPullRequest', () => {
         },
         './raw-patch-handler': {
           getSuggestionPatches: (
-            testRawChanges: Map<string, RawContent>,
+            testDiffContents: Map<string, FileDiffContent>,
             testInvalidFiles: string[],
             testValidFileLines: Map<string, Range[]>
           ) => {
-            expect(testRawChanges).equals(rawChanges);
+            expect(testDiffContents).equals(diffContents);
             expect(testInvalidFiles).equals(invalidFiles);
             expect(testValidFileLines).equals(validFileLines);
             numMockedHelpersCalled += 1;
@@ -100,7 +100,7 @@ describe('reviewPullRequest', () => {
       remote,
       pullNumber,
       pageSize,
-      rawChanges
+      diffContents
     );
     expect(numMockedHelpersCalled).equals(3);
   });
@@ -154,7 +154,7 @@ describe('reviewPullRequest', () => {
       remote,
       pullNumber,
       pageSize,
-      rawChanges
+      diffContents
     );
     expect(numMockedHelpersCalled).equals(2);
   });
@@ -189,7 +189,7 @@ describe('reviewPullRequest', () => {
         remote,
         pullNumber,
         pageSize,
-        rawChanges
+        diffContents
       );
       assert.ok(false);
     } catch (err) {
@@ -228,11 +228,11 @@ describe('reviewPullRequest', () => {
         },
         './raw-patch-handler': {
           getSuggestionPatches: (
-            testRawChanges: Map<string, RawContent>,
+            testDiffContents: Map<string, FileDiffContent>,
             testInvalidFiles: string[],
             testValidFileLines: Map<string, Range[]>
           ) => {
-            expect(testRawChanges).equals(rawChanges);
+            expect(testDiffContents).equals(diffContents);
             expect(testInvalidFiles).equals(invalidFiles);
             expect(testValidFileLines).equals(validFileLines);
             numMockedHelpersCalled += 1;
@@ -247,7 +247,7 @@ describe('reviewPullRequest', () => {
         remote,
         pullNumber,
         pageSize,
-        rawChanges
+        diffContents
       );
       assert.ok(false);
     } catch (err) {
@@ -288,11 +288,11 @@ describe('reviewPullRequest', () => {
         },
         './raw-patch-handler': {
           getSuggestionPatches: (
-            testRawChanges: Map<string, RawContent>,
+            testDiffContents: Map<string, FileDiffContent>,
             testInvalidFiles: string[],
             testValidFileLines: Map<string, Range[]>
           ) => {
-            expect(testRawChanges).equals(rawChanges);
+            expect(testDiffContents).equals(diffContents);
             expect(testInvalidFiles).equals(invalidFiles);
             expect(testValidFileLines).equals(validFileLines);
             numMockedHelpersCalled += 1;
@@ -324,7 +324,7 @@ describe('reviewPullRequest', () => {
         remote,
         pullNumber,
         pageSize,
-        rawChanges
+        diffContents
       );
       assert.ok(false);
     } catch (err) {
