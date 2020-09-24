@@ -116,7 +116,7 @@ describe('makeInlineSuggestions', () => {
   };
   const remote = {owner: 'upstream-owner', repo: 'upstream-repo'};
   const pullNumber = 711;
-  it('Calls Octokit with the correct values', async () => {
+  it("Calls Octokit with the correct values and returns the successfully created review's number", async () => {
     suggestions.set(fileName1, [patch1]);
     const responseData = await import(
       './fixtures/get-pull-request-response.json'
@@ -127,21 +127,75 @@ describe('makeInlineSuggestions', () => {
       url: 'http://fake-url.com',
       data: responseData,
     };
+    const createReviewResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: {
+        id: 80,
+        node_id: 'MDE3OlB1bGxSZXF1ZXN0UmV2aWV3ODA=',
+        user: {
+          login: 'octocat',
+          id: 1,
+          node_id: 'MDQ6VXNlcjE=',
+          avatar_url: 'https://github.com/images/error/octocat_happy.gif',
+          gravatar_id: '',
+          url: 'https://api.github.com/users/octocat',
+          html_url: 'https://github.com/octocat',
+          followers_url: 'https://api.github.com/users/octocat/followers',
+          following_url:
+            'https://api.github.com/users/octocat/following{/other_user}',
+          gists_url: 'https://api.github.com/users/octocat/gists{/gist_id}',
+          starred_url:
+            'https://api.github.com/users/octocat/starred{/owner}{/repo}',
+          subscriptions_url:
+            'https://api.github.com/users/octocat/subscriptions',
+          organizations_url: 'https://api.github.com/users/octocat/orgs',
+          repos_url: 'https://api.github.com/users/octocat/repos',
+          events_url: 'https://api.github.com/users/octocat/events{/privacy}',
+          received_events_url:
+            'https://api.github.com/users/octocat/received_events',
+          type: 'User',
+          site_admin: false,
+        },
+        body:
+          'This is close to perfect! Please address the suggested inline change.',
+        state: 'CHANGES_REQUESTED',
+        html_url:
+          'https://github.com/octocat/Hello-World/pull/12#pullrequestreview-80',
+        pull_request_url:
+          'https://api.github.com/repos/octocat/Hello-World/pulls/12',
+        _links: {
+          html: {
+            href:
+              'https://github.com/octocat/Hello-World/pull/12#pullrequestreview-80',
+          },
+          pull_request: {
+            href: 'https://api.github.com/repos/octocat/Hello-World/pulls/12',
+          },
+        },
+        submitted_at: '2019-11-17T17:43:43Z',
+        commit_id: 'ecdd80bb57125d7ba9641ffaa4d7d2c19d3f3091',
+      },
+    };
     // setup
     const stubGetPulls = sandbox
       .stub(octokit.pulls, 'get')
       .resolves(getPullRequestResponse);
 
-    const stubCreateReview = sandbox.stub(octokit.pulls, 'createReview');
+    const stubCreateReview = sandbox
+      .stub(octokit.pulls, 'createReview')
+      .resolves(createReviewResponse);
     // tests
 
-    await makeInlineSuggestions(
+    const reivewNumber = await makeInlineSuggestions(
       octokit,
       suggestions,
       outOfScopeSuggestions,
       remote,
       pullNumber
     );
+    expect(reivewNumber).equals(80);
     sandbox.assert.calledOnceWithExactly(stubGetPulls, {
       owner: remote.owner,
       repo: remote.repo,
@@ -195,6 +249,36 @@ describe('makeInlineSuggestions', () => {
     );
     sandbox.assert.notCalled(stubGetPulls);
     sandbox.assert.notCalled(stubCreateReview);
+  });
+
+  it('Returns null when a review is not made', async () => {
+    const responseData = await import(
+      './fixtures/get-pull-request-response.json'
+    );
+    const getPullRequestResponse = {
+      headers: {},
+      status: 200,
+      url: 'http://fake-url.com',
+      data: responseData,
+    };
+    // setup
+    const stubGetPulls = sandbox
+      .stub(octokit.pulls, 'get')
+      .resolves(getPullRequestResponse);
+
+    const stubCreateReview = sandbox.stub(octokit.pulls, 'createReview');
+    // tests
+
+    const reviewNumber = await makeInlineSuggestions(
+      octokit,
+      suggestions,
+      outOfScopeSuggestions,
+      remote,
+      pullNumber
+    );
+    sandbox.assert.notCalled(stubGetPulls);
+    sandbox.assert.notCalled(stubCreateReview);
+    expect(reviewNumber).equals(null);
   });
 
   it('Throws and does not continue when get pull request fails', async () => {

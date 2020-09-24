@@ -19,23 +19,23 @@ import {
   generateHunks,
   getRawSuggestionHunks,
 } from '../src/github-handler/comment-handler/raw-patch-handler/raw-hunk-handler';
-import {RawContent} from '../src/types';
+import {FileDiffContent} from '../src/types';
 
 before(() => {
   setup();
 });
 
 describe('generateHunks', () => {
-  const rawContent: RawContent = {oldContent: 'foo', newContent: 'FOO'};
+  const fileDiffContent: FileDiffContent = {oldContent: 'foo', newContent: 'FOO'};
   const fileName = 'README.md';
-  it('Does not update the user raw change input', () => {
-    generateHunks(rawContent, fileName);
-    expect(rawContent.oldContent).equals('foo');
-    expect(rawContent.newContent).equals('FOO');
+  it('Does not update the user\'s input of text file diffs contents', () => {
+    generateHunks(fileDiffContent, fileName);
+    expect(fileDiffContent.oldContent).equals('foo');
+    expect(fileDiffContent.newContent).equals('FOO');
   });
 
   it('Generates the hunks that are produced by the diff library given one file', () => {
-    const hunk = generateHunks(rawContent, fileName);
+    const hunk = generateHunks(fileDiffContent, fileName);
     expect(hunk.length).equals(1);
     expect(hunk[0].oldStart).equals(1);
     expect(hunk[0].oldEnd).equals(2);
@@ -44,7 +44,7 @@ describe('generateHunks', () => {
   });
 
   it('Generates the hunks that are produced by the diff library given one file which was empty but now has content', () => {
-    const addingContentToEmpty: RawContent = {
+    const addingContentToEmpty: FileDiffContent = {
       oldContent: '',
       newContent: 'FOO',
     };
@@ -58,9 +58,9 @@ describe('generateHunks', () => {
 });
 
 describe('getRawSuggestionHunks', () => {
-  const rawChange: Map<string, RawContent> = new Map();
-  const rawContent1: RawContent = {oldContent: 'foo', newContent: 'FOO'};
-  const rawContent2: RawContent = {
+  const diffContents: Map<string, FileDiffContent> = new Map();
+  const fileDiffContent1: FileDiffContent = {oldContent: 'foo', newContent: 'FOO'};
+  const fileDiffContent2: FileDiffContent = {
     oldContent:
       'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar',
     newContent:
@@ -68,31 +68,31 @@ describe('getRawSuggestionHunks', () => {
   };
   const fileName1 = 'README.md';
   const fileName2 = 'bars.txt';
-  rawChange.set(fileName1, rawContent1);
-  rawChange.set(fileName2, rawContent2);
+  diffContents.set(fileName1, fileDiffContent1);
+  diffContents.set(fileName2, fileDiffContent2);
 
-  it('Does not update the user raw change input', () => {
-    getRawSuggestionHunks(rawChange);
-    expect(rawContent1.oldContent).equals('foo');
-    expect(rawContent1.newContent).equals('FOO');
-    expect(rawChange.get(fileName1)!.oldContent).equals('foo');
-    expect(rawChange.get(fileName1)!.newContent).equals('FOO');
-    expect(rawContent2.oldContent).equals(
+  it('Does not update the user\'s input of text file diff contents', () => {
+    getRawSuggestionHunks(diffContents);
+    expect(fileDiffContent1.oldContent).equals('foo');
+    expect(fileDiffContent1.newContent).equals('FOO');
+    expect(diffContents.get(fileName1)!.oldContent).equals('foo');
+    expect(diffContents.get(fileName1)!.newContent).equals('FOO');
+    expect(fileDiffContent2.oldContent).equals(
       'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar'
     );
-    expect(rawContent2.newContent).equals(
+    expect(fileDiffContent2.newContent).equals(
       'foo\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo'
     );
-    expect(rawChange.get(fileName2)!.oldContent).equals(
+    expect(diffContents.get(fileName2)!.oldContent).equals(
       'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar'
     );
-    expect(rawChange.get(fileName2)!.newContent).equals(
+    expect(diffContents.get(fileName2)!.newContent).equals(
       'foo\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo'
     );
   });
 
   it('Generates the hunks that are produced by the diff library for all files that are updated', () => {
-    const fileHunks = getRawSuggestionHunks(rawChange);
+    const fileHunks = getRawSuggestionHunks(diffContents);
     expect(fileHunks.size).equals(2);
     expect(fileHunks.get(fileName1)!.length).equals(1);
     expect(fileHunks.get(fileName1)![0].oldStart).equals(1);
@@ -111,13 +111,13 @@ describe('getRawSuggestionHunks', () => {
   });
 
   it('Does not generate hunks for changes that contain no updates', () => {
-    const sameRawChanges = new Map();
-    sameRawChanges.set('unchanged-1.txt', {oldContent: '', newContent: ''});
-    sameRawChanges.set('unchanged-2.txt', {
+    const samediffContents = new Map();
+    samediffContents.set('unchanged-1.txt', {oldContent: '', newContent: ''});
+    samediffContents.set('unchanged-2.txt', {
       oldContent: 'same',
       newContent: 'same',
     });
-    const fileHunks = getRawSuggestionHunks(sameRawChanges);
+    const fileHunks = getRawSuggestionHunks(samediffContents);
     expect(fileHunks.size).equals(0);
   });
 });

@@ -20,7 +20,7 @@ import {
   RepoDomain,
   BranchDomain,
   FileData,
-  RawContent,
+  FileDiffContent,
   CreateReviewCommentUserOptions,
 } from './types';
 export {Changes} from './types';
@@ -38,51 +38,50 @@ import * as retry from 'async-retry';
  * that they are in scope of the pull request. Outof scope suggestions are not made.
  *
  * In-scope suggestions are specifically: the suggestion for a file must correspond to a file in the remote pull request
- * and the diff hunk computed for a raw file must produce a range that is a subset of the pull request's files hunks.
+ * and the diff hunk computed for a file's contents must produce a range that is a subset of the pull request's files hunks.
  *
  * If a file is too large to load in the review, it is skipped in the suggestion phase.
  *
  * If changes are empty then the workflow will not run.
  * Rethrows an HttpError if Octokit GitHub API returns an error. HttpError Octokit access_token and client_secret headers redact all sensitive information.
  * @param octokit The authenticated octokit instance, instantiated with an access token having permissiong to create a fork on the target repository.
- * @param rawChanges A set of changes. The changes may be empty.
+ * @param diffContents A set of changes. The changes may be empty.
  * @param options The configuration for interacting with GitHub provided by the user.
  * @param loggerOption The logger instance (optional).
+ * @returns the created review's id number, or null if there are no changes to be made.
  */
 export async function reviewPullRequest(
   octokit: Octokit,
-  rawChanges: Map<string, RawContent>,
+  diffContents: Map<string, FileDiffContent>,
   options: CreateReviewCommentUserOptions,
   loggerOption?: Logger | LoggerOptions
-): Promise<void> {
+): Promise<number | null> {
   setupLogger(loggerOption);
   // if null undefined, or the empty map then no changes have been provided.
   // Do not execute GitHub workflow
   if (
-    rawChanges === null ||
-    rawChanges === undefined ||
-    rawChanges.size === 0
+    diffContents === null ||
+    diffContents === undefined ||
+    diffContents.size === 0
   ) {
     logger.info(
       'Empty changes provided. No suggestions to be made. Cancelling workflow.'
     );
-    return;
+    return null;
   }
   const gitHubConfigs = addReviewCommentsDefaults(options);
   const remote: RepoDomain = {
     owner: gitHubConfigs.owner,
     repo: gitHubConfigs.repo,
   };
-  logger.info(
-    `Successfully created a review on pull request: ${gitHubConfigs.pullNumber}.`
-  );
-  handler.reviewPullRequest(
+  const reviewNumber = await handler.reviewPullRequest(
     octokit,
     remote,
     gitHubConfigs.pullNumber,
     gitHubConfigs.pageSize,
-    rawChanges
+    diffContents
   );
+  return reviewNumber;
 }
 
 /**

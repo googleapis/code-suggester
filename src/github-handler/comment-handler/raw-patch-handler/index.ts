@@ -14,7 +14,7 @@
 
 import {generatePatches} from './hunk-to-patch-handler';
 import {getValidSuggestionHunks} from './in-scope-hunks-handler';
-import {Hunk, RawContent, Range, Patch} from '../../../types';
+import {Hunk, FileDiffContent, Range, Patch} from '../../../types';
 
 interface SuggestionPatches {
   filePatches: Map<string, Patch[]>;
@@ -25,23 +25,23 @@ interface SuggestionPatches {
  * Get the range of the old version of every file and the corresponding new text for that range
  * whose old and new contents differ, under the constraints that the file
  * is in scope for Pull Request, as well as its lines.
- * @param {Map<string, RawContent>} rawChanges the raw old content and new content of a file
+ * @param {Map<string, FileDiffContent>} diffContents the old text content and new text content of a file
  * @param {string[]} invalidFiles list of invalid files
  * @param {Map<string, Range[]>} validFileLines a map of each file's in scope lines for a Pull Request
  */
 export function getSuggestionPatches(
-  rawChanges: Map<string, RawContent>,
+  diffContents: Map<string, FileDiffContent>,
   invalidFiles: string[],
   validFileLines: Map<string, Range[]>
 ): SuggestionPatches {
   const {inScopeSuggestions, outOfScopeSuggestions} = getValidSuggestionHunks(
-    rawChanges,
+    diffContents,
     invalidFiles,
     validFileLines
   );
   const filePatches: Map<string, Patch[]> = generatePatches(
     inScopeSuggestions,
-    rawChanges
+    diffContents
   );
   return {filePatches, outOfScopeSuggestions};
 }

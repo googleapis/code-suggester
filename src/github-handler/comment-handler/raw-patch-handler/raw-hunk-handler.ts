@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Hunk, RawContent} from '../../../types';
+import {Hunk, FileDiffContent} from '../../../types';
 import {logger} from '../../../logger';
 import {structuredPatch, Hunk as RawHunk} from 'diff';
 
@@ -20,19 +20,19 @@ import {structuredPatch, Hunk as RawHunk} from 'diff';
  * Given the old content and new content of a file
  * compute the diff and extract the necessary hunk data.
  * The hunk list is a list of disjoint ascending intervals.
- * @param rawContent
+ * @param fileDiffContent
  * @param fileName
  * @returns the hunks that are generated in ascending sorted order
  */
 export function generateHunks(
-  rawContent: RawContent,
+  fileDiffContent: FileDiffContent,
   fileName: string
 ): Hunk[] {
   const rawHunks: RawHunk[] = structuredPatch(
     fileName, // old file name
     fileName, // new file name
-    rawContent.oldContent,
-    rawContent.newContent
+    fileDiffContent.oldContent,
+    fileDiffContent.newContent
   ).hunks;
   const hunks: Hunk[] = rawHunks.map(rawHunk => ({
     oldStart: rawHunk.oldStart,
@@ -49,19 +49,19 @@ export function generateHunks(
  * compute the hunk for each file whose old and new contents differ.
  * Do not compute the hunk if the old content is the same as the new content.
  * The hunk list is sorted and each interval is disjoint.
- * @param {Map<string, RawContent>} rawChanges a map of the original file contents and the new file contents
+ * @param {Map<string, FileDiffContent>} diffContents a map of the original file contents and the new file contents
  * @returns the hunks for each file whose old and new contents differ
  */
 export function getRawSuggestionHunks(
-  rawChanges: Map<string, RawContent>
+  diffContents: Map<string, FileDiffContent>
 ): Map<string, Hunk[]> {
   const fileHunks: Map<string, Hunk[]> = new Map();
-  rawChanges.forEach((rawContent: RawContent, fileName: string) => {
+  diffContents.forEach((fileDiffContent: FileDiffContent, fileName: string) => {
     // if identical don't calculate the hunk and continue in the loop
-    if (rawContent.oldContent === rawContent.newContent) {
+    if (fileDiffContent.oldContent === fileDiffContent.newContent) {
       return;
     }
-    const hunks = generateHunks(rawContent, fileName);
+    const hunks = generateHunks(fileDiffContent, fileName);
     fileHunks.set(fileName, hunks);
   });
   logger.info('Parsed ranges of old and new patch');

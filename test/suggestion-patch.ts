@@ -16,7 +16,7 @@ import {expect} from 'chai';
 import {describe, it, before, beforeEach} from 'mocha';
 import {setup} from './util';
 import {getValidSuggestionHunks} from '../src/github-handler/comment-handler/raw-patch-handler/in-scope-hunks-handler';
-import {Range, RawContent} from '../src/types';
+import {Range, FileDiffContent} from '../src/types';
 
 before(() => {
   setup();
@@ -30,21 +30,21 @@ describe('getValidSuggestionHunks', () => {
   const invalidFiles = [invalidFile];
   scope.set(fileName1, [{start: 1, end: 2}]);
   scope.set(fileName2, [{start: 2, end: 11}]);
-  const rawChanges: Map<string, RawContent> = new Map();
+  const diffContents: Map<string, FileDiffContent> = new Map();
 
   beforeEach(() => {
-    rawChanges.clear();
+    diffContents.clear();
   });
 
   it('Finds file hunks that are in scope for the pull request', () => {
-    rawChanges.set(fileName2, {
+    diffContents.set(fileName2, {
       oldContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar',
       newContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nfoo\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar',
     });
     const suggestions = getValidSuggestionHunks(
-      rawChanges,
+      diffContents,
       invalidFiles,
       scope
     );
@@ -52,14 +52,14 @@ describe('getValidSuggestionHunks', () => {
   });
 
   it('Excludes file hunks that are not in scope for the pull request', () => {
-    rawChanges.set(fileName1, {
+    diffContents.set(fileName1, {
       oldContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo',
       newContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo',
     });
     const suggestions = getValidSuggestionHunks(
-      rawChanges,
+      diffContents,
       invalidFiles,
       scope
     );
@@ -67,12 +67,12 @@ describe('getValidSuggestionHunks', () => {
   });
 
   it('Excludes suggestion files that are not in scope because the file is not in scope', () => {
-    rawChanges.set('non-existant-file-that-is-not-invalid.txt', {
+    diffContents.set('non-existant-file-that-is-not-invalid.txt', {
       oldContent: 'foo',
       newContent: 'bar',
     });
     const suggestions = getValidSuggestionHunks(
-      rawChanges,
+      diffContents,
       invalidFiles,
       scope
     );
@@ -80,9 +80,9 @@ describe('getValidSuggestionHunks', () => {
   });
 
   it('Excludes suggestion files that are not in scope because the file is invalid', () => {
-    rawChanges.set(invalidFile, {oldContent: 'foo', newContent: 'bar'});
+    diffContents.set(invalidFile, {oldContent: 'foo', newContent: 'bar'});
     const suggestions = getValidSuggestionHunks(
-      rawChanges,
+      diffContents,
       invalidFiles,
       scope
     );
@@ -90,9 +90,9 @@ describe('getValidSuggestionHunks', () => {
   });
 
   it('Does not include suggestion files that have no change', () => {
-    rawChanges.set(fileName1, {oldContent: 'foo', newContent: 'foo'});
+    diffContents.set(fileName1, {oldContent: 'foo', newContent: 'foo'});
     const suggestions = getValidSuggestionHunks(
-      rawChanges,
+      diffContents,
       invalidFiles,
       scope
     );
@@ -101,38 +101,38 @@ describe('getValidSuggestionHunks', () => {
 
   it('Calculates in scope and out of scope files that are mutually exclusive', () => {
     // in scope hunk
-    rawChanges.set(fileName2, {
+    diffContents.set(fileName2, {
       oldContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar',
       newContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nfoo\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar',
     });
     // out of scope hunks
-    rawChanges.set(fileName1, {
+    diffContents.set(fileName1, {
       oldContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo',
       newContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar',
     });
     // same before and after
-    rawChanges.set('same-before-and-after.text', {
+    diffContents.set('same-before-and-after.text', {
       oldContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo',
       newContent:
         'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo',
     });
     // out of scope file name
-    rawChanges.set('non-existant-file-that-is-not-invalid.txt', {
+    diffContents.set('non-existant-file-that-is-not-invalid.txt', {
       oldContent: 'foo',
       newContent: 'bar',
     });
     // out of scope file name
-    rawChanges.set(invalidFile, {
+    diffContents.set(invalidFile, {
       oldContent: 'foo',
       newContent: 'bar',
     });
     const suggestions = getValidSuggestionHunks(
-      rawChanges,
+      diffContents,
       invalidFiles,
       scope
     );
