@@ -26,9 +26,12 @@ before(() => {
 });
 
 describe('generateHunks', () => {
-  const fileDiffContent: FileDiffContent = {oldContent: 'foo', newContent: 'FOO'};
+  const fileDiffContent: FileDiffContent = {
+    oldContent: 'foo',
+    newContent: 'FOO',
+  };
   const fileName = 'README.md';
-  it('Does not update the user\'s input of text file diffs contents', () => {
+  it("Does not update the user's input of text file diffs contents", () => {
     generateHunks(fileDiffContent, fileName);
     expect(fileDiffContent.oldContent).equals('foo');
     expect(fileDiffContent.newContent).equals('FOO');
@@ -59,7 +62,10 @@ describe('generateHunks', () => {
 
 describe('getRawSuggestionHunks', () => {
   const diffContents: Map<string, FileDiffContent> = new Map();
-  const fileDiffContent1: FileDiffContent = {oldContent: 'foo', newContent: 'FOO'};
+  const fileDiffContent1: FileDiffContent = {
+    oldContent: 'foo',
+    newContent: 'FOO',
+  };
   const fileDiffContent2: FileDiffContent = {
     oldContent:
       'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar',
@@ -71,7 +77,7 @@ describe('getRawSuggestionHunks', () => {
   diffContents.set(fileName1, fileDiffContent1);
   diffContents.set(fileName2, fileDiffContent2);
 
-  it('Does not update the user\'s input of text file diff contents', () => {
+  it("Does not update the user's input of text file diff contents", () => {
     getRawSuggestionHunks(diffContents);
     expect(fileDiffContent1.oldContent).equals('foo');
     expect(fileDiffContent1.newContent).equals('FOO');
