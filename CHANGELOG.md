@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://www.github.com/googleapis/code-suggester/compare/v1.5.0...v1.6.0) (2020-09-25)
+
+
+### Features
+
+* **framework-core:** support inline multiline comments suggestions on pull requests ([#105](https://www.github.com/googleapis/code-suggester/issues/105)) ([415fb8a](https://www.github.com/googleapis/code-suggester/commit/415fb8ae6283dc09c6283c5bbb3ce92114dbf84b)), closes [#83](https://www.github.com/googleapis/code-suggester/issues/83) [#84](https://www.github.com/googleapis/code-suggester/issues/84) [#86](https://www.github.com/googleapis/code-suggester/issues/86) [#89](https://www.github.com/googleapis/code-suggester/issues/89) [#91](https://www.github.com/googleapis/code-suggester/issues/91) [#90](https://www.github.com/googleapis/code-suggester/issues/90) [#93](https://www.github.com/googleapis/code-suggester/issues/93) [#114](https://www.github.com/googleapis/code-suggester/issues/114) [#116](https://www.github.com/googleapis/code-suggester/issues/116) [#117](https://www.github.com/googleapis/code-suggester/issues/117)
+
 ## [1.5.0](https://www.github.com/googleapis/code-suggester/compare/v1.4.0...v1.5.0) (2020-09-10)
 
 
