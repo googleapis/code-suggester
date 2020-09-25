@@ -20,13 +20,69 @@ import {
   RepoDomain,
   BranchDomain,
   FileData,
+  FileDiffContent,
+  CreateReviewCommentUserOptions,
 } from './types';
 export {Changes} from './types';
 import {Octokit} from '@octokit/rest';
 import {Logger, LoggerOptions} from 'pino';
 import {logger, setupLogger} from './logger';
-import {addPullRequestDefaults} from './default-options-handler';
+import {
+  addPullRequestDefaults,
+  addReviewCommentsDefaults,
+} from './default-options-handler';
 import * as retry from 'async-retry';
+
+/**
+ * Given a set of suggestions, make all the multiline inline review comments on a given pull request given
+ * that they are in scope of the pull request. Outof scope suggestions are not made.
+ *
+ * In-scope suggestions are specifically: the suggestion for a file must correspond to a file in the remote pull request
+ * and the diff hunk computed for a file's contents must produce a range that is a subset of the pull request's files hunks.
+ *
+ * If a file is too large to load in the review, it is skipped in the suggestion phase.
+ *
+ * If changes are empty then the workflow will not run.
+ * Rethrows an HttpError if Octokit GitHub API returns an error. HttpError Octokit access_token and client_secret headers redact all sensitive information.
+ * @param octokit The authenticated octokit instance, instantiated with an access token having permissiong to create a fork on the target repository.
+ * @param diffContents A set of changes. The changes may be empty.
+ * @param options The configuration for interacting with GitHub provided by the user.
+ * @param loggerOption The logger instance (optional).
+ * @returns the created review's id number, or null if there are no changes to be made.
+ */
+export async function reviewPullRequest(
+  octokit: Octokit,
+  diffContents: Map<string, FileDiffContent>,
+  options: CreateReviewCommentUserOptions,
+  loggerOption?: Logger | LoggerOptions
+): Promise<number | null> {
+  setupLogger(loggerOption);
+  // if null undefined, or the empty map then no changes have been provided.
+  // Do not execute GitHub workflow
+  if (
+    diffContents === null ||
+    diffContents === undefined ||
+    diffContents.size === 0
+  ) {
+    logger.info(
+      'Empty changes provided. No suggestions to be made. Cancelling workflow.'
+    );
+    return null;
+  }
+  const gitHubConfigs = addReviewCommentsDefaults(options);
+  const remote: RepoDomain = {
+    owner: gitHubConfigs.owner,
+    repo: gitHubConfigs.repo,
+  };
+  const reviewNumber = await handler.reviewPullRequest(
+    octokit,
+    remote,
+    gitHubConfigs.pullNumber,
+    gitHubConfigs.pageSize,
+    diffContents
+  );
+  return reviewNumber;
+}
 
 /**
  * Make a new GitHub Pull Request with a set of changes applied on top of primary branch HEAD.
@@ -49,7 +105,7 @@ import * as retry from 'async-retry';
  * @param {Changes | null | undefined} changes A set of changes. The changes may be empty
  * @param {CreatePullRequestUserOptions} options The configuration for interacting with GitHub provided by the user.
  * @param {Logger} logger The logger instance (optional).
- * @returns {Promise<number>} a void promise
+ * @returns {Promise<number>} the pull request number. Returns 0 if unsuccessful.
  */
 async function createPullRequest(
   octokit: Octokit,

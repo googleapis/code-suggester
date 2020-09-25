@@ -118,3 +118,68 @@ export interface CreatePullRequest {
   // Whether or not maintainers can modify the PR.
   maintainersCanModify: boolean;
 }
+
+/**
+ * The user options for creating GitHub PR review comment
+ */
+export interface CreateReviewCommentUserOptions {
+  // the owner of the target fork repository
+  owner: string;
+  // the name of the target fork repository
+  repo: string;
+  // The pull request number
+  pullNumber: number;
+  // The number of files to return per pull request list files query. Used when getting data on the remote PR's files.
+  pageSize?: number;
+}
+
+/**
+ * The user options for creating GitHub PR review comment
+ */
+export interface CreateReviewComment {
+  // the owner of the target fork repository
+  owner: string;
+  // the name of the target fork repository
+  repo: string;
+  // The pull request number
+  pullNumber: number;
+  // The number of files to return per pull request list files query. Used when getting data on the remote PR's files.
+  pageSize: number;
+}
+
+export class PatchSyntaxError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PatchSyntaxError';
+  }
+}
+
+/**
+ * The file content of the original content and the patched content
+ */
+export interface FileDiffContent {
+  readonly oldContent: string;
+  readonly newContent: string;
+}
+
+/**
+ * A range object defined by lower boundary as 'start' and upper boundary as 'end'
+ */
+export interface Range {
+  readonly start: number;
+  readonly end: number;
+}
+
+export interface Hunk {
+  readonly oldStart: number;
+  readonly oldEnd: number;
+  readonly newStart: number;
+  readonly newEnd: number;
+}
+
+/**
+ * The range of a patch along with the raw text file content
+ */
+export interface Patch extends Range {
+  readonly newContent: string;
+}

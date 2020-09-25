@@ -12,8 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './fork-handler';
-export {branch} from './branch-handler';
-export {commitAndPush} from './commit-and-push-handler';
-export * from './pull-request-handler';
-export * from './comment-handler';
+export {makeInlineSuggestions} from './upload-comments-handler';
