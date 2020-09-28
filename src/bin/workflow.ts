@@ -37,6 +37,20 @@ export function coerceUserCreateReviewRequestOptions(): CreateReviewCommentUserO
   };
 }
 
+async function createCommand() {
+  const options = coerceUserCreatePullRequestOptions();
+  const changes = await git.getChanges(yargs.argv['git-dir'] as string);
+  const octokit = new Octokit({auth: process.env.ACCESS_TOKEN});
+  await createPullRequest(octokit, changes, options, logger)
+}
+
+async function reviewCommand() {
+  const reviewOptions = coerceUserCreateReviewRequestOptions();
+  const diffContents = await git.getDiffContents(yargs.argv['git-dir'] as string);
+  const octokit = new Octokit({auth: process.env.ACCESS_TOKEN});
+  await reviewPullRequest(octokit, diffContents, reviewOptions, logger);
+}
+
 /**
  * main workflow entrance
  */
@@ -46,17 +60,12 @@ export async function main() {
     if (!process.env.ACCESS_TOKEN) {
       throw Error('The ACCESS_TOKEN should not be undefined');
     }
-    const octokit = new Octokit({auth: process.env.ACCESS_TOKEN});
     switch (yargs.argv._[0]) {
       case CREATE_PR_COMMAND:
-        const options = coerceUserCreatePullRequestOptions();
-        const changes = await git.getChanges(yargs.argv['git-dir'] as string);
-        await createPullRequest(octokit, changes, options, logger);
+        createCommand();
         break;
       case REVIEW_PR_COMMAND:
-        const reviewOptions = coerceUserCreateReviewRequestOptions();
-        const diffContents = await git.getDiffContents(yargs.argv['git-dir'] as string);
-        await reviewPullRequest(octokit, diffContents, reviewOptions, logger);
+        reviewCommand();
         break;
       default:
         // yargs should have caught this.
