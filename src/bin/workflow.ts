@@ -1,11 +1,12 @@
-import {Changes, CreatePullRequestUserOptions} from '../types';
+import {CreatePullRequestUserOptions, CreateReviewCommentUserOptions} from '../types';
 import {Octokit} from '@octokit/rest';
 import * as git from './handle-git-dir-change';
-import {createPullRequest} from '../';
+import {createPullRequest, reviewPullRequest} from '../';
 import {logger, setupLogger} from '../logger';
 import * as yargs from 'yargs';
 
 export const CREATE_PR_COMMAND = 'pr';
+export const REVIEW_PR_COMMAND = 'review';
 
 /**
  * map yargs to user pull request otions
@@ -26,21 +27,36 @@ export function coerceUserCreatePullRequestOptions(): CreatePullRequestUserOptio
 }
 
 /**
+ * map yargs to user pull request otions
+ */
+export function coerceUserCreateReviewRequestOptions(): CreateReviewCommentUserOptions {
+  return {
+    repo: yargs.argv.upstreamRepo as string,
+    owner: yargs.argv.upstreamOwner as string,
+    pullNumber: yargs.argv.pullNumber as number,
+  };
+}
+
+/**
  * main workflow entrance
  */
 export async function main() {
   try {
     setupLogger();
-    const options = coerceUserCreatePullRequestOptions();
     if (!process.env.ACCESS_TOKEN) {
       throw Error('The ACCESS_TOKEN should not be undefined');
     }
     const octokit = new Octokit({auth: process.env.ACCESS_TOKEN});
-    let changes: Changes;
     switch (yargs.argv._[0]) {
       case CREATE_PR_COMMAND:
-        changes = await git.getChanges(yargs.argv['git-dir'] as string);
+        const options = coerceUserCreatePullRequestOptions();
+        const changes = await git.getChanges(yargs.argv['git-dir'] as string);
         await createPullRequest(octokit, changes, options, logger);
+        break;
+      case REVIEW_PR_COMMAND:
+        const reviewOptions = coerceUserCreateReviewRequestOptions();
+        const diffContents = await git.getDiffContents(yargs.argv['git-dir'] as string);
+        await reviewPullRequest(octokit, diffContents, reviewOptions, logger);
         break;
       default:
         // yargs should have caught this.
