@@ -1,0 +1,13 @@
+diff --git a/cloudbuild.yaml b/cloudbuild.yaml
+index cac8fbc..71fda1b 100644
+--- a/cloudbuild.yaml
++++ b/cloudbuild.yaml
+@@ -1,7 +1,4 @@
+ steps:
+-- name: 'ubuntu'
+-  args: ['echo', 'foobar']
+-- name: 'ubuntu'
+-  args: ['sleep', '30']
++- name: 'foo'
+ - name: 'ubuntu'
+   args: ['echo', 'done']
