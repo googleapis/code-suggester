@@ -1,4 +1,7 @@
-import {CreatePullRequestUserOptions, CreateReviewCommentUserOptions} from '../types';
+import {
+  CreatePullRequestUserOptions,
+  CreateReviewCommentUserOptions,
+} from '../types';
 import {Octokit} from '@octokit/rest';
 import * as git from './handle-git-dir-change';
 import {createPullRequest, reviewPullRequest} from '../';
@@ -41,12 +44,14 @@ async function createCommand() {
   const options = coerceUserCreatePullRequestOptions();
   const changes = await git.getChanges(yargs.argv['git-dir'] as string);
   const octokit = new Octokit({auth: process.env.ACCESS_TOKEN});
-  await createPullRequest(octokit, changes, options, logger)
+  await createPullRequest(octokit, changes, options, logger);
 }
 
 async function reviewCommand() {
   const reviewOptions = coerceUserCreateReviewRequestOptions();
-  const diffContents = await git.getDiffContents(yargs.argv['git-dir'] as string);
+  const diffContents = await git.getDiffContents(
+    yargs.argv['git-dir'] as string
+  );
   const octokit = new Octokit({auth: process.env.ACCESS_TOKEN});
   await reviewPullRequest(octokit, diffContents, reviewOptions, logger);
 }

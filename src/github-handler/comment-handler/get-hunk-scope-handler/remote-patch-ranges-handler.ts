@@ -15,7 +15,7 @@
 import {Octokit} from '@octokit/rest';
 import {Range, RepoDomain} from '../../../types';
 import {logger} from '../../../logger';
-import { parseHunks } from '../../diff-utils';
+import {parseHunks} from '../../diff-utils';
 
 /**
  * For a pull request, get each remote file's patch text asynchronously
@@ -91,7 +91,7 @@ export function patchTextToRanges(
     // get each hunk range in the patch string
     try {
       const hunks = parseHunks(_DIFF_HEADER + patch);
-      const validLineRanges = hunks.map((hunk) => {
+      const validLineRanges = hunks.map(hunk => {
         return {start: hunk.newStart, end: hunk.newEnd};
       });
       allValidLineRanges.set(filename, validLineRanges);

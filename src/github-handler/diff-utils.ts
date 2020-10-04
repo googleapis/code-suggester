@@ -24,14 +24,14 @@ import {createPatch} from 'diff';
  */
 export function parseHunks(diff: string): Hunk[] {
   const chunks = parseDiff(diff)[0].chunks;
-  return chunks.map((chunk) => {
+  return chunks.map(chunk => {
     let start = chunk.newStart + chunk.newLines;
     let oldEnd = 0;
-    chunk.changes.forEach((change) =>  {
-      if (change.type == "add") {
+    chunk.changes.forEach(change => {
+      if (change.type === 'add') {
         start = Math.min(start, change.ln);
       }
-      if (change.type == "del") {
+      if (change.type === 'del') {
         start = Math.min(start, change.ln);
         oldEnd = Math.max(oldEnd, change.ln);
       }
@@ -47,6 +47,9 @@ export function parseHunks(diff: string): Hunk[] {
  * @param newContent The new content.
  * @returns Range[]
  */
-export function getSuggestedHunks(oldContent: string, newContent: string): Hunk[] {
+export function getSuggestedHunks(
+  oldContent: string,
+  newContent: string
+): Hunk[] {
   return parseHunks(createPatch('unused', oldContent, newContent));
 }

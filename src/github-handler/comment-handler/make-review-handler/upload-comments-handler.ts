@@ -66,7 +66,7 @@ export function buildReviewComments(
   const fileComments: Comment[] = [];
   suggestions.forEach((patches: Patch[], fileName: string) => {
     patches.forEach(patch => {
-      if (patch.start == patch.end) {
+      if (patch.start === patch.end) {
         const singleComment: SingleLineComment = {
           path: fileName,
           body: `\`\`\`suggestion\n${patch.newContent}\n\`\`\``,

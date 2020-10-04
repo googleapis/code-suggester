@@ -137,7 +137,7 @@ export function getGitFileData(
   });
 }
 
-function getFileContentsAtHead(gitRootDir: string, filePath: string) : string {
+function getFileContentsAtHead(gitRootDir: string, filePath: string): string {
   return execSync(`git show HEAD:${filePath}`, {cwd: gitRootDir}).toString();
 }
 
@@ -261,7 +261,9 @@ export async function parseDiffContents(
   }
 }
 
-export function getDiffContents(dir: string): Promise<Map<string, FileDiffContent>> {
+export function getDiffContents(
+  dir: string
+): Promise<Map<string, FileDiffContent>> {
   try {
     validateGitInstalled();
     const absoluteDir = resolvePath(dir);
