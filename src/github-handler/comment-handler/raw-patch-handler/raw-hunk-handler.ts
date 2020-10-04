@@ -14,34 +14,7 @@
 
 import {Hunk, FileDiffContent} from '../../../types';
 import {logger} from '../../../logger';
-import {structuredPatch, Hunk as RawHunk} from 'diff';
-
-/**
- * Given the old content and new content of a file
- * compute the diff and extract the necessary hunk data.
- * The hunk list is a list of disjoint ascending intervals.
- * @param fileDiffContent
- * @param fileName
- * @returns the hunks that are generated in ascending sorted order
- */
-export function generateHunks(
-  fileDiffContent: FileDiffContent,
-  fileName: string
-): Hunk[] {
-  const rawHunks: RawHunk[] = structuredPatch(
-    fileName, // old file name
-    fileName, // new file name
-    fileDiffContent.oldContent,
-    fileDiffContent.newContent
-  ).hunks;
-  const hunks: Hunk[] = rawHunks.map(rawHunk => ({
-    oldStart: rawHunk.oldStart,
-    oldEnd: rawHunk.oldStart + rawHunk.oldLines,
-    newStart: rawHunk.newStart,
-    newEnd: rawHunk.newStart + rawHunk.newLines,
-  }));
-  return hunks;
-}
+import {getSuggestedHunks} from '../../diff-utils';
 
 /**
  * Given a map where the key is the file name and the value is the
@@ -61,7 +34,7 @@ export function getRawSuggestionHunks(
     if (fileDiffContent.oldContent === fileDiffContent.newContent) {
       return;
     }
-    const hunks = generateHunks(fileDiffContent, fileName);
+    const hunks = getSuggestedHunks(fileDiffContent.oldContent, fileDiffContent.newContent);
     fileHunks.set(fileName, hunks);
   });
   logger.info('Parsed ranges of old and new patch');

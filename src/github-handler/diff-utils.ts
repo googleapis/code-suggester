@@ -48,6 +48,5 @@ export function parseHunks(diff: string): Hunk[] {
  * @returns Range[]
  */
 export function getSuggestedHunks(oldContent: string, newContent: string): Hunk[] {
-  const diff = createPatch('unused', oldContent, newContent);
-  return parseHunks(diff);
+  return parseHunks(createPatch('unused', oldContent, newContent));
 }
