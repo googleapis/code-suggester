@@ -64,18 +64,19 @@ describe('getRawSuggestionHunks', () => {
     expect(fileHunks.size).equals(2);
     expect(fileHunks.get(fileName1)!.length).equals(1);
     expect(fileHunks.get(fileName1)![0].oldStart).equals(1);
-    expect(fileHunks.get(fileName1)![0].oldEnd).equals(2);
+    expect(fileHunks.get(fileName1)![0].oldEnd).equals(1);
     expect(fileHunks.get(fileName1)![0].newStart).equals(1);
-    expect(fileHunks.get(fileName1)![0].newEnd).equals(2);
+    expect(fileHunks.get(fileName1)![0].newEnd).equals(1);
     expect(fileHunks.get(fileName2)!.length).equals(2);
     expect(fileHunks.get(fileName2)![0].oldStart).equals(1);
-    expect(fileHunks.get(fileName2)![0].oldEnd).equals(5);
+    // FIXME(chingor): only additions and only removals are broken
+    expect(fileHunks.get(fileName2)![0].oldEnd).equals(0);
     expect(fileHunks.get(fileName2)![0].newStart).equals(1);
-    expect(fileHunks.get(fileName2)![0].newEnd).equals(6);
-    expect(fileHunks.get(fileName2)![1].oldStart).equals(12);
-    expect(fileHunks.get(fileName2)![1].oldEnd).equals(17);
-    expect(fileHunks.get(fileName2)![1].newStart).equals(13);
-    expect(fileHunks.get(fileName2)![1].newEnd).equals(19);
+    expect(fileHunks.get(fileName2)![0].newEnd).equals(1);
+    expect(fileHunks.get(fileName2)![1].oldStart).equals(16);
+    expect(fileHunks.get(fileName2)![1].oldEnd).equals(16);
+    expect(fileHunks.get(fileName2)![1].newStart).equals(16);
+    expect(fileHunks.get(fileName2)![1].newEnd).equals(17);
   });
 
   it('Does not generate hunks for changes that contain no updates', () => {

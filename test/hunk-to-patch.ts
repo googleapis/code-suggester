@@ -53,7 +53,7 @@ describe('generatePatches', () => {
       {
         start: 1,
         end: 6,
-        newContent: 'addition+line1\nline2\nline3\nline4\nline5\nline6',
+        newContent: 'addition+line1\nline2\nline3\nline4\nline5\nline6\nline7',
       },
     ]);
   });
@@ -74,7 +74,7 @@ describe('generatePatches', () => {
       {
         start: 1,
         end: 6,
-        newContent: 'line0\nline1\nline2\nline3\nline4\nline5',
+        newContent: 'line0\nline1\nline2\nline3\nline4\nline5\nline6',
       },
       {
         start: 9,
@@ -120,7 +120,7 @@ describe('generatePatches', () => {
       {
         start: 1,
         end: 2,
-        newContent: '+line1',
+        newContent: '+line1\nline2',
       },
     ]);
   });
