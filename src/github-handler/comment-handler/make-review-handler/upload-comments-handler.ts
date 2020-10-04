@@ -34,6 +34,15 @@ interface MultilineComment {
   start_side: 'RIGHT' | 'LEFT';
 }
 
+interface SingleLineComment {
+  body: string;
+  path: string;
+  line: number;
+  side: 'RIGHT' | 'LEFT';
+}
+
+type Comment = SingleLineComment | MultilineComment;
+
 /**
  * GitHub-defined type. The Octokit library/docs are probably behind since create review already
  * accept multi-line code comments. However, the API does not reflect that.
@@ -53,19 +62,29 @@ export type PullsCreateReviewParamsComments = {
  */
 export function buildReviewComments(
   suggestions: Map<string, Patch[]>
-): MultilineComment[] {
-  const fileComments: MultilineComment[] = [];
+): Comment[] {
+  const fileComments: Comment[] = [];
   suggestions.forEach((patches: Patch[], fileName: string) => {
     patches.forEach(patch => {
-      const comment: MultilineComment = {
-        path: fileName,
-        body: `\`\`\`suggestion\n${patch.newContent}\`\`\``,
-        start_line: patch.start,
-        line: patch.end,
-        side: 'RIGHT',
-        start_side: 'RIGHT',
-      };
-      fileComments.push(comment);
+      if (patch.start == patch.end) {
+        const singleComment: SingleLineComment = {
+          path: fileName,
+          body: `\`\`\`suggestion\n${patch.newContent}\n\`\`\``,
+          line: patch.end,
+          side: 'RIGHT',
+        };
+        fileComments.push(singleComment);
+      } else {
+        const comment: MultilineComment = {
+          path: fileName,
+          body: `\`\`\`suggestion\n${patch.newContent}\n\`\`\``,
+          start_line: patch.start,
+          line: patch.end,
+          side: 'RIGHT',
+          start_side: 'RIGHT',
+        };
+        fileComments.push(comment);
+      }
     });
   });
   return fileComments;
