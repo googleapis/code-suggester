@@ -14,8 +14,8 @@
 
 import {Octokit} from '@octokit/rest';
 import {Range, RepoDomain} from '../../../types';
-import {getGitHubPatchRanges} from './github-patch-text-handler';
 import {logger} from '../../../logger';
+import { parseHunks } from '../../diff-utils';
 
 /**
  * For a pull request, get each remote file's patch text asynchronously
@@ -69,6 +69,14 @@ export async function getCurrentPullRequestPatches(
   return {patches, filesMissingPatch};
 }
 
+// This header is ignored for calculating patch ranges, but is neccessary
+// for parsing a diff
+const _DIFF_HEADER = `diff --git a/cloudbuild.yaml b/cloudbuild.yaml
+index cac8fbc..87f387c 100644
+--- a/cloudbuild.yaml
++++ b/cloudbuild.yaml
+`;
+
 /**
  * Given the patch text (for a whole file) for each file,
  * get each file's hunk's (part of a file's) range
@@ -82,7 +90,10 @@ export function patchTextToRanges(
   validPatches.forEach((patch, filename) => {
     // get each hunk range in the patch string
     try {
-      const validLineRanges = getGitHubPatchRanges(patch);
+      const hunks = parseHunks(_DIFF_HEADER + patch);
+      const validLineRanges = hunks.map((hunk) => {
+        return {start: hunk.newStart, end: hunk.newEnd};
+      });
       allValidLineRanges.set(filename, validLineRanges);
     } catch (err) {
       logger.info(
