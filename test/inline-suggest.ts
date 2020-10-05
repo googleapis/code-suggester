@@ -40,7 +40,7 @@ describe('buildFileComments', () => {
     const comments = buildReviewComments(suggestions);
     expect(comments).deep.equals([
       {
-        body: '```suggestion\nFoo```',
+        body: '```suggestion\nFoo\n```',
         path: 'foo.txt',
         start_line: 1,
         line: 2,
@@ -68,7 +68,7 @@ describe('buildFileComments', () => {
     const comments = buildReviewComments(suggestions);
     expect(comments).deep.equals([
       {
-        body: '```suggestion\nFoo```',
+        body: '```suggestion\nFoo\n```',
         path: 'bar.txt',
         start_line: 1,
         line: 2,
@@ -76,7 +76,7 @@ describe('buildFileComments', () => {
         start_side: 'RIGHT',
       },
       {
-        body: '```suggestion\nFoo```',
+        body: '```suggestion\nFoo\n```',
         path: 'foo.txt',
         start_line: 1,
         line: 2,
@@ -84,7 +84,7 @@ describe('buildFileComments', () => {
         start_side: 'RIGHT',
       },
       {
-        body: '```suggestion\nBar```',
+        body: '```suggestion\nBar\n```',
         path: 'foo.txt',
         start_line: 3,
         line: 4,
@@ -209,7 +209,7 @@ describe('makeInlineSuggestions', () => {
       body: '',
       comments: ([
         {
-          body: '```suggestion\nFoo```',
+          body: '```suggestion\nFoo\n```',
           path: 'foo.txt',
           start_line: 1,
           line: 2,
