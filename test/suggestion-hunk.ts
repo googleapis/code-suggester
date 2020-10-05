@@ -15,49 +15,11 @@
 import {expect} from 'chai';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
-import {
-  generateHunks,
-  getRawSuggestionHunks,
-} from '../src/github-handler/comment-handler/raw-patch-handler/raw-hunk-handler';
+import {getRawSuggestionHunks} from '../src/github-handler/comment-handler/raw-patch-handler/raw-hunk-handler';
 import {FileDiffContent} from '../src/types';
 
 before(() => {
   setup();
-});
-
-describe('generateHunks', () => {
-  const fileDiffContent: FileDiffContent = {
-    oldContent: 'foo',
-    newContent: 'FOO',
-  };
-  const fileName = 'README.md';
-  it("Does not update the user's input of text file diffs contents", () => {
-    generateHunks(fileDiffContent, fileName);
-    expect(fileDiffContent.oldContent).equals('foo');
-    expect(fileDiffContent.newContent).equals('FOO');
-  });
-
-  it('Generates the hunks that are produced by the diff library given one file', () => {
-    const hunk = generateHunks(fileDiffContent, fileName);
-    expect(hunk.length).equals(1);
-    expect(hunk[0].oldStart).equals(1);
-    expect(hunk[0].oldEnd).equals(2);
-    expect(hunk[0].newStart).equals(1);
-    expect(hunk[0].newEnd).equals(2);
-  });
-
-  it('Generates the hunks that are produced by the diff library given one file which was empty but now has content', () => {
-    const addingContentToEmpty: FileDiffContent = {
-      oldContent: '',
-      newContent: 'FOO',
-    };
-    const hunk = generateHunks(addingContentToEmpty, fileName);
-    expect(hunk.length).equals(1);
-    expect(hunk[0].oldStart).equals(1);
-    expect(hunk[0].oldEnd).equals(1);
-    expect(hunk[0].newStart).equals(1);
-    expect(hunk[0].newEnd).equals(2);
-  });
 });
 
 describe('getRawSuggestionHunks', () => {
@@ -102,18 +64,19 @@ describe('getRawSuggestionHunks', () => {
     expect(fileHunks.size).equals(2);
     expect(fileHunks.get(fileName1)!.length).equals(1);
     expect(fileHunks.get(fileName1)![0].oldStart).equals(1);
-    expect(fileHunks.get(fileName1)![0].oldEnd).equals(2);
+    expect(fileHunks.get(fileName1)![0].oldEnd).equals(1);
     expect(fileHunks.get(fileName1)![0].newStart).equals(1);
-    expect(fileHunks.get(fileName1)![0].newEnd).equals(2);
+    expect(fileHunks.get(fileName1)![0].newEnd).equals(1);
     expect(fileHunks.get(fileName2)!.length).equals(2);
     expect(fileHunks.get(fileName2)![0].oldStart).equals(1);
-    expect(fileHunks.get(fileName2)![0].oldEnd).equals(5);
+    // FIXME: See #126
+    expect(fileHunks.get(fileName2)![0].oldEnd).equals(0);
     expect(fileHunks.get(fileName2)![0].newStart).equals(1);
-    expect(fileHunks.get(fileName2)![0].newEnd).equals(6);
-    expect(fileHunks.get(fileName2)![1].oldStart).equals(12);
-    expect(fileHunks.get(fileName2)![1].oldEnd).equals(17);
-    expect(fileHunks.get(fileName2)![1].newStart).equals(13);
-    expect(fileHunks.get(fileName2)![1].newEnd).equals(19);
+    expect(fileHunks.get(fileName2)![0].newEnd).equals(1);
+    expect(fileHunks.get(fileName2)![1].oldStart).equals(16);
+    expect(fileHunks.get(fileName2)![1].oldEnd).equals(16);
+    expect(fileHunks.get(fileName2)![1].newStart).equals(17);
+    expect(fileHunks.get(fileName2)![1].newEnd).equals(18);
   });
 
   it('Does not generate hunks for changes that contain no updates', () => {
