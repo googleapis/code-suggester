@@ -98,6 +98,25 @@ describe('buildFileComments', () => {
     const comments = buildReviewComments(suggestions);
     expect(comments.length).deep.equals(0);
   });
+  it('Builds single line comments', () => {
+    const suggestions: Map<string, Patch[]> = new Map();
+    const fileName1 = 'foo.txt';
+    const patch1: Patch = {
+      start: 1,
+      end: 1,
+      newContent: 'Foo',
+    };
+    suggestions.set(fileName1, [patch1]);
+    const comments = buildReviewComments(suggestions);
+    expect(comments).deep.equals([
+      {
+        body: '```suggestion\nFoo\n```',
+        path: 'foo.txt',
+        line: 1,
+        side: 'RIGHT',
+      },
+    ]);
+  });
 });
 
 describe('makeInlineSuggestions', () => {
