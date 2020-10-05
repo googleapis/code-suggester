@@ -31,7 +31,7 @@ export function parseHunks(diff: string): Hunk[] {
     let changeSeen = false;
 
     chunk.changes.forEach(change => {
-      switch(change.type) {
+      switch (change.type) {
         case 'add':
         case 'del':
           if (!changeSeen) {
@@ -47,7 +47,12 @@ export function parseHunks(diff: string): Hunk[] {
     });
     const newEnd = newStart + chunk.newLines - normalLines - 1;
     const oldEnd = oldStart + chunk.oldLines - normalLines - 1;
-    return {oldStart: oldStart, oldEnd: oldEnd, newStart: newStart, newEnd: newEnd};
+    return {
+      oldStart: oldStart,
+      oldEnd: oldEnd,
+      newStart: newStart,
+      newEnd: newEnd,
+    };
   });
 }
 
