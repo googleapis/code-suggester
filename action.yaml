@@ -21,10 +21,8 @@ inputs:
     required: true
   upstream_repo:
     description: 'The repository to create the fork off of.'
-    required: true
   upstream_owner:
     description: 'The owner of the upstream repository.'
-    required: true
   description:
     description: 'The GitHub Pull Request description.'
     required: true
