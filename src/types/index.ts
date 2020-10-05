@@ -175,6 +175,7 @@ export interface Hunk {
   readonly oldEnd: number;
   readonly newStart: number;
   readonly newEnd: number;
+  readonly newContent: string[];
 }
 
 /**

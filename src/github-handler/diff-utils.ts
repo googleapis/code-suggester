@@ -29,20 +29,21 @@ export function parseHunks(diff: string): Hunk[] {
     let newStart = chunk.newStart;
     let normalLines = 0;
     let changeSeen = false;
+    const newLines: string[] = new Array();
 
     chunk.changes.forEach(change => {
-      switch (change.type) {
-        case 'add':
-        case 'del':
-          if (!changeSeen) {
-            oldStart += normalLines;
-            newStart += normalLines;
-            changeSeen = true;
-          }
-          break;
-        case 'normal':
-          normalLines++;
-          break;
+      if (change.type === 'normal') {
+        normalLines++;
+      } else {
+        if (change.type === 'add') {
+          // strip off leading '+'
+          newLines.push(change.content.substring(1));
+        }
+        if (!changeSeen) {
+          oldStart += normalLines;
+          newStart += normalLines;
+          changeSeen = true;
+        }
       }
     });
     const newEnd = newStart + chunk.newLines - normalLines - 1;
@@ -52,6 +53,7 @@ export function parseHunks(diff: string): Hunk[] {
       oldEnd: oldEnd,
       newStart: newStart,
       newEnd: newEnd,
+      newContent: newLines,
     };
   });
 }
