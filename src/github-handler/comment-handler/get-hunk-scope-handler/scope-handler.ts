@@ -57,8 +57,8 @@ function partitionFileHunks(
 /**
  * Split suggested hunks into commentable and non-commentable hunks. Compares the new line ranges
  * from pullRequestHunks against the old line ranges from allSuggestedHunks.
- * @param pullRequestHunks {Map<string, Hunk[]} The parsed hunks from that represents the valid lines to comment.
- * @param allSuggestedHunks {Map<string, Hunk[]} The hunks that represent suggested changes.
+ * @param pullRequestHunks {Map<string, Hunk[]>} The parsed hunks from that represents the valid lines to comment.
+ * @param allSuggestedHunks {Map<string, Hunk[]>} The hunks that represent suggested changes.
  * @returns {PartitionedHunks} split hunks
  */
 export function partitionSuggestedHunksByScope(
