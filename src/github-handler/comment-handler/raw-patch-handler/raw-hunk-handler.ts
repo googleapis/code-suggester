@@ -34,7 +34,10 @@ export function getRawSuggestionHunks(
     if (fileDiffContent.oldContent === fileDiffContent.newContent) {
       return;
     }
-    const hunks = getSuggestedHunks(fileDiffContent.oldContent, fileDiffContent.newContent);
+    const hunks = getSuggestedHunks(
+      fileDiffContent.oldContent,
+      fileDiffContent.newContent
+    );
     fileHunks.set(fileName, hunks);
   });
   logger.info('Parsed ranges of old and new patch');

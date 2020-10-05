@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {describe, it, before} from 'mocha';
 import {readFileSync} from 'fs';
 import {setup} from './util';
 import {resolve} from 'path';
 import {parseHunks} from '../src/github-handler/diff-utils';
-import { expect } from 'chai';
+import {expect} from 'chai';
 
 const fixturePath = 'test/fixtures/diffs';
 
@@ -26,46 +27,44 @@ before(() => {
 
 describe('parseHunks', () => {
   it('parses one-to-one hunks', () => {
-    const diff = readFileSync(resolve(fixturePath, 'one-line-to-one.diff')).toString();
+    const diff = readFileSync(
+      resolve(fixturePath, 'one-line-to-one.diff')
+    ).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([
-      { oldStart: 5, oldEnd: 5, newStart: 5, newEnd: 5 }
-    ]);
-  })
+    expect(hunks).to.eql([{oldStart: 5, oldEnd: 5, newStart: 5, newEnd: 5}]);
+  });
   it('parses one-to-many hunks', () => {
-    const diff = readFileSync(resolve(fixturePath, 'one-line-to-many.diff')).toString();
+    const diff = readFileSync(
+      resolve(fixturePath, 'one-line-to-many.diff')
+    ).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([
-      { oldStart: 7, oldEnd: 7, newStart: 7, newEnd: 8 }
-    ]);
-  })
+    expect(hunks).to.eql([{oldStart: 7, oldEnd: 7, newStart: 7, newEnd: 8}]);
+  });
   it('parses one-to-many hunks with a newline added', () => {
-    const diff = readFileSync(resolve(fixturePath, 'one-line-to-many-newline.diff')).toString();
+    const diff = readFileSync(
+      resolve(fixturePath, 'one-line-to-many-newline.diff')
+    ).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([
-      { oldStart: 5, oldEnd: 5, newStart: 5, newEnd: 6 }
-    ]);
+    expect(hunks).to.eql([{oldStart: 5, oldEnd: 5, newStart: 5, newEnd: 6}]);
   });
   it('parses many-to-many-hunks', () => {
-    const diff = readFileSync(resolve(fixturePath, 'many-to-many.diff')).toString();
+    const diff = readFileSync(
+      resolve(fixturePath, 'many-to-many.diff')
+    ).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([
-      { oldStart: 2, oldEnd: 5, newStart: 2, newEnd: 3 }
-    ]);
+    expect(hunks).to.eql([{oldStart: 2, oldEnd: 5, newStart: 2, newEnd: 3}]);
   });
 
   it('parses many-to-one-hunks', () => {
-    const diff = readFileSync(resolve(fixturePath, 'many-to-one.diff')).toString();
+    const diff = readFileSync(
+      resolve(fixturePath, 'many-to-one.diff')
+    ).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([
-      { oldStart: 2, oldEnd: 5, newStart: 2, newEnd: 2 }
-    ]);
+    expect(hunks).to.eql([{oldStart: 2, oldEnd: 5, newStart: 2, newEnd: 2}]);
   });
   it('parses deletions', () => {
     const diff = readFileSync(resolve(fixturePath, 'deletion.diff')).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([
-      { oldStart: 4, oldEnd: 5, newStart: 4, newEnd: 3 }
-    ]);
+    expect(hunks).to.eql([{oldStart: 4, oldEnd: 5, newStart: 4, newEnd: 3}]);
   });
 });

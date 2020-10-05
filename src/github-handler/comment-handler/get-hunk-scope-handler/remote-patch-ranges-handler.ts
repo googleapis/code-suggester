@@ -15,7 +15,7 @@
 import {Octokit} from '@octokit/rest';
 import {Range, RepoDomain} from '../../../types';
 import {logger} from '../../../logger';
-import { parseHunks } from '../../diff-utils';
+import {parseHunks} from '../../diff-utils';
 
 /**
  * For a pull request, get each remote file's patch text asynchronously
