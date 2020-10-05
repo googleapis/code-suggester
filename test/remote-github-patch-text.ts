@@ -251,98 +251,127 @@ describe('patchTextToRanges', () => {
     const patchText = new Map<string, string>();
     patchText.set('invalid-patch.txt', '');
     const ranges = patchTextToRanges(patchText);
-    expect(ranges.get('invalid-patch.txt')).equals(undefined);
+    expect(ranges.get('invalid-patch.txt')).to.eql([]);
   });
   it('Does not throw an error when the patch text is a string that does not contain patch data add the patch to the valid range map', () => {
     const patchText = new Map<string, string>();
     patchText.set('invalid-patch.txt', '@@ this is some invalid patch data @@');
     const ranges = patchTextToRanges(patchText);
-    expect(ranges.get('invalid-patch.txt')).equals(undefined);
+    expect(ranges.get('invalid-patch.txt')).to.eql([]);
   });
-  it('Calculates ranges with an inclusive lower bound and an exclusive upper bound', () => {
-    const multilinePatch =
-      '@@ -1,2 +1,5 @@\n Hello world\n-!\n+Goodbye World\n+gOodBYE world\n+\n+Goodbye World';
+  it('Calculates ranges with an inclusive lower bound', () => {
+    const multilinePatch = `@@ -1,2 +1,5 @@
+ Hello world
+-!
++Goodbye World
++gOodBYE world
++
++Goodbye World`;
     const multilineFileName = 'multi-line-patch.txt';
-    const firstLinePatch = "@@ -0,0 +1 @@\n+console.log('Hello World!');";
+    const patchText = new Map<string, string>();
+    patchText.set(multilineFileName, multilinePatch);
+    const ranges = patchTextToRanges(patchText).get(multilineFileName);
+    expect(ranges).not.equals(null);
+    expect(ranges!.length).equals(1);
+    expect(ranges![0].start).equals(2);
+    expect(ranges![0].end).equals(5);
+  });
+  it('Calculates ranges with an exclusive upper bound', () => {
+    const firstLinePatch = `@@ -0,0 +1 @@
++console.log('Hello World!');`;
     const multiToSingleLineFileName = 'multi-to-single-line-patch.txt';
     const patchText = new Map<string, string>();
-    patchText.set(multilineFileName, multilinePatch);
     patchText.set(multiToSingleLineFileName, firstLinePatch);
-    const ranges = patchTextToRanges(patchText);
-    expect(ranges.get(multilineFileName)).not.equals(null);
-    expect(ranges.get(multilineFileName)?.length).equals(1);
-    expect(ranges.get(multilineFileName)![0].start).equals(1);
-    expect(ranges.get(multilineFileName)![0].end).not.equals(5);
-    expect(ranges.get(multilineFileName)![0].end).equals(6);
-    expect(ranges.get(multiToSingleLineFileName)).not.equals(null);
-    expect(ranges.get(multiToSingleLineFileName)?.length).equals(1);
-    expect(ranges.get(multiToSingleLineFileName)![0].start).equals(1);
-    expect(ranges.get(multiToSingleLineFileName)![0].end).not.equals(1);
-    expect(ranges.get(multiToSingleLineFileName)![0].end).equals(2);
+    const ranges = patchTextToRanges(patchText).get(multiToSingleLineFileName);
+    expect(ranges).not.equals(null);
+    expect(ranges!.length).equals(1);
+    expect(ranges![0].start).equals(1);
+    expect(ranges![0].end).equals(1);
   });
   it('Returns a single range file record when there is a single multiline patch hunk', () => {
-    const multilinePatch =
-      '@@ -1,2 +1,5 @@\n Hello world\n-!\n+Goodbye World\n+gOodBYE world\n+\n+Goodbye World';
+    const multilinePatch = `@@ -1,2 +1,5 @@
+ Hello world
+-!
++Goodbye World
++gOodBYE world
++
++Goodbye World`;
     const multilineFileName = 'multi-line-patch.txt';
     const patchText = new Map<string, string>();
     patchText.set(multilineFileName, multilinePatch);
-    const ranges = patchTextToRanges(patchText);
-    expect(ranges.size).equals(1);
-    expect(ranges.get(multilineFileName)).not.equals(null);
-    expect(ranges.get(multilineFileName)?.length).equals(1);
-    expect(ranges.get(multilineFileName)![0].start).equals(1);
-    expect(ranges.get(multilineFileName)![0].end).equals(6);
+    const ranges = patchTextToRanges(patchText).get(multilineFileName);
+    expect(ranges).not.equals(null);
+    expect(ranges!.length).equals(1);
+    expect(ranges![0].start).equals(2);
+    expect(ranges![0].end).equals(5);
   });
   it('Returns a single range file record when there is a single 1 line patch hunk', () => {
-    const firstLinePatch = '@@ -1 +1 @@\n-Hello foo\n+';
+    const firstLinePatch = `@@ -1 +1 @@
+-Hello foo
++`;
     const singleLineFileName = 'single-line-patch.txt';
     const patchText = new Map<string, string>();
     patchText.set(singleLineFileName, firstLinePatch);
-    const ranges = patchTextToRanges(patchText);
-    expect(ranges.size).equals(1);
-    expect(ranges.get(singleLineFileName)).not.equals(null);
-    expect(ranges.get(singleLineFileName)?.length).equals(1);
-    expect(ranges.get(singleLineFileName)![0].start).equals(1);
-    expect(ranges.get(singleLineFileName)![0].end).equals(2);
+    const ranges = patchTextToRanges(patchText).get(singleLineFileName);
+    expect(ranges).not.equals(null);
+    expect(ranges!.length).equals(1);
+    expect(ranges![0].start).equals(1);
+    expect(ranges![0].end).equals(1);
   });
   it('Returns a single range file record when there is a single 1 line to multiline line patch hunk', () => {
-    const singleToMultilineFormat = '@@ -1 +0,0 @@\n-hello world';
+    const singleToMultilineFormat = `@@ -1 +0,0 @@
+-hello world`;
     const singleToMultilineFileName = 'single-line-to-multiline-patch.txt';
     const patchText = new Map<string, string>();
     patchText.set(singleToMultilineFileName, singleToMultilineFormat);
-    const ranges = patchTextToRanges(patchText);
-    expect(ranges.size).equals(1);
-    expect(ranges.get(singleToMultilineFileName)).not.equals(null);
-    expect(ranges.get(singleToMultilineFileName)?.length).equals(1);
-    expect(ranges.get(singleToMultilineFileName)![0].start).equals(0);
-    expect(ranges.get(singleToMultilineFileName)![0].end).equals(0);
+    const ranges = patchTextToRanges(patchText).get(singleToMultilineFileName);
+    expect(ranges).not.equals(null);
+    expect(ranges!.length).equals(1);
+    expect(ranges![0].start).equals(0);
+    // FIXME: See #127
+    expect(ranges![0].end).equals(-1);
   });
   it('Returns a single range file record when there is a single multiline to 1 line patch hunk', () => {
-    const firstLinePatch = "@@ -0,0 +1 @@\n+console.log('Hello World!');";
+    const firstLinePatch = `@@ -0,0 +1 @@
++console.log('Hello World!');`;
     const multiToSingleLineFileName = 'multi-to-single-line-patch.txt';
     const patchText = new Map<string, string>();
     patchText.set(multiToSingleLineFileName, firstLinePatch);
-    const ranges = patchTextToRanges(patchText);
-    expect(ranges.size).equals(1);
-    expect(ranges.get(multiToSingleLineFileName)).not.equals(null);
-    expect(ranges.get(multiToSingleLineFileName)?.length).equals(1);
-    expect(ranges.get(multiToSingleLineFileName)![0].start).equals(1);
-    expect(ranges.get(multiToSingleLineFileName)![0].end).equals(2);
+    const ranges = patchTextToRanges(patchText).get(multiToSingleLineFileName);
+    expect(ranges).not.equals(null);
+    expect(ranges!.length).equals(1);
+    expect(ranges![0].start).equals(1);
+    expect(ranges![0].end).equals(1);
   });
   it('Returns a single range file record when there is a single multiline to 1 line patch hunk', () => {
-    const multiplePatches =
-      '@@ -356,6 +356,7 @@ Hello\n Hello\n Hello\n Hello\n+Bye\n Hello\n Hello\n Hello\n@@ -6576,8 +6577,7 @@ Hello\n Hello\n Hello\n Hello\n-Hello\n-Hello\n+Bye\n Hello\n Hello\n Hello';
+    const multiplePatches = `@@ -356,6 +356,7 @@
+ Hello
+ Hello
+ Hello
++Bye
+ Hello
+ Hello
+ Hello
+@@ -6576,8 +6577,7 @@
+ Hello
+ Hello
+ Hello
+-Hello
+-Hello
++Bye
+ Hello
+ Hello
+ Hello`;
     const multiplePatchesFileName = 'multiple-patches.txt';
     const patchText = new Map<string, string>();
     patchText.set(multiplePatchesFileName, multiplePatches);
-    const ranges = patchTextToRanges(patchText);
-    expect(ranges.size).equals(1);
-    expect(ranges.get(multiplePatchesFileName)).not.equals(null);
-    expect(ranges.get(multiplePatchesFileName)?.length).equals(2);
-    expect(ranges.get(multiplePatchesFileName)![0].start).equals(356);
-    expect(ranges.get(multiplePatchesFileName)![0].end).equals(363);
-    expect(ranges.get(multiplePatchesFileName)![1].start).equals(6577);
-    expect(ranges.get(multiplePatchesFileName)![1].end).equals(6584);
+    const ranges = patchTextToRanges(patchText).get(multiplePatchesFileName);
+    expect(ranges).not.equals(null);
+    expect(ranges!.length).equals(2);
+    expect(ranges![0].start).equals(359);
+    expect(ranges![0].end).equals(359);
+    expect(ranges![1].start).equals(6580);
+    expect(ranges![1].end).equals(6580);
   });
 });
 
@@ -358,6 +387,13 @@ describe('getPullRequestScope', () => {
 
   it('Returns the correct values when octokit and patch text parsing function execute properly', async () => {
     // setup
+    const patch = `@@ -1,2 +1,5 @@
+ Hello world
+-!
++Goodbye World
++gOodBYE world
++
++Goodbye World`;
     const listFilesOfPRResult = {
       headers: {},
       status: 200,
@@ -376,8 +412,7 @@ describe('getPullRequestScope', () => {
             'https://github.com/TomKristie/HelloWorld/raw/eb53f3871f56e8dd6321e44621fe6ac2da1bc120/Readme.md',
           contents_url:
             'https://api.github.com/repos/TomKristie/HelloWorld/contents/Readme.md?ref=eb53f3871f56e8dd6321e44621fe6ac2da1bc120',
-          patch:
-            '@@ -1,2 +1,5 @@\n Hello world\n-!\n+Goodbye World\n+gOodBYE world\n+\n+Goodbye World',
+          patch: patch,
         },
       ],
     };
@@ -399,8 +434,8 @@ describe('getPullRequestScope', () => {
     expect(validFileLines.size).equals(1);
     expect(validFileLines.get('Readme.md')).not.equals(null);
     expect(validFileLines.get('Readme.md')?.length).equals(1);
-    expect(validFileLines.get('Readme.md')![0].start).equals(1);
-    expect(validFileLines.get('Readme.md')![0].end).equals(6);
+    expect(validFileLines.get('Readme.md')![0].start).equals(2);
+    expect(validFileLines.get('Readme.md')![0].end).equals(5);
     expect(filesMissingPatch.length).equals(0);
   });
 

@@ -1,0 +1,12 @@
+diff --git a/cloudbuild.yaml b/cloudbuild.yaml
+index 07e5def..ca56e25 100644
+--- a/cloudbuild.yaml
++++ b/cloudbuild.yaml
+@@ -2,4 +2,5 @@ steps:
+ - name: 'ubuntu'
+   args: ['echo', 'foobar']
+ - name: 'ubuntu'
+-  args: ['sleep', '30']
+\ No newline at end of file
++  args: ['sleep', '30']
++  id: 'foobar
