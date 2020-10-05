@@ -1,5 +1,14 @@
 # Changelog
 
+### [1.6.1](https://www.github.com/googleapis/code-suggester/compare/v1.6.0...v1.6.1) (2020-10-05)
+
+
+### Bug Fixes
+
+* **action:** default upstream owner/repo to the current repo ([#131](https://www.github.com/googleapis/code-suggester/issues/131)) ([3dd762a](https://www.github.com/googleapis/code-suggester/commit/3dd762a49f6c42b6a652f3420d842a43f3744c3f)), closes [#73](https://www.github.com/googleapis/code-suggester/issues/73)
+* handle single line comments and add newline ([#128](https://www.github.com/googleapis/code-suggester/issues/128)) ([1526a40](https://www.github.com/googleapis/code-suggester/commit/1526a40de4d18765fc9343356f2be70e9af068a2))
+* range parsing ([#125](https://www.github.com/googleapis/code-suggester/issues/125)) ([4993d62](https://www.github.com/googleapis/code-suggester/commit/4993d62f3e37d23b3cda83516c2dc6879464132f))
+
 ## [1.6.0](https://www.github.com/googleapis/code-suggester/compare/v1.5.0...v1.6.0) (2020-09-25)
 
 
