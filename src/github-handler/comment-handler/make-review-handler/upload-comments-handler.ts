@@ -66,7 +66,7 @@ export function buildReviewComments(
   const fileComments: Comment[] = [];
   suggestions.forEach((hunks: Hunk[], fileName: string) => {
     hunks.forEach(hunk => {
-      const newContent = hunk.newContent.join("\n");
+      const newContent = hunk.newContent.join('\n');
       if (hunk.newStart === hunk.newEnd) {
         const singleComment: SingleLineComment = {
           path: fileName,

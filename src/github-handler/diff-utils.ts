@@ -29,7 +29,7 @@ export function parseHunks(diff: string): Hunk[] {
     let newStart = chunk.newStart;
     let normalLines = 0;
     let changeSeen = false;
-    const newLines: string[] = new Array();
+    const newLines: string[] = [];
 
     chunk.changes.forEach(change => {
       if (change.type === 'normal') {

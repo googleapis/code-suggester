@@ -31,28 +31,60 @@ describe('parseHunks', () => {
       resolve(fixturePath, 'one-line-to-one.diff')
     ).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([{oldStart: 5, oldEnd: 5, newStart: 5, newEnd: 5, newContent: ["  args: ['sleep', '301']"]}]);
+    expect(hunks).to.eql([
+      {
+        oldStart: 5,
+        oldEnd: 5,
+        newStart: 5,
+        newEnd: 5,
+        newContent: ["  args: ['sleep', '301']"],
+      },
+    ]);
   });
   it('parses one-to-many hunks', () => {
     const diff = readFileSync(
       resolve(fixturePath, 'one-line-to-many.diff')
     ).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([{oldStart: 7, oldEnd: 7, newStart: 7, newEnd: 8, newContent: ["  args: ['foobar']", "  id: asdf"]}]);
+    expect(hunks).to.eql([
+      {
+        oldStart: 7,
+        oldEnd: 7,
+        newStart: 7,
+        newEnd: 8,
+        newContent: ["  args: ['foobar']", '  id: asdf'],
+      },
+    ]);
   });
   it('parses one-to-many hunks with a newline added', () => {
     const diff = readFileSync(
       resolve(fixturePath, 'one-line-to-many-newline.diff')
     ).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([{oldStart: 5, oldEnd: 5, newStart: 5, newEnd: 6, newContent: ["  args: ['sleep', '30']", "  id: 'foobar'"]}]);
+    expect(hunks).to.eql([
+      {
+        oldStart: 5,
+        oldEnd: 5,
+        newStart: 5,
+        newEnd: 6,
+        newContent: ["  args: ['sleep', '30']", "  id: 'foobar'"],
+      },
+    ]);
   });
   it('parses many-to-many-hunks', () => {
     const diff = readFileSync(
       resolve(fixturePath, 'many-to-many.diff')
     ).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([{oldStart: 2, oldEnd: 5, newStart: 2, newEnd: 3, newContent: ["- name: 'foo'", "  args: ['sleep 1']"]}]);
+    expect(hunks).to.eql([
+      {
+        oldStart: 2,
+        oldEnd: 5,
+        newStart: 2,
+        newEnd: 3,
+        newContent: ["- name: 'foo'", "  args: ['sleep 1']"],
+      },
+    ]);
   });
 
   it('parses many-to-one-hunks', () => {
@@ -60,11 +92,21 @@ describe('parseHunks', () => {
       resolve(fixturePath, 'many-to-one.diff')
     ).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([{oldStart: 2, oldEnd: 5, newStart: 2, newEnd: 2, newContent: ["- name: 'foo'"]}]);
+    expect(hunks).to.eql([
+      {
+        oldStart: 2,
+        oldEnd: 5,
+        newStart: 2,
+        newEnd: 2,
+        newContent: ["- name: 'foo'"],
+      },
+    ]);
   });
   it('parses deletions', () => {
     const diff = readFileSync(resolve(fixturePath, 'deletion.diff')).toString();
     const hunks = parseHunks(diff);
-    expect(hunks).to.eql([{oldStart: 4, oldEnd: 5, newStart: 4, newEnd: 3, newContent: []}]);
+    expect(hunks).to.eql([
+      {oldStart: 4, oldEnd: 5, newStart: 4, newEnd: 3, newContent: []},
+    ]);
   });
 });
