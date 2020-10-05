@@ -25,19 +25,29 @@ import {createPatch} from 'diff';
 export function parseHunks(diff: string): Hunk[] {
   const chunks = parseDiff(diff)[0].chunks;
   return chunks.map(chunk => {
-    let start = chunk.newStart + chunk.newLines;
-    let oldEnd = 0;
+    let oldStart = chunk.oldStart;
+    let newStart = chunk.newStart;
+    let normalLines = 0;
+    let changeSeen = false;
+
     chunk.changes.forEach(change => {
-      if (change.type === 'add') {
-        start = Math.min(start, change.ln);
-      }
-      if (change.type === 'del') {
-        start = Math.min(start, change.ln);
-        oldEnd = Math.max(oldEnd, change.ln);
+      switch(change.type) {
+        case 'add':
+        case 'del':
+          if (!changeSeen) {
+            oldStart += normalLines;
+            newStart += normalLines;
+            changeSeen = true;
+          }
+          break;
+        case 'normal':
+          normalLines++;
+          break;
       }
     });
-    const newEnd = oldEnd + chunk.newLines - chunk.oldLines;
-    return {oldStart: start, oldEnd: oldEnd, newStart: start, newEnd: newEnd};
+    const newEnd = newStart + chunk.newLines - normalLines - 1;
+    const oldEnd = oldStart + chunk.oldLines - normalLines - 1;
+    return {oldStart: oldStart, oldEnd: oldEnd, newStart: newStart, newEnd: newEnd};
   });
 }
 
