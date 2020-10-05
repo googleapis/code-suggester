@@ -1,4 +1,4 @@
- // Copyright 2020 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,9 +14,14 @@
 
 import {expect} from 'chai';
 import {describe, it, before, afterEach} from 'mocha';
+import {setup} from './util';
 import * as sinon from 'sinon';
 import {Octokit} from '@octokit/rest';
-import { getPullRequestHunks } from '../src/github-handler/comment-handler/get-hunk-scope-handler/remote-patch-ranges-handler';
+import {getPullRequestHunks} from '../src/github-handler/comment-handler/get-hunk-scope-handler/remote-patch-ranges-handler';
+
+before(() => {
+  setup();
+});
 
 describe('getPullRequestHunks', () => {
   const upstream = {owner: 'upstream-owner', repo: 'upstream-repo'};
@@ -64,7 +69,12 @@ describe('getPullRequestHunks', () => {
       .resolves(listFilesOfPRResult);
 
     // tests
-    const pullRequestHunks = await getPullRequestHunks(octokit, upstream, pullNumber, pageSize);
+    const pullRequestHunks = await getPullRequestHunks(
+      octokit,
+      upstream,
+      pullNumber,
+      pageSize
+    );
     sandbox.assert.calledOnceWithExactly(stub, {
       owner: upstream.owner,
       repo: upstream.repo,

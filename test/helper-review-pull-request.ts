@@ -61,7 +61,7 @@ describe('reviewPullRequest', () => {
         },
         './raw-patch-handler/raw-hunk-handler': {
           getRawSuggestionHunks: (
-            testDiffContents: Map<string, FileDiffContent>,
+            testDiffContents: Map<string, FileDiffContent>
           ) => {
             expect(testDiffContents).equals(diffContents);
             numMockedHelpersCalled += 1;
@@ -73,6 +73,8 @@ describe('reviewPullRequest', () => {
             testPullRequestHunks: Map<string, Hunk[]>,
             testSuggestedHunks: Map<string, Hunk[]>
           ) => {
+            expect(testPullRequestHunks).equals(validFileHunks);
+            expect(testSuggestedHunks).equals(suggestionHunks);
             numMockedHelpersCalled += 1;
             return {validHunks: validFileHunks, invalidHunks: invalidFileHunks};
           },
