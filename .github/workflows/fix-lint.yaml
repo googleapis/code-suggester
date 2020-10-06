@@ -1,21 +1,21 @@
 on:
-    pull_request:
-      branches:
-        - master
-  name: ci
-  jobs:
-    add-license:
-      runs-on: ubuntu-latest
-      env:
-        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/setup-node@v1
-          with:
-            node-version: 12
-        - run: npm install --engine-strict
-        - run: npm run fix
-        - uses: chingor13/code-suggester@review-action # takes the changes from git directory
-          with:
-            command: review
-            pull_number: ${{ github.event.pull_request.number }}
+  pull_request:
+    branches:
+      - master
+name: fix-lint
+jobs:
+  fix-lint:
+    runs-on: ubuntu-latest
+    env:
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: npm install --engine-strict
+      - run: npm run fix
+      - uses: chingor13/code-suggester@review-action # takes the changes from git directory
+        with:
+          command: review
+          pull_number: ${{ github.event.pull_request.number }}
