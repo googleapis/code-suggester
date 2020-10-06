@@ -36,8 +36,8 @@ export function parseHunks(diff: string): Hunk[] {
         normalLines++;
       } else {
         if (change.type === 'add') {
-          // strip off leading '+'
-          newLines.push(change.content.substring(1));
+          // strip off leading '+' and trailing carriage return
+          newLines.push(change.content.substring(1).replace(/[\n\r]+$/g, ''));
         }
         if (!changeSeen) {
           oldStart += normalLines;
