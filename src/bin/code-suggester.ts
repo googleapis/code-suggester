@@ -15,14 +15,14 @@
 // limitations under the License.
 
 import * as yargs from 'yargs';
-import {CREATE_PR_COMMAND, main} from './workflow';
+import {CREATE_PR_COMMAND, REVIEW_PR_COMMAND, main} from './workflow';
 import {logger} from '../logger';
 
 // tslint:disable:no-unused-expression
 // yargs actually is a used expression. TS-lint does not detect it.
 yargs
-  .scriptName('code-suggest')
-  .usage('$0 pr [args]')
+  .scriptName('code-suggester')
+  .usage('$0 <command> [args]')
   .command(CREATE_PR_COMMAND, 'Create a new pull request', {
     'upstream-repo': {
       alias: 'r',
@@ -92,6 +92,32 @@ yargs
         'Whether or not to attempt forking to a separate repository. Default is true.',
       default: true,
       type: 'boolean',
+    },
+  })
+  .command(REVIEW_PR_COMMAND, 'Review an open pull request', {
+    'upstream-repo': {
+      alias: 'r',
+      demandOption: true,
+      describe: 'Required. The repository to create the fork off of.',
+      type: 'string',
+    },
+    'upstream-owner': {
+      alias: 'o',
+      demandOption: true,
+      describe: 'Required. The owner of the upstream repository.',
+      type: 'string',
+    },
+    'pull-number': {
+      alias: 'p',
+      demandOption: true,
+      describe: 'Required. The pull request number to comment on.',
+      type: 'number',
+    },
+    'git-dir': {
+      describe:
+        'Required. The location of any un-tracked changes that should be made into pull request comments. Files in the .gitignore are ignored.',
+      type: 'string',
+      demandOption: true,
     },
   })
   .check(argv => {
