@@ -49,7 +49,7 @@ inputs:
     description: >-
       Whether or not to attempt forking to a separate repository. Default is true.
     default: true
-  pr_number:
+  pull_number:
     description: Pull Request number to review. Required for "review" command.
 runs:
   using: docker
