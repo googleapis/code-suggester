@@ -18,12 +18,12 @@ set -e
 
 if [[ -z "${INPUT_UPSTREAM_REPO}" ]]
 then
-    INPUT_UPSTREAM_REPO=$(cat ${GITHUB_REPOSITORY} | cut -d/ -f2)
+    INPUT_UPSTREAM_REPO=$(echo ${GITHUB_REPOSITORY} | cut -d/ -f2)
 fi
 
 if [[ -z "${INPUT_UPSTREAM_OWNER}" ]]
 then
-    INPUT_UPSTREAM_OWNER=$(cat ${GITHUB_REPOSITORY} | cut -d/ -f1)
+    INPUT_UPSTREAM_OWNER=$(echo ${GITHUB_REPOSITORY} | cut -d/ -f1)
 fi
 
 case "${INPUT_COMMAND}" in
