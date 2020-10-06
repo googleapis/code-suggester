@@ -31,7 +31,7 @@ index cac8fbc..87f387c 100644
  * @returns Hunk[]
  */
 export function parsePatch(patch: string): Hunk[] {
-  return parseAllHunks(_DIFF_HEADER + patch).get("file.ext") || new Array();
+  return parseAllHunks(_DIFF_HEADER + patch).get('file.ext') || [];
 }
 
 /**
@@ -42,7 +42,7 @@ export function parsePatch(patch: string): Hunk[] {
  */
 export function parseAllHunks(diff: string): Map<string, Hunk[]> {
   const hunksByFile: Map<string, Hunk[]> = new Map();
-  parseDiff(diff).forEach((file) => {
+  parseDiff(diff).forEach(file => {
     const filename = file.to ? file.to : file.from!;
     const chunks = file.chunks.map(chunk => {
       let oldStart = chunk.oldStart;
@@ -50,7 +50,7 @@ export function parseAllHunks(diff: string): Map<string, Hunk[]> {
       let normalLines = 0;
       let changeSeen = false;
       const newLines: string[] = [];
-  
+
       chunk.changes.forEach(change => {
         if (change.type === 'normal') {
           normalLines++;
@@ -92,5 +92,5 @@ export function getSuggestedHunks(
   newContent: string
 ): Hunk[] {
   const diff = createPatch('unused', oldContent, newContent);
-  return parseAllHunks(diff).get('unused') || new Array();
+  return parseAllHunks(diff).get('unused') || [];
 }

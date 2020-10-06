@@ -113,16 +113,20 @@ describe('reviewPullRequest', () => {
   });
 
   it('Succeeds when diff string provided', async () => {
-    const diffString = readFileSync(resolve(fixturePath, 'many-to-many.diff')).toString();
+    const diffString = readFileSync(
+      resolve(fixturePath, 'many-to-many.diff')
+    ).toString();
     let numMockedHelpersCalled = 0;
     const validFileHunks = new Map<string, Hunk[]>();
-    validFileHunks.set('cloudbuild.yaml', [{
-      newStart: 0,
-      newEnd: 10,
-      oldStart: 0,
-      oldEnd: 10,
-      newContent: [],
-    }]);
+    validFileHunks.set('cloudbuild.yaml', [
+      {
+        newStart: 0,
+        newEnd: 10,
+        oldStart: 0,
+        oldEnd: 10,
+        newContent: [],
+      },
+    ]);
 
     const stubMakePr = proxyquire.noCallThru()(
       '../src/github-handler/comment-handler',
