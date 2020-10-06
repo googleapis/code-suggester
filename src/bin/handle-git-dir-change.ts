@@ -39,7 +39,7 @@ class InstallationError extends Error {
  * @param {string} dir the wildcard directory containing git change, not necessarily the root git directory
  * @returns {string} the absolute path relative to the path that the user executed the bash command in
  */
-export function resolvePath(dir: string) {
+export function resolvePath(dir: string  ) {
   const absoluteDir = path.resolve(process.cwd(), dir);
   return absoluteDir;
 }
