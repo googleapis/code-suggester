@@ -15,7 +15,7 @@
 import {Octokit} from '@octokit/rest';
 import {RepoDomain, Hunk} from '../../../types';
 import {logger} from '../../../logger';
-import {parseHunks} from '../../diff-utils';
+import {parsePatch} from '../../diff-utils';
 
 /**
  * For a pull request, get each remote file's patch text asynchronously
@@ -69,14 +69,6 @@ export async function getCurrentPullRequestPatches(
   return {patches, filesMissingPatch};
 }
 
-// This header is ignored for calculating patch ranges, but is neccessary
-// for parsing a diff
-const _DIFF_HEADER = `diff --git a/file.ext b/file.ext
-index cac8fbc..87f387c 100644
---- a/file.ext
-+++ b/file.ext
-`;
-
 /**
  * For a pull request, get each remote file's current patch range to identify the scope of each patch as a Map.
  * @param {Octokit} octokit the authenticated octokit instance
@@ -114,7 +106,7 @@ export async function getPullRequestHunks(
         `File ${file.filename} may have a patch that is too large to display patch object.`
       );
     } else {
-      const hunks = parseHunks(_DIFF_HEADER + file.patch);
+      const hunks = parsePatch(file.patch);
       pullRequestHunks.set(file.filename, hunks);
     }
   });
