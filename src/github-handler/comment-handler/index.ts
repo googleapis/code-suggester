@@ -13,11 +13,12 @@
 // limitations under the License.
 
 import {FileDiffContent, RepoDomain} from '../../types';
-import {getPullRequestScope} from './get-hunk-scope-handler/';
 import {Octokit} from '@octokit/rest';
-import {getSuggestionPatches} from './raw-patch-handler';
 import {makeInlineSuggestions} from './make-review-handler';
 import {logger} from '../../logger';
+import {getRawSuggestionHunks} from './raw-patch-handler/raw-hunk-handler';
+import {getPullRequestHunks} from './get-hunk-scope-handler/remote-patch-ranges-handler';
+import {partitionSuggestedHunksByScope} from './get-hunk-scope-handler/scope-handler';
 
 /**
  * Comment on a Pull Request
@@ -36,21 +37,28 @@ export async function reviewPullRequest(
   diffContents: Map<string, FileDiffContent>
 ): Promise<number | null> {
   try {
-    const {invalidFiles, validFileLines} = await getPullRequestScope(
+    // get the hunks from the pull request
+    const pullRequestHunks = await getPullRequestHunks(
       octokit,
       remote,
       pullNumber,
       pageSize
     );
-    const {filePatches, outOfScopeSuggestions} = getSuggestionPatches(
-      diffContents,
-      invalidFiles,
-      validFileLines
+
+    // get the hunks from the suggested change
+    const allSuggestedHunks = getRawSuggestionHunks(diffContents);
+
+    // split hunks by commentable and uncommentable
+    const {validHunks, invalidHunks} = partitionSuggestedHunksByScope(
+      pullRequestHunks,
+      allSuggestedHunks
     );
+
+    // create pull request review
     const reviewNumber = await makeInlineSuggestions(
       octokit,
-      filePatches,
-      outOfScopeSuggestions,
+      validHunks,
+      invalidHunks,
       remote,
       pullNumber
     );

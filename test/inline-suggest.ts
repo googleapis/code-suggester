@@ -21,7 +21,7 @@ import {
   buildReviewComments,
   PullsCreateReviewParamsComments,
 } from '../src/github-handler/comment-handler/make-review-handler/upload-comments-handler';
-import {Patch, Hunk} from '../src/types';
+import {Hunk} from '../src/types';
 
 before(() => {
   setup();
@@ -29,14 +29,16 @@ before(() => {
 
 describe('buildFileComments', () => {
   it('Maps patches to GitHub comment object types', () => {
-    const suggestions: Map<string, Patch[]> = new Map();
+    const suggestions: Map<string, Hunk[]> = new Map();
     const fileName1 = 'foo.txt';
-    const patch1: Patch = {
-      start: 1,
-      end: 2,
-      newContent: 'Foo',
+    const hunk1: Hunk = {
+      oldStart: 1,
+      oldEnd: 2,
+      newStart: 1,
+      newEnd: 2,
+      newContent: ['Foo'],
     };
-    suggestions.set(fileName1, [patch1]);
+    suggestions.set(fileName1, [hunk1]);
     const comments = buildReviewComments(suggestions);
     expect(comments).deep.equals([
       {
@@ -50,21 +52,25 @@ describe('buildFileComments', () => {
     ]);
   });
   it('Maps multiple patches to GitHub comment object types', () => {
-    const suggestions: Map<string, Patch[]> = new Map();
+    const suggestions: Map<string, Hunk[]> = new Map();
     const fileName1 = 'foo.txt';
     const fileName2 = 'bar.txt';
-    const patch1: Patch = {
-      start: 1,
-      end: 2,
-      newContent: 'Foo',
+    const hunk1: Hunk = {
+      oldStart: 1,
+      oldEnd: 2,
+      newStart: 1,
+      newEnd: 2,
+      newContent: ['Foo'],
     };
-    const patch2: Patch = {
-      start: 3,
-      end: 4,
-      newContent: 'Bar',
+    const hunk2: Hunk = {
+      oldStart: 3,
+      oldEnd: 4,
+      newStart: 3,
+      newEnd: 4,
+      newContent: ['Bar'],
     };
-    suggestions.set(fileName2, [patch1]);
-    suggestions.set(fileName1, [patch1, patch2]);
+    suggestions.set(fileName2, [hunk1]);
+    suggestions.set(fileName1, [hunk1, hunk2]);
     const comments = buildReviewComments(suggestions);
     expect(comments).deep.equals([
       {
@@ -94,19 +100,21 @@ describe('buildFileComments', () => {
     ]);
   });
   it('Maps empty suggestion to empty list', () => {
-    const suggestions: Map<string, Patch[]> = new Map();
+    const suggestions: Map<string, Hunk[]> = new Map();
     const comments = buildReviewComments(suggestions);
     expect(comments.length).deep.equals(0);
   });
   it('Builds single line comments', () => {
-    const suggestions: Map<string, Patch[]> = new Map();
+    const suggestions: Map<string, Hunk[]> = new Map();
     const fileName1 = 'foo.txt';
-    const patch1: Patch = {
-      start: 1,
-      end: 1,
-      newContent: 'Foo',
+    const hunk1: Hunk = {
+      oldStart: 1,
+      oldEnd: 1,
+      newStart: 1,
+      newEnd: 1,
+      newContent: ['Foo'],
     };
-    suggestions.set(fileName1, [patch1]);
+    suggestions.set(fileName1, [hunk1]);
     const comments = buildReviewComments(suggestions);
     expect(comments).deep.equals([
       {
@@ -121,22 +129,24 @@ describe('buildFileComments', () => {
 
 describe('makeInlineSuggestions', () => {
   const sandbox = sinon.createSandbox();
-  const suggestions: Map<string, Patch[]> = new Map();
+  const suggestions: Map<string, Hunk[]> = new Map();
   const outOfScopeSuggestions: Map<string, Hunk[]> = new Map();
   afterEach(() => {
     sandbox.restore();
     suggestions.clear();
   });
   const fileName1 = 'foo.txt';
-  const patch1: Patch = {
-    start: 1,
-    end: 2,
-    newContent: 'Foo',
+  const hunk1: Hunk = {
+    oldStart: 1,
+    oldEnd: 2,
+    newStart: 1,
+    newEnd: 2,
+    newContent: ['Foo'],
   };
   const remote = {owner: 'upstream-owner', repo: 'upstream-repo'};
   const pullNumber = 711;
   it("Calls Octokit with the correct values and returns the successfully created review's number", async () => {
-    suggestions.set(fileName1, [patch1]);
+    suggestions.set(fileName1, [hunk1]);
     const responseData = await import(
       './fixtures/get-pull-request-response.json'
     );
@@ -302,7 +312,7 @@ describe('makeInlineSuggestions', () => {
 
   it('Throws and does not continue when get pull request fails', async () => {
     // setup
-    suggestions.set(fileName1, [patch1]);
+    suggestions.set(fileName1, [hunk1]);
     const stubGetPulls = sandbox
       .stub(octokit.pulls, 'get')
       .rejects(new Error());
@@ -325,7 +335,7 @@ describe('makeInlineSuggestions', () => {
   });
   it('Throws when create review comments fails', async () => {
     // setup
-    suggestions.set(fileName1, [patch1]);
+    suggestions.set(fileName1, [hunk1]);
     const responseData = await import(
       './fixtures/get-pull-request-response.json'
     );

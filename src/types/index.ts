@@ -162,24 +162,10 @@ export interface FileDiffContent {
   readonly newContent: string;
 }
 
-/**
- * A range object defined by lower boundary as 'start' and upper boundary as 'end'
- */
-export interface Range {
-  readonly start: number;
-  readonly end: number;
-}
-
 export interface Hunk {
   readonly oldStart: number;
   readonly oldEnd: number;
   readonly newStart: number;
   readonly newEnd: number;
-}
-
-/**
- * The range of a patch along with the raw text file content
- */
-export interface Patch extends Range {
-  readonly newContent: string;
+  readonly newContent: string[];
 }

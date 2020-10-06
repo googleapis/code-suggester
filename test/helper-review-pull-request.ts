@@ -15,7 +15,7 @@
 import {assert, expect} from 'chai';
 import {describe, it, before} from 'mocha';
 import {octokit, setup} from './util';
-import {RepoDomain, FileDiffContent, Patch, Hunk} from '../src/types';
+import {RepoDomain, FileDiffContent, Hunk} from '../src/types';
 import {Octokit} from '@octokit/rest';
 import * as proxyquire from 'proxyquire';
 before(() => {
@@ -36,19 +36,14 @@ describe('reviewPullRequest', () => {
 
   it('Succeeds when all values are passed as expected', async () => {
     let numMockedHelpersCalled = 0;
-    const validFileLines = new Map();
-    const filePatches = new Map();
-    const outOfScopeSuggestions = new Map();
-    const invalidFiles = [
-      'invalid-file1.txt',
-      'invalid-file2.txt',
-      'invalid-file3.txt',
-    ];
+    const validFileHunks = new Map();
+    const invalidFileHunks = new Map();
+    const suggestionHunks = new Map();
     const stubMakePr = proxyquire.noCallThru()(
       '../src/github-handler/comment-handler',
       {
-        './get-hunk-scope-handler': {
-          getPullRequestScope: (
+        './get-hunk-scope-handler/remote-patch-ranges-handler': {
+          getPullRequestHunks: (
             testOctokit: Octokit,
             testRemote: RepoDomain,
             testPullNumber: number,
@@ -61,34 +56,41 @@ describe('reviewPullRequest', () => {
             expect(testPullNumber).equals(pullNumber);
             expect(testPageSize).equals(pageSize);
             numMockedHelpersCalled += 1;
-            return {invalidFiles, validFileLines};
+            return validFileHunks;
           },
         },
-        './raw-patch-handler': {
-          getSuggestionPatches: (
-            testDiffContents: Map<string, FileDiffContent>,
-            testInvalidFiles: string[],
-            testValidFileLines: Map<string, Range[]>
+        './raw-patch-handler/raw-hunk-handler': {
+          getRawSuggestionHunks: (
+            testDiffContents: Map<string, FileDiffContent>
           ) => {
             expect(testDiffContents).equals(diffContents);
-            expect(testInvalidFiles).equals(invalidFiles);
-            expect(testValidFileLines).equals(validFileLines);
             numMockedHelpersCalled += 1;
-            return {filePatches, outOfScopeSuggestions};
+            return suggestionHunks;
+          },
+        },
+        './get-hunk-scope-handler/scope-handler': {
+          partitionSuggestedHunksByScope: (
+            testPullRequestHunks: Map<string, Hunk[]>,
+            testSuggestedHunks: Map<string, Hunk[]>
+          ) => {
+            expect(testPullRequestHunks).equals(validFileHunks);
+            expect(testSuggestedHunks).equals(suggestionHunks);
+            numMockedHelpersCalled += 1;
+            return {validHunks: validFileHunks, invalidHunks: invalidFileHunks};
           },
         },
         './make-review-handler': {
           makeInlineSuggestions: (
             testOctokit: Octokit,
-            testFilePatches: Map<string, Patch[]>,
-            testoutOfScopeSuggestions: Map<string, Hunk[]>,
+            testValidHunks: Map<string, Hunk[]>,
+            testInvalidHunks: Map<string, Hunk[]>,
             testRemote: RepoDomain,
             testPullNumber: number
           ) => {
             expect(testOctokit).equals(octokit);
-            expect(testFilePatches).equals(filePatches);
+            expect(testValidHunks).equals(validFileHunks);
             expect(testRemote).equals(remote);
-            expect(testoutOfScopeSuggestions).equals(outOfScopeSuggestions);
+            expect(testInvalidHunks).equals(invalidFileHunks);
             expect(testPullNumber).equals(pullNumber);
             numMockedHelpersCalled += 1;
           },
@@ -102,22 +104,16 @@ describe('reviewPullRequest', () => {
       pageSize,
       diffContents
     );
-    expect(numMockedHelpersCalled).equals(3);
+    expect(numMockedHelpersCalled).equals(4);
   });
 
-  it('Executes patch handler without error when valid patch is passed', async () => {
+  it('Passes up the error message when getPullRequestHunks helper fails', async () => {
     let numMockedHelpersCalled = 0;
-    const validFileLines = new Map();
-    const invalidFiles = [
-      'invalid-file1.txt',
-      'invalid-file2.txt',
-      'invalid-file3.txt',
-    ];
     const stubMakePr = proxyquire.noCallThru()(
       '../src/github-handler/comment-handler',
       {
-        './get-hunk-scope-handler': {
-          getPullRequestScope: (
+        './get-hunk-scope-handler/remote-patch-ranges-handler': {
+          getPullRequestHunks: (
             testOctokit: Octokit,
             testRemote: RepoDomain,
             testPullNumber: number,
@@ -130,55 +126,7 @@ describe('reviewPullRequest', () => {
             expect(testPullNumber).equals(pullNumber);
             expect(testPageSize).equals(pageSize);
             numMockedHelpersCalled += 1;
-            return {invalidFiles, validFileLines};
-          },
-        },
-        './make-review-handler': {
-          makeInlineSuggestions: (
-            testOctokit: Octokit,
-            testFilePatches: Map<string, Patch[]>,
-            testoutOfScopeSuggestions: Map<string, Hunk[]>,
-            testRemote: RepoDomain,
-            testPullNumber: number
-          ) => {
-            expect(testOctokit).equals(octokit);
-            expect(testRemote).equals(remote);
-            expect(testPullNumber).equals(pullNumber);
-            numMockedHelpersCalled += 1;
-          },
-        },
-      }
-    );
-    await stubMakePr.reviewPullRequest(
-      octokit,
-      remote,
-      pullNumber,
-      pageSize,
-      diffContents
-    );
-    expect(numMockedHelpersCalled).equals(2);
-  });
-
-  it('Passes up the error message when getPullRequestScope helper fails', async () => {
-    let numMockedHelpersCalled = 0;
-    const stubMakePr = proxyquire.noCallThru()(
-      '../src/github-handler/comment-handler',
-      {
-        './get-hunk-scope-handler': {
-          getPullRequestScope: (
-            testOctokit: Octokit,
-            testRemote: RepoDomain,
-            testPullNumber: number,
-            testPageSize: number
-          ) => {
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.owner).equals(owner);
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.repo).equals(repo);
-            expect(testPullNumber).equals(pullNumber);
-            expect(testPageSize).equals(pageSize);
-            numMockedHelpersCalled += 1;
-            throw new Error('getPullRequestScope failed');
+            throw new Error('getPullRequestHunks failed');
           },
         },
       }
@@ -194,142 +142,7 @@ describe('reviewPullRequest', () => {
       assert.ok(false);
     } catch (err) {
       expect(numMockedHelpersCalled).equals(1);
-      expect(err.message).equals('getPullRequestScope failed');
-    }
-  });
-
-  it('Passes up the error message when getSuggestionPatches helper fails', async () => {
-    let numMockedHelpersCalled = 0;
-    const validFileLines = new Map();
-    const invalidFiles = [
-      'invalid-file1.txt',
-      'invalid-file2.txt',
-      'invalid-file3.txt',
-    ];
-    const stubMakePr = proxyquire.noCallThru()(
-      '../src/github-handler/comment-handler',
-      {
-        './get-hunk-scope-handler': {
-          getPullRequestScope: (
-            testOctokit: Octokit,
-            testRemote: RepoDomain,
-            testPullNumber: number,
-            testPageSize: number
-          ) => {
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.owner).equals(owner);
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.repo).equals(repo);
-            expect(testPullNumber).equals(pullNumber);
-            expect(testPageSize).equals(pageSize);
-            numMockedHelpersCalled += 1;
-            return {invalidFiles, validFileLines};
-          },
-        },
-        './raw-patch-handler': {
-          getSuggestionPatches: (
-            testDiffContents: Map<string, FileDiffContent>,
-            testInvalidFiles: string[],
-            testValidFileLines: Map<string, Range[]>
-          ) => {
-            expect(testDiffContents).equals(diffContents);
-            expect(testInvalidFiles).equals(invalidFiles);
-            expect(testValidFileLines).equals(validFileLines);
-            numMockedHelpersCalled += 1;
-            throw new Error('getSuggestionPatches failed');
-          },
-        },
-      }
-    );
-    try {
-      await stubMakePr.reviewPullRequest(
-        octokit,
-        remote,
-        pullNumber,
-        pageSize,
-        diffContents
-      );
-      assert.ok(false);
-    } catch (err) {
-      expect(numMockedHelpersCalled).equals(2);
-      expect(err.message).equals('getSuggestionPatches failed');
-    }
-  });
-
-  it('Passes up the error message when get makeInlineSuggestions helper fails', async () => {
-    let numMockedHelpersCalled = 0;
-    const validFileLines = new Map();
-    const filePatches = new Map();
-    const outOfScopeSuggestions = new Map();
-    const invalidFiles = [
-      'invalid-file1.txt',
-      'invalid-file2.txt',
-      'invalid-file3.txt',
-    ];
-    const stubMakePr = proxyquire.noCallThru()(
-      '../src/github-handler/comment-handler',
-      {
-        './get-hunk-scope-handler': {
-          getPullRequestScope: (
-            testOctokit: Octokit,
-            testRemote: RepoDomain,
-            testPullNumber: number,
-            testPageSize: number
-          ) => {
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.owner).equals(owner);
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.repo).equals(repo);
-            expect(testPullNumber).equals(pullNumber);
-            expect(testPageSize).equals(pageSize);
-            numMockedHelpersCalled += 1;
-            return {invalidFiles, validFileLines};
-          },
-        },
-        './raw-patch-handler': {
-          getSuggestionPatches: (
-            testDiffContents: Map<string, FileDiffContent>,
-            testInvalidFiles: string[],
-            testValidFileLines: Map<string, Range[]>
-          ) => {
-            expect(testDiffContents).equals(diffContents);
-            expect(testInvalidFiles).equals(invalidFiles);
-            expect(testValidFileLines).equals(validFileLines);
-            numMockedHelpersCalled += 1;
-            return {filePatches, outOfScopeSuggestions};
-          },
-        },
-        './make-review-handler': {
-          makeInlineSuggestions: (
-            testOctokit: Octokit,
-            testFilePatches: Map<string, Patch[]>,
-            testoutOfScopeSuggestions: Map<string, Hunk[]>,
-            testRemote: RepoDomain,
-            testPullNumber: number
-          ) => {
-            expect(testOctokit).equals(octokit);
-            expect(testFilePatches).equals(filePatches);
-            expect(testRemote).equals(remote);
-            expect(testoutOfScopeSuggestions).equals(outOfScopeSuggestions);
-            expect(testPullNumber).equals(pullNumber);
-            numMockedHelpersCalled += 1;
-            throw new Error('makeInlineSuggestions failed');
-          },
-        },
-      }
-    );
-    try {
-      await stubMakePr.reviewPullRequest(
-        octokit,
-        remote,
-        pullNumber,
-        pageSize,
-        diffContents
-      );
-      assert.ok(false);
-    } catch (err) {
-      expect(numMockedHelpersCalled).equals(3);
-      expect(err.message).equals('makeInlineSuggestions failed');
+      expect(err.message).equals('getPullRequestHunks failed');
     }
   });
 });

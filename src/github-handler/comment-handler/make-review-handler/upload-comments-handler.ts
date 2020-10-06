@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Octokit} from '@octokit/rest';
-import {Hunk, Patch, RepoDomain} from '../../../types';
+import {Hunk, RepoDomain} from '../../../types';
 import {logger} from '../../../logger';
 import {buildSummaryComment} from './message-handler';
 
@@ -61,25 +61,26 @@ export type PullsCreateReviewParamsComments = {
  * @param suggestions
  */
 export function buildReviewComments(
-  suggestions: Map<string, Patch[]>
+  suggestions: Map<string, Hunk[]>
 ): Comment[] {
   const fileComments: Comment[] = [];
-  suggestions.forEach((patches: Patch[], fileName: string) => {
-    patches.forEach(patch => {
-      if (patch.start === patch.end) {
+  suggestions.forEach((hunks: Hunk[], fileName: string) => {
+    hunks.forEach(hunk => {
+      const newContent = hunk.newContent.join('\n');
+      if (hunk.newStart === hunk.newEnd) {
         const singleComment: SingleLineComment = {
           path: fileName,
-          body: `\`\`\`suggestion\n${patch.newContent}\n\`\`\``,
-          line: patch.end,
+          body: `\`\`\`suggestion\n${newContent}\n\`\`\``,
+          line: hunk.newEnd,
           side: 'RIGHT',
         };
         fileComments.push(singleComment);
       } else {
         const comment: MultilineComment = {
           path: fileName,
-          body: `\`\`\`suggestion\n${patch.newContent}\n\`\`\``,
-          start_line: patch.start,
-          line: patch.end,
+          body: `\`\`\`suggestion\n${newContent}\n\`\`\``,
+          start_line: hunk.newStart,
+          line: hunk.newEnd,
           side: 'RIGHT',
           start_side: 'RIGHT',
         };
@@ -99,7 +100,7 @@ export function buildReviewComments(
  */
 export async function makeInlineSuggestions(
   octokit: Octokit,
-  suggestions: Map<string, Patch[]>,
+  suggestions: Map<string, Hunk[]>,
   outOfScopeSuggestions: Map<string, Hunk[]>,
   remote: RepoDomain,
   pullNumber: number
