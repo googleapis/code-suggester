@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {execSync} from 'child_process';
-import {Changes, FileMode, FileData} from '../types';
+import {Changes, FileMode, FileData, FileDiffContent} from '../types';
 import {logger} from '../logger';
 import {readFile} from 'fs';
 import * as path from 'path';
@@ -137,6 +137,10 @@ export function getGitFileData(
   });
 }
 
+function getFileContentsAtHead(gitRootDir: string, filePath: string): string {
+  return execSync(`git show HEAD:${filePath}`, {cwd: gitRootDir}).toString();
+}
+
 /**
  * Get all the diffs using `git diff` of a git directory.
  * Errors if the git directory provided is not a git directory.
@@ -151,6 +155,7 @@ export function getAllDiffs(gitRootDir: string): string[] {
     .toString() // strictly return buffer for mocking purposes. sinon ts doesn't infer {encoding: 'utf-8'}
     .trimRight() // remove the trailing new line
     .split('\n');
+  execSync('git reset .', {cwd: gitRootDir});
   return diffs;
 }
 
@@ -212,6 +217,67 @@ export function getChanges(dir: string): Promise<Changes> {
     const gitRootDir = findRepoRoot(absoluteDir);
     const diffs = getAllDiffs(gitRootDir);
     return parseChanges(diffs, gitRootDir);
+  } catch (err) {
+    if (!(err instanceof InstallationError)) {
+      logger.error('Error loadng git changes.');
+    }
+    throw err;
+  }
+}
+
+/**
+ * Get the git changes of the current project asynchronously.
+ * Rejects if any of the files fails to load (if not deleted),
+ * or if there is a git diff parse error
+ * @param {string[]} diffs the git diff raw output (which only shows relative paths)
+ * @param {string} gitDir the root of the local GitHub repository
+ * @returns {Promise<Changes>} the changeset
+ */
+export async function parseDiffContents(
+  diffs: string[],
+  gitDir: string
+): Promise<Map<string, FileDiffContent>> {
+  try {
+    // get updated file contents
+    const changes: Map<string, FileDiffContent> = new Map();
+    const changePromises: Array<Promise<GitFileData>> = [];
+    for (let i = 0; i < diffs.length; i++) {
+      // TODO - handle memory constraint
+      changePromises.push(getGitFileData(gitDir, diffs[i]));
+    }
+    const gitFileDatas = await Promise.all(changePromises);
+    for (let i = 0; i < gitFileDatas.length; i++) {
+      const gitfileData = gitFileDatas[i];
+      const fileDiffContent: FileDiffContent = {
+        oldContent: getFileContentsAtHead(gitDir, gitfileData.path),
+        newContent: gitfileData.fileData.content!,
+      };
+      changes.set(gitfileData.path, fileDiffContent);
+    }
+    return changes;
+  } catch (err) {
+    logger.error('Error parsing git changes');
+    throw err;
+  }
+}
+
+/**
+ * Get the git changes of the current project asynchronously.
+ * Rejects if any of the files fails to load (if not deleted),
+ * or if there is a git diff parse error
+ * @param {string[]} diffs the git diff raw output (which only shows relative paths)
+ * @param {string} gitDir the root of the local GitHub repository
+ * @returns {Promise<Changes>} the changeset
+ */
+export function getDiffContents(
+  dir: string
+): Promise<Map<string, FileDiffContent>> {
+  try {
+    validateGitInstalled();
+    const absoluteDir = resolvePath(dir);
+    const gitRootDir = findRepoRoot(absoluteDir);
+    const diffs = getAllDiffs(gitRootDir);
+    return parseDiffContents(diffs, gitRootDir);
   } catch (err) {
     if (!(err instanceof InstallationError)) {
       logger.error('Error loadng git changes.');

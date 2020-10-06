@@ -50,7 +50,7 @@ describe('main', () => {
       .value({...process.env, ACCESS_TOKEN: '123121312'});
     sandbox
       .stub(yargs, 'argv')
-      .value({...yargs.argv, _: ['pr'], 'git-dir': 'some/dir'});
+      .value({...yargs.argv, _: ['unknown-command'], 'git-dir': 'some/dir'});
     const stubHelperHandlers = {
       getChanges: () => {
         return new Promise((resolve, reject) => {
