@@ -387,10 +387,12 @@ Suggests changes against an open GitHub Pull Request with changes in the provide
 
 #### Example
 
-The following example is a `.github/workflows/main.yaml` file in repo `Octocat/HelloWorld`. This would add a LICENSE folder to the root `HelloWorld` repo on every pull request if it is not already there.
+The following example is a `.github/workflows/main.yaml` file in repo `Octocat/HelloWorld`. This would run the go formatter on the code and then create a pull request review suggesting `go fmt` fixes.
+
 ```yaml
 on:
-  pull_request:
+  pull_request_target:
+    types: [opened, synchronize]
     branches:
       - master
 name: ci
@@ -398,19 +400,24 @@ jobs:
   add-license:
     runs-on: ubuntu-latest
     env:
-      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
       - name: format
         run: go fmt
       - uses: googleapis/code-suggester@v1 # takes the changes from git directory
         with:
           command: review
-          upstream_owner: Octocat
-          upstream_repo: HelloWorld
           pull_number: ${{ github.event.pull_request.number }}
           git_dir: '.'
 ```
+
+**Important**: When using `pull_request_target` and `actions/checkout` with the pull
+request code, make sure that an external developer cannot override the commands run
+from the pull request.
 
 ## Supported Node.js Versions
 
@@ -439,13 +446,9 @@ _Legacy Node.js versions are supported as a best effort:_
 This library follows [Semantic Versioning](http://semver.org/).
 
 
-
-
 This library is considered to be in **alpha**. This means it is still a
 work-in-progress and under active development. Any release is subject to
 backwards-incompatible changes at any time.
-
-
 
 More Information: [Google Cloud Platform Launch Stages][launch_stages]
 
