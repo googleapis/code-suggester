@@ -17,24 +17,20 @@ author: googleapis
 description: An action-wrapper for the npm cli code-suggester. It suggests code to your repository
 inputs:
   command:
-    description: 'The command for code-suggester to run'
+    description: 'The command for code-suggester to run. Can be "pr" or "review"'
     required: true
   upstream_repo:
     description: 'The repository to create the fork off of.'
   upstream_owner:
     description: 'The owner of the upstream repository.'
   description:
-    description: 'The GitHub Pull Request description.'
-    required: true
+    description: 'The GitHub Pull Request description. Required for "pr" command.'
   title:
-    description: 'The GitHub Pull Request title.'
-    required: true
+    description: 'The GitHub Pull Request title. Required for "pr" command.'
   message:
-    description: 'The GitHub commit message.'
-    required: true
+    description: 'The GitHub commit message. Required for "pr" command.'
   branch:
-    description: 'The GitHub working branch name.'
-    required: true
+    description: 'The GitHub working branch name. Required for "pr" command.'
   primary:
     description: 'The primary upstream branch to open a PR against.'
     default: master
@@ -53,6 +49,8 @@ inputs:
     description: >-
       Whether or not to attempt forking to a separate repository. Default is true.
     default: true
+  pr_number:
+    description: Pull Request number to review. Required for "review" command.
 runs:
   using: docker
   image: Dockerfile
