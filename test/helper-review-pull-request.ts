@@ -18,6 +18,11 @@ import {octokit, setup} from './util';
 import {RepoDomain, FileDiffContent, Hunk} from '../src/types';
 import {Octokit} from '@octokit/rest';
 import * as proxyquire from 'proxyquire';
+import {readFileSync} from 'fs';
+import {resolve} from 'path';
+
+const fixturePath = 'test/fixtures/diffs';
+
 before(() => {
   setup();
 });
@@ -105,6 +110,66 @@ describe('reviewPullRequest', () => {
       diffContents
     );
     expect(numMockedHelpersCalled).equals(4);
+  });
+
+  it('Succeeds when diff string provided', async () => {
+    const diffString = readFileSync(resolve(fixturePath, 'many-to-many.diff')).toString();
+    let numMockedHelpersCalled = 0;
+    const validFileHunks = new Map<string, Hunk[]>();
+    validFileHunks.set('cloudbuild.yaml', [{
+      newStart: 0,
+      newEnd: 10,
+      oldStart: 0,
+      oldEnd: 10,
+      newContent: [],
+    }]);
+
+    const stubMakePr = proxyquire.noCallThru()(
+      '../src/github-handler/comment-handler',
+      {
+        './get-hunk-scope-handler/remote-patch-ranges-handler': {
+          getPullRequestHunks: (
+            testOctokit: Octokit,
+            testRemote: RepoDomain,
+            testPullNumber: number,
+            testPageSize: number
+          ) => {
+            expect(testOctokit).equals(octokit);
+            expect(testRemote.owner).equals(owner);
+            expect(testOctokit).equals(octokit);
+            expect(testRemote.repo).equals(repo);
+            expect(testPullNumber).equals(pullNumber);
+            expect(testPageSize).equals(pageSize);
+            numMockedHelpersCalled += 1;
+            return validFileHunks;
+          },
+        },
+        './make-review-handler': {
+          makeInlineSuggestions: (
+            testOctokit: Octokit,
+            testValidHunks: Map<string, Hunk[]>,
+            testInvalidHunks: Map<string, Hunk[]>,
+            testRemote: RepoDomain,
+            testPullNumber: number
+          ) => {
+            expect(testOctokit).equals(octokit);
+            expect(testValidHunks.size).to.equal(1);
+            expect(testRemote).equals(remote);
+            expect(testInvalidHunks.size).to.equal(0);
+            expect(testPullNumber).equals(pullNumber);
+            numMockedHelpersCalled += 1;
+          },
+        },
+      }
+    );
+    await stubMakePr.reviewPullRequest(
+      octokit,
+      remote,
+      pullNumber,
+      pageSize,
+      diffString
+    );
+    expect(numMockedHelpersCalled).equals(2);
   });
 
   it('Passes up the error message when getPullRequestHunks helper fails', async () => {
