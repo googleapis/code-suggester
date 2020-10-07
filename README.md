@@ -180,7 +180,6 @@ npm i code-suggester -g
 
 #### Syntax
 
-
 `code-suggester pr [options] --upstream-repo=<string> --upstream-owner=<string>`
 
 #### Environment Variables
@@ -237,14 +236,46 @@ Whether or not to attempt forking to a separate repository. Default value is: `t
 code-suggester pr -o foo -r bar -d 'description' -t 'title' -m 'message' --git-dir=.
 ```
 
-## Action
-
-### create a pull request
-Opens a GitHub Pull Request against the upstream primary branch with the provided git directory. By default the git directory is the same as the `$GITHUB_WORKSPACE` directory.
+### code-suggester review
+`code-suggester review` - review an open GitHub Pull Request and suggest changes.
 
 #### Syntax
 
-`pr --upstream-repo=<string> --upstream-owner=<string> --title=<string> --description=<string> --message=<string> [options] `
+`code-suggester review --upstream-repo=<string> --upstream-owner=<string> --pull-number=<number> --git-dir=<string>`
+
+#### Environment Variables
+#### `ACCESS_TOKEN`
+*string* <br>
+**Required.** The GitHub access token which has permissions to fork, write to its forked repo and its branches, as well as create Pull Requests on the upstream repository.
+
+#### Options
+
+#### `--upstream-repo, -r`
+*string* <br>
+**Required.** The repository to create the fork off of.
+
+
+#### `--upstream-owner, -o`
+*string* <br>
+**Required.** The owner of the upstream repository.
+
+#### `--pull-number, -p`
+*number* <br>
+**Required.** The pull request number.
+
+#### `--git-dir`
+*string* <br>
+**Required.** The path of a git directory
+
+### Example
+```
+code-suggester pr -o foo -r bar -p 1234 --git-dir=.
+```
+
+## Action
+
+### Create a Pull Request
+Opens a GitHub Pull Request against the upstream primary branch with the provided git directory. By default the git directory is the same as the `$GITHUB_WORKSPACE` directory.
 
 #### Environment Variables
 #### `ACCESS_TOKEN`
@@ -257,11 +288,9 @@ Opens a GitHub Pull Request against the upstream primary branch with the provide
 *string* <br>
 **Required.** The repository to create the fork off of.
 
-
 #### `upstream_owner`
 *string* <br>
 **Required.** The owner of the upstream repository.
-
 
 #### `description`
 *string* <br>
@@ -299,7 +328,8 @@ Whether or not maintainers can modify the pull request. Default value is: `true`
 *boolean* <br>
 Whether or not to attempt forking to a separate repository. Default value is: `true`.
 
-### Example
+#### Example
+
 The following example is a `.github/workflows/main.yaml` file in repo `Octocat/HelloWorld`. This would add a LICENSE folder to the root `HelloWorld` repo on every pull request if it is not already there.
 ```yaml
 on:
@@ -328,6 +358,67 @@ jobs:
           git_dir: '.'
 ```
 
+### Review a Pull Request
+
+Suggests changes against an open GitHub Pull Request with changes in the provided git directory. By default the git directory is the same as the `$GITHUB_WORKSPACE` directory.
+
+#### Environment Variables
+#### `ACCESS_TOKEN`
+*string* <br>
+**Required.** The GitHub access token for the user making the suggested changes. We recommend storing it as a secret in your GitHub repository.
+
+#### Options
+
+#### `upstream_repo`
+*string* <br>
+**Required.** The repository to create the fork off of.
+
+#### `upstream_owner`
+*string* <br>
+**Required.** The owner of the upstream repository.
+
+#### `pull_number`
+*number* <br>
+**Required.** The GitHub Pull Request number.
+
+#### `git_dir`
+*string* <br>
+**Required.** The path of a git directory. Relative to `$GITHUB_WORKSPACE`.
+
+#### Example
+
+The following example is a `.github/workflows/main.yaml` file in repo `Octocat/HelloWorld`. This would run the go formatter on the code and then create a pull request review suggesting `go fmt` fixes.
+
+```yaml
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+    branches:
+      - master
+name: ci
+jobs:
+  add-license:
+    runs-on: ubuntu-latest
+    env:
+      ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+      - name: format
+        run: go fmt
+      - uses: googleapis/code-suggester@v1 # takes the changes from git directory
+        with:
+          command: review
+          pull_number: ${{ github.event.pull_request.number }}
+          git_dir: '.'
+```
+
+**Important**: When using `pull_request_target` and `actions/checkout` with the pull
+request code, make sure that an external developer cannot override the commands run
+from the pull request.
+
 ## Supported Node.js Versions
 
 Our client libraries follow the [Node.js release schedule](https://nodejs.org/en/about/releases/).
@@ -355,13 +446,9 @@ _Legacy Node.js versions are supported as a best effort:_
 This library follows [Semantic Versioning](http://semver.org/).
 
 
-
-
 This library is considered to be in **alpha**. This means it is still a
 work-in-progress and under active development. Any release is subject to
 backwards-incompatible changes at any time.
-
-
 
 More Information: [Google Cloud Platform Launch Stages][launch_stages]
 
