@@ -38,6 +38,8 @@ describe('parseHunks', () => {
         newStart: 5,
         newEnd: 5,
         newContent: ["  args: ['sleep', '301']"],
+        nextLine: "- name: 'ubuntu'",
+        previousLine: "- name: 'ubuntu'",
       },
     ]);
   });
@@ -53,6 +55,7 @@ describe('parseHunks', () => {
         newStart: 7,
         newEnd: 8,
         newContent: ["  args: ['foobar']", '  id: asdf'],
+        previousLine: "- name: 'ubuntu'",
       },
     ]);
   });
@@ -68,6 +71,7 @@ describe('parseHunks', () => {
         newStart: 5,
         newEnd: 6,
         newContent: ["  args: ['sleep', '30']", "  id: 'foobar'"],
+        previousLine: "- name: 'ubuntu'",
       },
     ]);
   });
@@ -83,6 +87,8 @@ describe('parseHunks', () => {
         newStart: 2,
         newEnd: 3,
         newContent: ["- name: 'foo'", "  args: ['sleep 1']"],
+        nextLine: "- name: 'ubuntu'",
+        previousLine: "steps:",
       },
     ]);
   });
@@ -99,6 +105,8 @@ describe('parseHunks', () => {
         newStart: 2,
         newEnd: 2,
         newContent: ["- name: 'foo'"],
+        nextLine: "- name: 'ubuntu'",
+        previousLine: "steps:",
       },
     ]);
   });
@@ -106,14 +114,30 @@ describe('parseHunks', () => {
     const diff = readFileSync(resolve(fixturePath, 'deletion.diff')).toString();
     const hunks = parseHunks(diff);
     expect(hunks).to.eql([
-      {oldStart: 4, oldEnd: 5, newStart: 4, newEnd: 3, newContent: []},
+      {
+        oldStart: 4,
+        oldEnd: 5,
+        newStart: 4,
+        newEnd: 3,
+        newContent: [],
+        nextLine: "- name: 'ubuntu'",
+        previousLine: "  args: ['echo', 'foobar']",
+      },
     ]);
   });
   it('parses additions', () => {
     const diff = readFileSync(resolve(fixturePath, 'addition.diff')).toString();
     const hunks = parseHunks(diff);
     expect(hunks).to.eql([
-      {oldStart: 6, oldEnd: 5, newStart: 6, newEnd: 6, newContent: ["  id: 'added'"]},
+      {
+        oldStart: 6, 
+        oldEnd: 5, 
+        newStart: 6, 
+        newEnd: 6, 
+        newContent: ["  id: 'added'"],
+        nextLine: "- name: 'ubuntu'",
+        previousLine: "  args: ['sleep', '30']",
+      },
     ]);
   })
 });

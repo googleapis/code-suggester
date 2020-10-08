@@ -30,14 +30,24 @@ export function parseHunks(diff: string): Hunk[] {
     let normalLines = 0;
     let changeSeen = false;
     const newLines: string[] = [];
+    let previousLine: string | null = null;
+    let nextLine: string | null = null;
 
     chunk.changes.forEach(change => {
+      // strip off leading '+', '-', or ' ' and trailing carriage return
+      const content = change.content.substring(1).replace(/[\n\r]+$/g, '');
       if (change.type === 'normal') {
         normalLines++;
+        if (changeSeen) {
+          if (nextLine === null) {
+            nextLine = content;
+          }
+        } else {
+          previousLine = content;
+        }
       } else {
         if (change.type === 'add') {
-          // strip off leading '+' and trailing carriage return
-          newLines.push(change.content.substring(1).replace(/[\n\r]+$/g, ''));
+          newLines.push(content);
         }
         if (!changeSeen) {
           oldStart += normalLines;
@@ -48,13 +58,20 @@ export function parseHunks(diff: string): Hunk[] {
     });
     const newEnd = newStart + chunk.newLines - normalLines - 1;
     const oldEnd = oldStart + chunk.oldLines - normalLines - 1;
-    return {
+    let hunk: Hunk = {
       oldStart: oldStart,
       oldEnd: oldEnd,
       newStart: newStart,
       newEnd: newEnd,
       newContent: newLines,
     };
+    if (previousLine) {
+      hunk = {...hunk, previousLine: previousLine};
+    }
+    if (nextLine) {
+      hunk = {...hunk, nextLine: nextLine};
+    }
+    return hunk;
   });
 }
 
