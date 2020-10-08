@@ -88,7 +88,7 @@ describe('parseHunks', () => {
         newEnd: 3,
         newContent: ["- name: 'foo'", "  args: ['sleep 1']"],
         nextLine: "- name: 'ubuntu'",
-        previousLine: "steps:",
+        previousLine: 'steps:',
       },
     ]);
   });
@@ -106,7 +106,7 @@ describe('parseHunks', () => {
         newEnd: 2,
         newContent: ["- name: 'foo'"],
         nextLine: "- name: 'ubuntu'",
-        previousLine: "steps:",
+        previousLine: 'steps:',
       },
     ]);
   });
@@ -130,14 +130,14 @@ describe('parseHunks', () => {
     const hunks = parseHunks(diff);
     expect(hunks).to.eql([
       {
-        oldStart: 6, 
-        oldEnd: 5, 
-        newStart: 6, 
-        newEnd: 6, 
+        oldStart: 6,
+        oldEnd: 5,
+        newStart: 6,
+        newEnd: 6,
         newContent: ["  id: 'added'"],
         nextLine: "- name: 'ubuntu'",
         previousLine: "  args: ['sleep', '30']",
       },
     ]);
-  })
+  });
 });

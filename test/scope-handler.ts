@@ -39,14 +39,14 @@ describe('partitionSuggestedHunksByScope', () => {
       oldEnd: 12,
       newStart: 10,
       newEnd: 12,
-      newContent: [],
+      newContent: ['some content'],
     };
     const hunk2 = {
       oldStart: 15,
       oldEnd: 15,
       newStart: 20,
       newEnd: 20,
-      newContent: [],
+      newContent: ['some content'],
     };
     const suggestedHunks: Map<string, Hunk[]> = new Map();
     suggestedHunks.set('file1.txt', [hunk1, hunk2]);
@@ -60,7 +60,7 @@ describe('partitionSuggestedHunksByScope', () => {
     expect(invalidHunks.size).to.equal(0);
   });
 
-  it('allows multiple suggestions in a second hunk', () => {
+  it('allows suggestions in a second hunk', () => {
     const prHunk1 = {
       oldStart: 10,
       oldEnd: 20,
@@ -83,7 +83,7 @@ describe('partitionSuggestedHunksByScope', () => {
       oldEnd: 35,
       newStart: 32,
       newEnd: 35,
-      newContent: [],
+      newContent: ['some content'],
     };
     const suggestedHunks: Map<string, Hunk[]> = new Map();
     suggestedHunks.set('file1.txt', [hunk1]);
@@ -155,5 +155,159 @@ describe('partitionSuggestedHunksByScope', () => {
     expect(validHunks.size).to.equal(0);
     expect(invalidHunks.get('file2.txt')!.length).to.equal(1);
     expect(invalidHunks.get('file2.txt')).to.eql([hunk1]);
+  });
+
+  it('allows an addition only suggestion', () => {
+    const prHunk = {
+      oldStart: 10,
+      oldEnd: 20,
+      newStart: 10,
+      newEnd: 20,
+      newContent: ['original'],
+    };
+    const pullRequestHunks: Map<string, Hunk[]> = new Map();
+    pullRequestHunks.set('file1.txt', [prHunk]);
+
+    const addition = {
+      oldStart: 15,
+      oldEnd: 14,
+      newStart: 15,
+      newEnd: 15,
+      newContent: ['original'],
+      previousLine: 'previousLine',
+    };
+    const suggestedHunks: Map<string, Hunk[]> = new Map();
+    suggestedHunks.set('file1.txt', [addition]);
+
+    const {validHunks, invalidHunks} = partitionSuggestedHunksByScope(
+      pullRequestHunks,
+      suggestedHunks
+    );
+    const expectedHunk = {
+      oldStart: 14,
+      oldEnd: 14,
+      newStart: 14,
+      newEnd: 15,
+      newContent: ['previousLine', 'original'],
+    };
+    expect(validHunks.get('file1.txt')!.length).to.equal(1);
+    expect(validHunks.get('file1.txt')).to.eql([expectedHunk]);
+    expect(invalidHunks.size).to.equal(0);
+  });
+
+  it('allows an addition only suggestion at the beginning of the range', () => {
+    const prHunk = {
+      oldStart: 10,
+      oldEnd: 20,
+      newStart: 10,
+      newEnd: 20,
+      newContent: ['original'],
+    };
+    const pullRequestHunks: Map<string, Hunk[]> = new Map();
+    pullRequestHunks.set('file1.txt', [prHunk]);
+
+    const addition = {
+      oldStart: 10,
+      oldEnd: 9,
+      newStart: 10,
+      newEnd: 10,
+      newContent: ['original'],
+      previousLine: 'previousLine',
+      nextLine: 'nextLine',
+    };
+    const suggestedHunks: Map<string, Hunk[]> = new Map();
+    suggestedHunks.set('file1.txt', [addition]);
+
+    const {validHunks, invalidHunks} = partitionSuggestedHunksByScope(
+      pullRequestHunks,
+      suggestedHunks
+    );
+    const expectedHunk = {
+      oldStart: 10,
+      oldEnd: 10,
+      newStart: 10,
+      newEnd: 11,
+      newContent: ['original', 'nextLine'],
+    };
+    expect(validHunks.get('file1.txt')!.length).to.equal(1);
+    expect(validHunks.get('file1.txt')).to.eql([expectedHunk]);
+    expect(invalidHunks.size).to.equal(0);
+  });
+
+  it('allows an deletion only suggestion', () => {
+    const prHunk = {
+      oldStart: 10,
+      oldEnd: 20,
+      newStart: 10,
+      newEnd: 20,
+      newContent: ['original'],
+    };
+    const pullRequestHunks: Map<string, Hunk[]> = new Map();
+    pullRequestHunks.set('file1.txt', [prHunk]);
+
+    const deletion = {
+      oldStart: 15,
+      oldEnd: 15,
+      newStart: 15,
+      newEnd: 14,
+      newContent: [],
+      previousLine: 'previousLine',
+    };
+    const suggestedHunks: Map<string, Hunk[]> = new Map();
+    suggestedHunks.set('file1.txt', [deletion]);
+
+    const {validHunks, invalidHunks} = partitionSuggestedHunksByScope(
+      pullRequestHunks,
+      suggestedHunks
+    );
+    const expectedHunk = {
+      oldStart: 14,
+      oldEnd: 15,
+      newStart: 14,
+      newEnd: 14,
+      newContent: ['previousLine'],
+    };
+    expect(validHunks.get('file1.txt')!.length).to.equal(1);
+    expect(validHunks.get('file1.txt')).to.eql([expectedHunk]);
+    expect(invalidHunks.size).to.equal(0);
+  });
+
+  it('allows an deletion only suggestion at the start of the range', () => {
+    const prHunk = {
+      oldStart: 10,
+      oldEnd: 20,
+      newStart: 10,
+      newEnd: 20,
+      newContent: ['original'],
+    };
+    const pullRequestHunks: Map<string, Hunk[]> = new Map();
+    pullRequestHunks.set('file1.txt', [prHunk]);
+
+    const deletion = {
+      oldStart: 10,
+      oldEnd: 10,
+      newStart: 10,
+      newEnd: 9,
+      newContent: [],
+      previousLine: 'previousLine',
+      nextLine: 'nextLine',
+    };
+    const suggestedHunks: Map<string, Hunk[]> = new Map();
+    suggestedHunks.set('file1.txt', [deletion]);
+
+    const {validHunks, invalidHunks} = partitionSuggestedHunksByScope(
+      pullRequestHunks,
+      suggestedHunks
+    );
+    const expectedHunk = {
+      oldStart: 10,
+      oldEnd: 11,
+      newStart: 10,
+      newEnd: 10,
+      newContent: ['nextLine'],
+    };
+    expect(validHunks.get('file1.txt')!.length).to.equal(1);
+    expect(validHunks.get('file1.txt')).to.eql([expectedHunk]);
+    expect(invalidHunks.size).to.equal(0);
   });
 });
