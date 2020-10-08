@@ -109,4 +109,11 @@ describe('parseHunks', () => {
       {oldStart: 4, oldEnd: 5, newStart: 4, newEnd: 3, newContent: []},
     ]);
   });
+  it('parses additions', () => {
+    const diff = readFileSync(resolve(fixturePath, 'addition.diff')).toString();
+    const hunks = parseHunks(diff);
+    expect(hunks).to.eql([
+      {oldStart: 6, oldEnd: 5, newStart: 6, newEnd: 6, newContent: ["  id: 'added'"]},
+    ]);
+  })
 });
