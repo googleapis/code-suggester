@@ -52,7 +52,7 @@ import * as retry from 'async-retry';
  */
 export async function reviewPullRequest(
   octokit: Octokit,
-  diffContents: Map<string, FileDiffContent>,
+  diffContents: Map<string, FileDiffContent> | string,
   options: CreateReviewCommentUserOptions,
   loggerOption?: Logger | LoggerOptions
 ): Promise<number | null> {
@@ -62,7 +62,7 @@ export async function reviewPullRequest(
   if (
     diffContents === null ||
     diffContents === undefined ||
-    diffContents.size === 0
+    (typeof diffContents !== 'string' && diffContents.size === 0)
   ) {
     logger.info(
       'Empty changes provided. No suggestions to be made. Cancelling workflow.'

@@ -16,7 +16,7 @@ import {describe, it, before} from 'mocha';
 import {readFileSync} from 'fs';
 import {setup} from './util';
 import {resolve} from 'path';
-import {parseHunks} from '../src/github-handler/diff-utils';
+import {parseAllHunks} from '../src/github-handler/diff-utils';
 import {expect} from 'chai';
 
 const fixturePath = 'test/fixtures/diffs';
@@ -25,12 +25,14 @@ before(() => {
   setup();
 });
 
-describe('parseHunks', () => {
+describe('parseAllHunks', () => {
   it('parses one-to-one hunks', () => {
     const diff = readFileSync(
       resolve(fixturePath, 'one-line-to-one.diff')
     ).toString();
-    const hunks = parseHunks(diff);
+    const allHunks = parseAllHunks(diff);
+    expect(allHunks.size).to.equal(1);
+    const hunks = allHunks.get('cloudbuild.yaml');
     expect(hunks).to.eql([
       {
         oldStart: 5,
@@ -47,7 +49,9 @@ describe('parseHunks', () => {
     const diff = readFileSync(
       resolve(fixturePath, 'one-line-to-many.diff')
     ).toString();
-    const hunks = parseHunks(diff);
+    const allHunks = parseAllHunks(diff);
+    expect(allHunks.size).to.equal(1);
+    const hunks = allHunks.get('cloudbuild.yaml');
     expect(hunks).to.eql([
       {
         oldStart: 7,
@@ -63,7 +67,9 @@ describe('parseHunks', () => {
     const diff = readFileSync(
       resolve(fixturePath, 'one-line-to-many-newline.diff')
     ).toString();
-    const hunks = parseHunks(diff);
+    const allHunks = parseAllHunks(diff);
+    expect(allHunks.size).to.equal(1);
+    const hunks = allHunks.get('cloudbuild.yaml');
     expect(hunks).to.eql([
       {
         oldStart: 5,
@@ -79,7 +85,9 @@ describe('parseHunks', () => {
     const diff = readFileSync(
       resolve(fixturePath, 'many-to-many.diff')
     ).toString();
-    const hunks = parseHunks(diff);
+    const allHunks = parseAllHunks(diff);
+    expect(allHunks.size).to.equal(1);
+    const hunks = allHunks.get('cloudbuild.yaml');
     expect(hunks).to.eql([
       {
         oldStart: 2,
@@ -97,7 +105,9 @@ describe('parseHunks', () => {
     const diff = readFileSync(
       resolve(fixturePath, 'many-to-one.diff')
     ).toString();
-    const hunks = parseHunks(diff);
+    const allHunks = parseAllHunks(diff);
+    expect(allHunks.size).to.equal(1);
+    const hunks = allHunks.get('cloudbuild.yaml');
     expect(hunks).to.eql([
       {
         oldStart: 2,
@@ -112,7 +122,9 @@ describe('parseHunks', () => {
   });
   it('parses deletions', () => {
     const diff = readFileSync(resolve(fixturePath, 'deletion.diff')).toString();
-    const hunks = parseHunks(diff);
+    const allHunks = parseAllHunks(diff);
+    expect(allHunks.size).to.equal(1);
+    const hunks = allHunks.get('cloudbuild.yaml');
     expect(hunks).to.eql([
       {
         oldStart: 4,
@@ -127,7 +139,9 @@ describe('parseHunks', () => {
   });
   it('parses additions', () => {
     const diff = readFileSync(resolve(fixturePath, 'addition.diff')).toString();
-    const hunks = parseHunks(diff);
+    const allHunks = parseAllHunks(diff);
+    expect(allHunks.size).to.equal(1);
+    const hunks = allHunks.get('cloudbuild.yaml');
     expect(hunks).to.eql([
       {
         oldStart: 6,
