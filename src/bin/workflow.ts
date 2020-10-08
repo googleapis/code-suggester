@@ -63,9 +63,7 @@ async function createCommand() {
 
 async function reviewCommand() {
   const reviewOptions = coerceUserCreateReviewRequestOptions();
-  const diffContents = await git.getDiffContents(
-    yargs.argv['git-dir'] as string
-  );
+  const diffContents = await git.getDiffString(yargs.argv['git-dir'] as string);
   const octokit = new Octokit({auth: process.env.ACCESS_TOKEN});
   await reviewPullRequest(octokit, diffContents, reviewOptions, logger);
 }

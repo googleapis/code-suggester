@@ -16,46 +16,69 @@ import {Hunk} from '../types';
 import * as parseDiff from 'parse-diff';
 import {createPatch} from 'diff';
 
+// This header is ignored for calculating patch ranges, but is neccessary
+// for parsing a diff
+const _DIFF_HEADER = `diff --git a/file.ext b/file.ext
+index cac8fbc..87f387c 100644
+--- a/file.ext
++++ b/file.ext
+`;
+
 /**
- * Given a diff expressed in GNU diff format, return the range of lines
+ * Given a patch expressed in GNU diff format, return the range of lines
  * from the original content that are changed.
  * @param diff Diff expressed in GNU diff format.
  * @returns Hunk[]
  */
-export function parseHunks(diff: string): Hunk[] {
-  const chunks = parseDiff(diff)[0].chunks;
-  return chunks.map(chunk => {
-    let oldStart = chunk.oldStart;
-    let newStart = chunk.newStart;
-    let normalLines = 0;
-    let changeSeen = false;
-    const newLines: string[] = [];
+export function parsePatch(patch: string): Hunk[] {
+  return parseAllHunks(_DIFF_HEADER + patch).get('file.ext') || [];
+}
 
-    chunk.changes.forEach(change => {
-      if (change.type === 'normal') {
-        normalLines++;
-      } else {
-        if (change.type === 'add') {
-          // strip off leading '+' and trailing carriage return
-          newLines.push(change.content.substring(1).replace(/[\n\r]+$/g, ''));
+/**
+ * Given a diff expressed in GNU diff format, return the range of lines
+ * from the original content that are changed.
+ * @param diff Diff expressed in GNU diff format.
+ * @returns Map<string, Hunk[]>
+ */
+export function parseAllHunks(diff: string): Map<string, Hunk[]> {
+  const hunksByFile: Map<string, Hunk[]> = new Map();
+  parseDiff(diff).forEach(file => {
+    const filename = file.to ? file.to : file.from!;
+    const chunks = file.chunks.map(chunk => {
+      let oldStart = chunk.oldStart;
+      let newStart = chunk.newStart;
+      let normalLines = 0;
+      let changeSeen = false;
+      const newLines: string[] = [];
+
+      chunk.changes.forEach(change => {
+        if (change.type === 'normal') {
+          normalLines++;
+        } else {
+          if (change.type === 'add') {
+            // strip off leading '+' and trailing carriage return
+            newLines.push(change.content.substring(1).replace(/[\n\r]+$/g, ''));
+          }
+          if (!changeSeen) {
+            oldStart += normalLines;
+            newStart += normalLines;
+            changeSeen = true;
+          }
         }
-        if (!changeSeen) {
-          oldStart += normalLines;
-          newStart += normalLines;
-          changeSeen = true;
-        }
-      }
+      });
+      const newEnd = newStart + chunk.newLines - normalLines - 1;
+      const oldEnd = oldStart + chunk.oldLines - normalLines - 1;
+      return {
+        oldStart: oldStart,
+        oldEnd: oldEnd,
+        newStart: newStart,
+        newEnd: newEnd,
+        newContent: newLines,
+      };
     });
-    const newEnd = newStart + chunk.newLines - normalLines - 1;
-    const oldEnd = oldStart + chunk.oldLines - normalLines - 1;
-    return {
-      oldStart: oldStart,
-      oldEnd: oldEnd,
-      newStart: newStart,
-      newEnd: newEnd,
-      newContent: newLines,
-    };
+    hunksByFile.set(filename, chunks);
   });
+  return hunksByFile;
 }
 
 /**
@@ -69,5 +92,5 @@ export function getSuggestedHunks(
   newContent: string
 ): Hunk[] {
   const diff = createPatch('unused', oldContent, newContent);
-  return parseHunks(diff);
+  return parseAllHunks(diff).get('unused') || [];
 }
