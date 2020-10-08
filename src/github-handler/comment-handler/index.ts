@@ -19,6 +19,7 @@ import {logger} from '../../logger';
 import {getRawSuggestionHunks} from './raw-patch-handler/raw-hunk-handler';
 import {getPullRequestHunks} from './get-hunk-scope-handler/remote-patch-ranges-handler';
 import {partitionSuggestedHunksByScope} from './get-hunk-scope-handler/scope-handler';
+import {parseAllHunks} from '../diff-utils';
 
 /**
  * Comment on a Pull Request
@@ -34,7 +35,7 @@ export async function reviewPullRequest(
   remote: RepoDomain,
   pullNumber: number,
   pageSize: number,
-  diffContents: Map<string, FileDiffContent>
+  diffContents: Map<string, FileDiffContent> | string
 ): Promise<number | null> {
   try {
     // get the hunks from the pull request
@@ -46,7 +47,10 @@ export async function reviewPullRequest(
     );
 
     // get the hunks from the suggested change
-    const allSuggestedHunks = getRawSuggestionHunks(diffContents);
+    const allSuggestedHunks =
+      typeof diffContents === 'string'
+        ? parseAllHunks(diffContents)
+        : getRawSuggestionHunks(diffContents);
 
     // split hunks by commentable and uncommentable
     const {validHunks, invalidHunks} = partitionSuggestedHunksByScope(
