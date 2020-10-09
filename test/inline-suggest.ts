@@ -35,7 +35,7 @@ describe('buildFileComments', () => {
       oldStart: 1,
       oldEnd: 2,
       newStart: 1,
-      newEnd: 2,
+      newEnd: 1,
       newContent: ['Foo'],
     };
     suggestions.set(fileName1, [hunk1]);

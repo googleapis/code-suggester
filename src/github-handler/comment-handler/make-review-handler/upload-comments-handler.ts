@@ -67,11 +67,11 @@ export function buildReviewComments(
   suggestions.forEach((hunks: Hunk[], fileName: string) => {
     hunks.forEach(hunk => {
       const newContent = hunk.newContent.join('\n');
-      if (hunk.newStart === hunk.newEnd) {
+      if (hunk.oldStart === hunk.oldEnd) {
         const singleComment: SingleLineComment = {
           path: fileName,
           body: `\`\`\`suggestion\n${newContent}\n\`\`\``,
-          line: hunk.newEnd,
+          line: hunk.oldEnd,
           side: 'RIGHT',
         };
         fileComments.push(singleComment);
@@ -79,8 +79,8 @@ export function buildReviewComments(
         const comment: MultilineComment = {
           path: fileName,
           body: `\`\`\`suggestion\n${newContent}\n\`\`\``,
-          start_line: hunk.newStart,
-          line: hunk.newEnd,
+          start_line: hunk.oldStart,
+          line: hunk.oldEnd,
           side: 'RIGHT',
           start_side: 'RIGHT',
         };
