@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.0](https://www.github.com/googleapis/code-suggester/compare/v1.7.0...v1.8.0) (2020-10-09)
+
+
+### Features
+
+* **review:** allow raw diff for reviewPullRequest ([#137](https://www.github.com/googleapis/code-suggester/issues/137)) ([841526d](https://www.github.com/googleapis/code-suggester/commit/841526d720b6af4a21cf3ab08e5749a812fb5c30))
+
+
+### Bug Fixes
+
+* handle addition-only and deletion-only changes ([#144](https://www.github.com/googleapis/code-suggester/issues/144)) ([ab936a2](https://www.github.com/googleapis/code-suggester/commit/ab936a251171ca5aafc160f3506db54a7cb31e8a)), closes [#126](https://www.github.com/googleapis/code-suggester/issues/126) [#127](https://www.github.com/googleapis/code-suggester/issues/127)
+* the review comment should go on the old file lines, not the new file lines ([#140](https://www.github.com/googleapis/code-suggester/issues/140)) ([662391f](https://www.github.com/googleapis/code-suggester/commit/662391f2ae18e8ec997e0961430ce3ccc6f11cee))
+
 ## [1.7.0](https://www.github.com/googleapis/code-suggester/compare/v1.6.0...v1.7.0) (2020-10-07)
 
 
