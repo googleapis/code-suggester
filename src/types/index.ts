@@ -168,4 +168,6 @@ export interface Hunk {
   readonly newStart: number;
   readonly newEnd: number;
   readonly newContent: string[];
+  readonly previousLine?: string;
+  readonly nextLine?: string;
 }

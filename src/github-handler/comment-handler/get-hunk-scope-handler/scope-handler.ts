@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Hunk} from '../../../types';
+import {adjustHunkUp, adjustHunkDown} from '../../hunk-utils';
 
 interface PartitionedHunks {
   validHunks: Map<string, Hunk[]>;
@@ -22,6 +23,13 @@ interface PartitionedHunks {
 interface PartitionedFileHunks {
   validFileHunks: Hunk[];
   invalidFileHunks: Hunk[];
+}
+
+function hunkOverlaps(validHunk: Hunk, suggestedHunk: Hunk): boolean {
+  return (
+    suggestedHunk.oldStart >= validHunk.newStart &&
+    suggestedHunk.oldEnd <= validHunk.newEnd
+  );
 }
 
 function partitionFileHunks(
@@ -40,16 +48,33 @@ function partitionFileHunks(
       candidateHunk = pullRequestHunks[i];
     }
     if (!candidateHunk) {
+      invalidFileHunks.push(suggestedHunk);
       return;
     }
+    // if deletion only or addition only
     if (
-      suggestedHunk.oldStart >= candidateHunk.newStart &&
-      suggestedHunk.oldEnd <= candidateHunk.newEnd
+      suggestedHunk.newEnd < suggestedHunk.newStart ||
+      suggestedHunk.oldEnd < suggestedHunk.oldStart
     ) {
+      // try using previous line
+      let adjustedHunk = adjustHunkUp(suggestedHunk);
+      if (adjustedHunk && hunkOverlaps(candidateHunk, adjustedHunk)) {
+        validFileHunks.push(adjustedHunk);
+        return;
+      }
+
+      // try using next line
+      adjustedHunk = adjustHunkDown(suggestedHunk);
+      if (adjustedHunk && hunkOverlaps(candidateHunk, adjustedHunk)) {
+        validFileHunks.push(adjustedHunk);
+        return;
+      }
+    } else if (hunkOverlaps(candidateHunk, suggestedHunk)) {
       validFileHunks.push(suggestedHunk);
-    } else {
-      invalidFileHunks.push(suggestedHunk);
+      return;
     }
+
+    invalidFileHunks.push(suggestedHunk);
   });
   return {validFileHunks, invalidFileHunks};
 }
