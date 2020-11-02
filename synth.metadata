@@ -4,14 +4,14 @@
       "git": {
         "name": ".",
         "remote": "https://github.com/googleapis/code-suggester.git",
-        "sha": "04274c13a9dff0850fb6955e6b3118caa270ea3c"
+        "sha": "bd423216dfb7ab2ee899d99b143c58c7f75d6cf4"
       }
     },
     {
       "git": {
         "name": "synthtool",
         "remote": "https://github.com/googleapis/synthtool.git",
-        "sha": "89c849ba5013e45e8fb688b138f33c2ec6083dc5"
+        "sha": "ba9918cd22874245b55734f57470c719b577e591"
       }
     }
   ],
