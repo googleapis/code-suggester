@@ -25,6 +25,7 @@ import {
 import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as child_process from 'child_process';
+import * as path from 'path';
 
 before(() => {
   setup();
@@ -115,8 +116,8 @@ describe('Repository root', () => {
 });
 
 describe('Path resolving', () => {
-  const absoluteGitDirLinux = process.cwd() + '/test/fixtures';
-  const absoluteGitDirDos = process.cwd() + '\\test\\fixtures';
+  const absoluteGitDirLinux = path.join(process.cwd(), 'test/fixtures');
+  const absoluteGitDirDos = path.join(process.cwd(), '\\test\\fixtures');
 
   it("Resolves to absolute path when '..' is a prefix", () => {
     const relativeGitDir = '../code-suggester/test/fixtures';
