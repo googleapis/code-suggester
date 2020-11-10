@@ -118,9 +118,12 @@ describe('Path resolving', () => {
   const absoluteGitDirLinux = process.cwd() + '/test/fixtures';
   const absoluteGitDirDos = process.cwd() + '\\test\\fixtures';
 
-  it("Resolves to absolute path when '..' is a prefix", () => {
+  it.only("Resolves to absolute path when '..' is a prefix", () => {
     const relativeGitDir = '../code-suggester/test/fixtures';
     const path = resolvePath(relativeGitDir);
+    console.log(path);
+    console.log(absoluteGitDirDos);
+    console.log(absoluteGitDirLinux);
     expect(path === absoluteGitDirLinux || path === absoluteGitDirDos).true;
   });
 
