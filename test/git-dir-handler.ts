@@ -116,28 +116,16 @@ describe('Repository root', () => {
 });
 
 describe('Path resolving', () => {
-  const absoluteGitDirLinux = path.join(process.cwd(), 'test/fixtures');
-  const absoluteGitDirDos = path.join(process.cwd(), '\\test\\fixtures');
-
-  it("Resolves to absolute path when '..' is a prefix", () => {
-    const relativeGitDir = '../code-suggester/test/fixtures';
-    const path = resolvePath(relativeGitDir);
-    console.log(`path in test ${relativeGitDir}`);
-    console.log(`absoluteGitDirLinux in test ${absoluteGitDirLinux}`);
-    console.log(`absoluteGitDirDos in test ${absoluteGitDirDos}`);
-    expect(path === absoluteGitDirLinux || path === absoluteGitDirDos).true;
-  });
-
   it("Resolves to absolute path when './' is a prefix", () => {
     const relativeGitDir = './test/fixtures';
-    const path = resolvePath(relativeGitDir);
-    expect(path === absoluteGitDirLinux || path === absoluteGitDirDos).true;
+    const testingPath = resolvePath(relativeGitDir);
+    expect(path.isAbsolute(testingPath)).to.be.true;
   });
 
   it('Resolves to absolute path when the leading chars are letters', () => {
     const relativeGitDir = 'test/fixtures';
-    const path = resolvePath(relativeGitDir);
-    expect(path === absoluteGitDirLinux || path === absoluteGitDirDos).true;
+    const testingPath = resolvePath(relativeGitDir);
+    expect(path.isAbsolute(testingPath)).to.be.true;
   });
 });
 
