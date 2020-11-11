@@ -26,6 +26,7 @@ import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as child_process from 'child_process';
 import * as path from 'path';
+import { isAbsolute } from 'path';
 
 before(() => {
   setup();
@@ -109,26 +110,23 @@ describe('Repository root', () => {
     findRepoRoot(dir);
     sinon.assert.calledOnceWithExactly(
       stubGitDiff,
-      'git rev-parse --show-toplevel',
+      'git rev-parse --show-toplevel', 
       {cwd: dir}
     );
   });
 });
 
 describe('Path resolving', () => {
-  const absoluteGitDirLinux = path.resolve(__dirname, 'test/fixtures');
-  const absoluteGitDirDos = path.resolve(__dirname, '\\test\\fixtures');
-
   it("Resolves to absolute path when './' is a prefix", () => {
     const relativeGitDir = './test/fixtures';
     const path = resolvePath(relativeGitDir);
-    expect(path === absoluteGitDirLinux || path === absoluteGitDirDos).true;
+    expect(isAbsolute(path)).to.be.true;
   });
 
   it('Resolves to absolute path when the leading chars are letters', () => {
     const relativeGitDir = 'test/fixtures';
     const path = resolvePath(relativeGitDir);
-    expect(path === absoluteGitDirLinux || path === absoluteGitDirDos).true;
+    expect(isAbsolute(path)).to.be.true;
   });
 });
 

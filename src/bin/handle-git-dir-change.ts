@@ -40,7 +40,8 @@ class InstallationError extends Error {
  * @returns {string} the absolute path relative to the path that the user executed the bash command in
  */
 export function resolvePath(dir: string) {
-  const absoluteDir = path.resolve(process.cwd(), dir);
+  const absoluteDir = path.resolve(__dirname, dir);
+  console.log(`absolute dir in main ${absoluteDir}`)
   return absoluteDir;
 }
 
