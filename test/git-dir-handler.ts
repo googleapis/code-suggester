@@ -109,7 +109,7 @@ describe('Repository root', () => {
     findRepoRoot(dir);
     sinon.assert.calledOnceWithExactly(
       stubGitDiff,
-      'git rev-parse --show-toplevel', 
+      'git rev-parse --show-toplevel',
       {cwd: dir}
     );
   });
