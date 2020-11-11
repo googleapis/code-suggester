@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.8.1](https://www.github.com/googleapis/code-suggester/compare/v1.8.0...v1.8.1) (2020-11-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency diff to v5 ([#155](https://www.github.com/googleapis/code-suggester/issues/155)) ([b923ec4](https://www.github.com/googleapis/code-suggester/commit/b923ec436ed2761ca3e775e110ec693655977cf6))
+
 ## [1.8.0](https://www.github.com/googleapis/code-suggester/compare/v1.7.0...v1.8.0) (2020-10-09)
 
 
