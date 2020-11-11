@@ -41,7 +41,6 @@ class InstallationError extends Error {
  */
 export function resolvePath(dir: string) {
   const absoluteDir = path.resolve(process.cwd(), dir);
-  console.log(`absolute directory in main ${absoluteDir}`);
   return absoluteDir;
 }
 
