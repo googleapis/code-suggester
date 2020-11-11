@@ -26,7 +26,6 @@ import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as child_process from 'child_process';
 import * as path from 'path';
-import { isAbsolute } from 'path';
 
 before(() => {
   setup();
@@ -119,14 +118,14 @@ describe('Repository root', () => {
 describe('Path resolving', () => {
   it("Resolves to absolute path when './' is a prefix", () => {
     const relativeGitDir = './test/fixtures';
-    const path = resolvePath(relativeGitDir);
-    expect(isAbsolute(path)).to.be.true;
+    const testingPath = resolvePath(relativeGitDir);
+    expect(path.isAbsolute(testingPath)).to.be.true;
   });
 
   it('Resolves to absolute path when the leading chars are letters', () => {
     const relativeGitDir = 'test/fixtures';
-    const path = resolvePath(relativeGitDir);
-    expect(isAbsolute(path)).to.be.true;
+    const testingPath = resolvePath(relativeGitDir);
+    expect(path.isAbsolute(testingPath)).to.be.true;
   });
 });
 
