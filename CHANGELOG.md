@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.8.2](https://www.github.com/googleapis/code-suggester/compare/v1.8.1...v1.8.2) (2020-12-08)
+
+
+### Bug Fixes
+
+* add package-lock.json to fix Docker build ([#161](https://www.github.com/googleapis/code-suggester/issues/161)) ([0d5ecf1](https://www.github.com/googleapis/code-suggester/commit/0d5ecf1256168352b101dd027fa87dfa7bbb742e))
+
 ### [1.8.1](https://www.github.com/googleapis/code-suggester/compare/v1.8.0...v1.8.1) (2020-11-11)
 
 
