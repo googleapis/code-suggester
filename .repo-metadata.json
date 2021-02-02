@@ -4,5 +4,6 @@
   "release_level": "alpha",
   "language": "nodejs",
   "repo": "googleapis/code-suggester",
-  "distribution_name": "@google-cloud/code-suggester"
+  "distribution_name": "@google-cloud/code-suggester",
+  "codeowner_team": "@googleapis/github-automation"
 }
