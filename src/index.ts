@@ -184,7 +184,7 @@ async function createPullRequest(
       originBranch,
       prNumber,
       options.labels
-    )
+    );
     logger.info(`Successfully added labels ${options.labels} to ${prNumber} resulting in labels: ${resultingLabels}`);
   }
   return prNumber;

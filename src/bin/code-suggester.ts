@@ -96,7 +96,7 @@ yargs
     labels: {
       describe: 'The list of labels to add to the pull request. Default is none.',
       default: [],
-      type: 'array'
+      type: 'array',
     },
   })
   .command(REVIEW_PR_COMMAND, 'Review an open pull request', {

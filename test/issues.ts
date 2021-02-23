@@ -62,7 +62,7 @@ describe('Adding labels', async () => {
       owner: upstream.owner,
       repo: origin.repo,
       issue_number: issue_number,
-      labels: labels
+      labels: labels,
     });
     expect(resultingLabels).to.deep.equal(['bug', 'enhancement']);
   });

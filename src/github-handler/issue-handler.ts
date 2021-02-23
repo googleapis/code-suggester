@@ -38,7 +38,7 @@ async function addLabels(
       owner: upstream.owner,
       repo: origin.repo,
       issue_number: issue_number,
-      labels: labels
+      labels: labels,
     })
   ).data;
   logger.info(
