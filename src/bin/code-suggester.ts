@@ -94,7 +94,8 @@ yargs
       type: 'boolean',
     },
     labels: {
-      describe: 'The list of labels to add to the pull request. Default is none.',
+      describe:
+        'The list of labels to add to the pull request. Default is none.',
       default: [],
       type: 'array',
     },

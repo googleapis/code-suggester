@@ -41,9 +41,7 @@ async function addLabels(
       labels: labels,
     })
   ).data;
-  logger.info(
-    `Successfully added labels ${labels} to issue: ${issue_number}`
-  )
+  logger.info(`Successfully added labels ${labels} to issue: ${issue_number}`);
   return labelsResponseData.map(l => l.name);
 }
 
