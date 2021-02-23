@@ -145,6 +145,7 @@ The `createPullRequest()` method creates a GitHub Pull request with the files gi
 |   message     	|   `string`	| The commit message for the changes. Default is `'code suggestions'`. We recommend following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/).|
 |   force	        |   `boolean`	| Whether or not to force push the reference even if the ancestor commits differs. Default is `false`. |
 |   fork	        |   `boolean`	| Whether or not code suggestion should be made from a fork, defaults to `true` (_Note: forking does not work when using `secrets.GITHUB_TOKEN` in an action_). |
+|   labels        |   `string[]`| The list of labels to add to the pull request. Default is none. |
 
 #### `logger`
 *[Logger](https://www.npmjs.com/package/@types/pino)* <br>
@@ -230,6 +231,10 @@ Whether or not to force push a reference with different commit history before th
 #### `--fork`
 *boolean* <br>
 Whether or not to attempt forking to a separate repository. Default value is: `true`.
+
+#### `--labels`
+*array* <br>
+The list of labels to add to the pull request. Default is none.
 
 ### Example
 ```
@@ -328,6 +333,10 @@ Whether or not maintainers can modify the pull request. Default value is: `true`
 *boolean* <br>
 Whether or not to attempt forking to a separate repository. Default value is: `true`.
 
+#### `labels`
+*array* <br>
+The list of labels to add to the pull request. Default is none.
+
 #### Example
 
 The following example is a `.github/workflows/main.yaml` file in repo `Octocat/HelloWorld`. This would add a LICENSE folder to the root `HelloWorld` repo on every pull request if it is not already there.
@@ -356,6 +365,9 @@ jobs:
           message: 'chore(license): add license file'
           branch: my-branch
           git_dir: '.'
+          labels: |
+            bug
+            priority: p1
 ```
 
 ### Review a Pull Request

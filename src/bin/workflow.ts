@@ -40,6 +40,7 @@ export function coerceUserCreatePullRequestOptions(): CreatePullRequestUserOptio
     primary: yargs.argv.primary as string,
     maintainersCanModify: yargs.argv.maintainersCanModify as boolean,
     fork: yargs.argv.fork as boolean,
+    labels: yargs.argv.labels as string[],
   };
 }
 

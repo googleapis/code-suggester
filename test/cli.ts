@@ -103,6 +103,7 @@ describe('Mapping pr yargs to create PR options', () => {
       primary: 'primary',
       maintainersCanModify: true,
       fork: true,
+      labels: ['automerge'],
     };
 
     sandbox.stub(yargs, 'argv').value({_: ['pr'], ...options});

@@ -176,6 +176,17 @@ async function createPullRequest(
     gitHubConfigs.primary
   );
   logger.info(`Successfully opened pull request: ${prNumber}.`);
+
+  if (options.labels && options.labels.length > 0) {
+    const resultingLabels = await handler.addLabels(
+      octokit,
+      upstream,
+      originBranch,
+      prNumber,
+      options.labels
+    )
+    logger.info(`Successfully added labels ${options.labels} to ${prNumber} resulting in labels: ${resultingLabels}`);
+  }
   return prNumber;
 }
 
