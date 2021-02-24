@@ -123,7 +123,7 @@ describe('Make PR main function', () => {
         upstream: {owner: string; repo: string},
         originBranch: {owner: string; repo: string; branch: string},
         issue_number: number,
-        labels: string[],
+        labels: string[]
       ) => {
         expect(originBranch.owner).equals(originOwner);
         expect(originBranch.repo).equals(originRepo);
@@ -131,7 +131,7 @@ describe('Make PR main function', () => {
         expect(upstream.owner).equals(upstreamOwner);
         expect(upstream.repo).equals(upstreamRepo);
         expect(labels).equals(labelsToAdd);
-      }
+      },
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,
@@ -192,7 +192,7 @@ describe('Make PR main function', () => {
         upstream: {owner: string; repo: string},
         originBranch: {owner: string; repo: string; branch: string},
         issue_number: number,
-        labels: string[],
+        labels: string[]
       ) => {
         expect(originBranch.owner).equals(upstreamOwner);
         expect(originBranch.repo).equals(upstreamRepo);
@@ -200,7 +200,7 @@ describe('Make PR main function', () => {
         expect(upstream.owner).equals(upstreamOwner);
         expect(upstream.repo).equals(upstreamRepo);
         expect(labels).equals(labelsToAdd);
-      }
+      },
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,
