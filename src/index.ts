@@ -177,7 +177,7 @@ async function createPullRequest(
   );
   logger.info(`Successfully opened pull request: ${prNumber}.`);
 
-  // addLabels will no-op if options.labels is undefined or empty.s
+  // addLabels will no-op if options.labels is undefined or empty.
   await handler.addLabels(
     octokit,
     upstream,
