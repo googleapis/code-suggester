@@ -23,7 +23,7 @@ import {logger} from '../logger';
  * @param {RepoDomain} upstream The upstream repository
  * @param {BranchDomain} origin The remote origin information that contains the origin branch
  * @param {number} issue_number The issue number to add labels to. Can also be a PR number
- * @param {string[]} labels // The list of labels to apply to the issue/pull request
+ * @param {string[]} labels The list of labels to apply to the issue/pull request. Default is []. the funciton will no-op.
  * @returns {Promise<string[]>} The list of resulting labels after the addition of the given labels
  */
 async function addLabels(
@@ -31,8 +31,12 @@ async function addLabels(
   upstream: RepoDomain,
   origin: BranchDomain,
   issue_number: number,
-  labels: string[]
+  labels?: string[]
 ): Promise<string[]> {
+  if (!labels || labels.length === 0) {
+    return [];
+  }
+
   const labelsResponseData = (
     await octokit.issues.addLabels({
       owner: upstream.owner,

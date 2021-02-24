@@ -67,6 +67,35 @@ describe('Adding labels', async () => {
     expect(resultingLabels).to.deep.equal(['bug', 'enhancement']);
   });
 
+  it('No-op undefined labels', async () => {
+    // setup
+    const stub = sandbox.stub(octokit.issues, 'addLabels').resolves();
+    // tests
+    const resultingLabels = await addLabels(
+      octokit,
+      upstream,
+      origin,
+      issue_number
+    );
+    sandbox.assert.neverCalledWith(stub, sinon.match.any);
+    expect(resultingLabels).to.deep.equal([]);
+  });
+
+  it('No-op with empty labels', async () => {
+    // setup
+    const stub = sandbox.stub(octokit.issues, 'addLabels').resolves();
+    // tests
+    const resultingLabels = await addLabels(
+      octokit,
+      upstream,
+      origin,
+      issue_number,
+      []
+    );
+    sandbox.assert.neverCalledWith(stub, sinon.match.any);
+    expect(resultingLabels).to.deep.equal([]);
+  });
+
   it('Passes up the error message with a throw when octokit issues add labels fails', async () => {
     // setup
     const errorMsg = 'Error message';

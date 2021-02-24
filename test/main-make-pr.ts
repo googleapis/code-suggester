@@ -39,6 +39,7 @@ describe('Make PR main function', () => {
   const primary = 'custom-primary';
   const originRepo = 'Hello-World';
   const originOwner = 'octocat';
+  const labelsToAdd = ['automerge'];
   const options: CreatePullRequestUserOptions = {
     upstreamOwner,
     upstreamRepo,
@@ -48,6 +49,7 @@ describe('Make PR main function', () => {
     force,
     message,
     primary,
+    labels: labelsToAdd,
   };
   const oldHeadSha = '7fd1a60b01f91b314f59955a4e4d4e80d8edf11d';
   const changes: Changes = new Map();
@@ -116,6 +118,20 @@ describe('Make PR main function', () => {
         expect(testMaintainersCanModify).equals(maintainersCanModify);
         expect(testPrimary).equals(primary);
       },
+      addLabels: (
+        octokit: Octokit,
+        upstream: {owner: string; repo: string},
+        originBranch: {owner: string; repo: string; branch: string},
+        issue_number: number,
+        labels: string[],
+      ) => {
+        expect(originBranch.owner).equals(originOwner);
+        expect(originBranch.repo).equals(originRepo);
+        expect(originBranch.branch).equals(branch);
+        expect(upstream.owner).equals(upstreamOwner);
+        expect(upstream.repo).equals(upstreamRepo);
+        expect(labels).equals(labelsToAdd);
+      }
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,
@@ -171,6 +187,20 @@ describe('Make PR main function', () => {
         expect(testMaintainersCanModify).equals(maintainersCanModify);
         expect(testPrimary).equals(primary);
       },
+      addLabels: (
+        octokit: Octokit,
+        upstream: {owner: string; repo: string},
+        originBranch: {owner: string; repo: string; branch: string},
+        issue_number: number,
+        labels: string[],
+      ) => {
+        expect(originBranch.owner).equals(upstreamOwner);
+        expect(originBranch.repo).equals(upstreamRepo);
+        expect(originBranch.branch).equals(branch);
+        expect(upstream.owner).equals(upstreamOwner);
+        expect(upstream.repo).equals(upstreamRepo);
+        expect(labels).equals(labelsToAdd);
+      }
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,

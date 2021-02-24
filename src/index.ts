@@ -177,18 +177,15 @@ async function createPullRequest(
   );
   logger.info(`Successfully opened pull request: ${prNumber}.`);
 
-  if (options.labels && options.labels.length > 0) {
-    const resultingLabels = await handler.addLabels(
-      octokit,
-      upstream,
-      originBranch,
-      prNumber,
-      options.labels
-    );
-    logger.info(
-      `Successfully added labels ${options.labels} to ${prNumber} resulting in labels: ${resultingLabels}`
-    );
-  }
+  // addLabels will no-op if options.labels is undefined or empty.s
+  await handler.addLabels(
+    octokit,
+    upstream,
+    originBranch,
+    prNumber,
+    options.labels
+  );
+
   return prNumber;
 }
 
