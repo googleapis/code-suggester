@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.9.0](https://www.github.com/googleapis/code-suggester/compare/v1.8.2...v1.9.0) (2021-02-25)
+
+
+### Features
+
+* support adding labels to PRs ([#173](https://www.github.com/googleapis/code-suggester/issues/173)) ([df55616](https://www.github.com/googleapis/code-suggester/commit/df55616ebc02dc702d828d12b5746830d90e61d4))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @types/yargs to v16 ([#168](https://www.github.com/googleapis/code-suggester/issues/168)) ([6cc6657](https://www.github.com/googleapis/code-suggester/commit/6cc6657fa5d5580432afd6d76df8e25eb6cff246))
+
 ### [1.8.2](https://www.github.com/googleapis/code-suggester/compare/v1.8.1...v1.8.2) (2020-12-08)
 
 
