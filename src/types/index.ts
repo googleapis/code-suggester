@@ -93,6 +93,8 @@ export interface CreatePullRequestUserOptions {
   primary?: string;
   // Whether or not maintainers can modify the PR. Default is true. (optional)
   maintainersCanModify?: boolean;
+  // The list of labels to apply to the newly created PR. Default is empty. (optional)
+  labels?: string[];
 }
 
 /**

@@ -176,6 +176,16 @@ async function createPullRequest(
     gitHubConfigs.primary
   );
   logger.info(`Successfully opened pull request: ${prNumber}.`);
+
+  // addLabels will no-op if options.labels is undefined or empty.
+  await handler.addLabels(
+    octokit,
+    upstream,
+    originBranch,
+    prNumber,
+    options.labels
+  );
+
   return prNumber;
 }
 
