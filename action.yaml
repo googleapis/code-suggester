@@ -51,6 +51,8 @@ inputs:
     default: true
   pull_number:
     description: Pull Request number to review. Required for "review" command.
+  labels:
+    description: Labels to add to the pull request being opened.
 runs:
   using: docker
   image: Dockerfile
