@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.9.1](https://www.github.com/googleapis/code-suggester/compare/v1.9.0...v1.9.1) (2021-03-02)
+
+
+### Bug Fixes
+
+* add labels to action.yaml ([#175](https://www.github.com/googleapis/code-suggester/issues/175)) ([431880b](https://www.github.com/googleapis/code-suggester/commit/431880bc806dc55aac234352a6992e053ed27910))
+
 ## [1.9.0](https://www.github.com/googleapis/code-suggester/compare/v1.8.2...v1.9.0) (2021-02-25)
 
 
