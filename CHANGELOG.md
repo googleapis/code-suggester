@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.9.2](https://www.github.com/googleapis/code-suggester/compare/v1.9.1...v1.9.2) (2021-03-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency parse-diff to ^0.8.0 ([#177](https://www.github.com/googleapis/code-suggester/issues/177)) ([edce69c](https://www.github.com/googleapis/code-suggester/commit/edce69cc8bcbe9da67b5ae9482369726ad76a1f6))
+
 ### [1.9.1](https://www.github.com/googleapis/code-suggester/compare/v1.9.0...v1.9.1) (2021-03-02)
 
 
