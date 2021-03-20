@@ -1,0 +1,24 @@
+{
+  "name": "code-suggester-samples",
+  "private": true,
+  "description": "Samples for code-suggester",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "files": [
+    "*.js"
+  ],
+  "engines": {
+    "node": ">=14.16.0"
+  },
+  "dependencies": {
+    "@octokit/rest": "^18.3.5",
+    "code-suggester": "^1.9.2"
+  },
+  "devDependencies": {
+    "mocha": "^8.3.2"
+  }
+}

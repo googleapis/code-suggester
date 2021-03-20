@@ -24,7 +24,7 @@
     "google cloud"
   ],
   "scripts": {
-    "samples-test": "echo 😱",
+    "samples-test": "cd samples/ && npm link ../ && npm test && cd ../",
     "clean": "gts clean",
     "compile": "tsc -p .",
     "docs": "jsdoc -c .jsdoc.js",

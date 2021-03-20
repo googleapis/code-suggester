@@ -30,26 +30,33 @@ npm i code-suggester
 ### Example
 
 ```js
-const suggester = require("code-suggester");
+const suggester = require('code-suggester');
+const {Octokit} = require('@octokit/rest');
 
-async function main() {
-  const octokit = new Octokit({ auth: process.env.ACCESS_TOKEN });
-  const changes =
-    {
-      'baz.txt':
+async function quickstart() {
+  const octokit = new Octokit({
+    auth: process.env.ACCESS_TOKEN,
+  });
+
+  const changes = new Map([
+    [
+      'baz.txt',
       {
          mode: '100644',
          content: 'hello world!'
       }
-    };
+    ]
+  ]);
   await suggester.createPullRequest(
-    changes,
     octokit,
-    'Foo-Repo',
-    'Bar-Owner',
+    changes,
+    {
+      upstreamOwner: 'Bar-Owner',
+      upstreamRepo: 'Foo-Repo',
+    },
   )
 }
-
+quickstart();
 ```
 ### reviewPullRequest(options)
 
@@ -59,7 +66,7 @@ that they are in scope of the pull request. Outof scope suggestions are not made
 
 In-scope suggestions are specifically: suggestions whose file is in-scope of the pull request,
 and suggestions whose diff hunk is a subset of the pull request's files hunks.
- 
+
  If a file is too large to load in the review, it is skipped in the suggestion phase.
 
  If the program terminates without exception, a timeline comment will be made with all errors or suggestions that could not be made.
