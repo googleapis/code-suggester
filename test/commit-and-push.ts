@@ -16,8 +16,21 @@ import {expect} from 'chai';
 import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
+import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import * as handler from '../src/github-handler/commit-and-push-handler';
 import {Changes, FileData, TreeObject, RepoDomain} from '../src/types';
+
+type GetCommitResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.git.getCommit
+>;
+
+type CreateTreeResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.git.createTree
+>;
+
+type CreateCommitResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.git.createCommit
+>;
 
 before(() => {
   setup();
@@ -121,13 +134,13 @@ describe('Push', () => {
       status: 200,
       url: 'http://fake-url.com',
       data: commitResponseData,
-    };
+    } as GetCommitResponse;
     const createTreeResponse = {
       headers: {},
-      status: 200,
+      status: 201,
       url: 'http://fake-url.com',
       data: createTreeResponseData,
-    };
+    } as CreateTreeResponse;
     // setup
     const stubGetCommit = sandbox
       .stub(octokit.git, 'getCommit')
@@ -174,7 +187,7 @@ describe('Commit', () => {
       status: 201,
       url: 'http://fake-url.com',
       data: createCommitResponseData,
-    };
+    } as CreateCommitResponse;
     const stubCreateCommit = sandbox
       .stub(octokit.git, 'createCommit')
       .resolves(createCommitResponse);
@@ -249,13 +262,13 @@ describe('Commit and push function', async () => {
     status: 200,
     url: 'http://fake-url.com',
     data: commitResponseData,
-  };
+  } as GetCommitResponse;
   const createTreeResponse = {
     headers: {},
-    status: 200,
+    status: 201,
     url: 'http://fake-url.com',
     data: createTreeResponseData,
-  };
+  } as CreateTreeResponse;
 
   const createCommitResponseData = await import(
     './fixtures/create-commit-response.json'
@@ -265,7 +278,7 @@ describe('Commit and push function', async () => {
     status: 201,
     url: 'http://fake-url.com',
     data: createCommitResponseData,
-  };
+  } as CreateCommitResponse;
   afterEach(() => {
     sandbox.restore();
   });

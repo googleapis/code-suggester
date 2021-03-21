@@ -17,7 +17,13 @@ import {describe, it, before, afterEach} from 'mocha';
 import {setup} from './util';
 import * as sinon from 'sinon';
 import {Octokit} from '@octokit/rest';
+import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import {getPullRequestHunks} from '../src/github-handler/comment-handler/get-hunk-scope-handler/remote-patch-ranges-handler';
+
+const octokit = new Octokit();
+type ListFilesResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.pulls.listFiles
+>;
 
 before(() => {
   setup();
@@ -27,7 +33,6 @@ describe('getPullRequestHunks', () => {
   const upstream = {owner: 'upstream-owner', repo: 'upstream-repo'};
   const pullNumber = 10;
   const pageSize = 80;
-  const octokit = new Octokit({});
   const sandbox = sinon.createSandbox();
   afterEach(() => {
     sandbox.restore();
@@ -42,7 +47,7 @@ describe('getPullRequestHunks', () => {
 +gOodBYE world
 +
 +Goodbye World`;
-    const listFilesOfPRResult = {
+    const listFilesOfPRResult: ListFilesResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
