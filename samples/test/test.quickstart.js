@@ -17,7 +17,7 @@ const {execSync} = require('child_process');
 const assert = require('assert');
 
 describe('quickstart', () => {
-  it('should run the quickstart', () => {
+  it('should run the quickstart', async () => {
     const out = execSync('node quickstart.js');
     assert.ok(out);
   });

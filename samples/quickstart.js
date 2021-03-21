@@ -37,6 +37,7 @@ async function main() {
       upstreamRepo: 'code-suggester',
       title: 'An example of a PR',
       description: 'This change adds a new file, as an example.',
+      message: 'This change adds a new file, as an example.',
     });
   }
   quickstart();

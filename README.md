@@ -35,26 +35,26 @@ const {Octokit} = require('@octokit/rest');
 
 async function quickstart() {
   const octokit = new Octokit({
-    auth: process.env.ACCESS_TOKEN,
+    auth: process.env.GITHUB_TOKEN,
   });
 
   const changes = new Map([
     [
       'baz.txt',
       {
-         mode: '100644',
-         content: 'hello world!'
-      }
-    ]
+        mode: '100644',
+        content: 'hello world!',
+      },
+    ],
   ]);
-  await suggester.createPullRequest(
-    octokit,
-    changes,
-    {
-      upstreamOwner: 'Bar-Owner',
-      upstreamRepo: 'Foo-Repo',
-    },
-  )
+
+  await suggester.createPullRequest(octokit, changes, {
+    upstreamOwner: 'your-github-owner',
+    upstreamRepo: 'your-github-repository',
+    title: 'An example of a PR',
+    description: 'This change adds a new file, as an example.',
+    message: 'This change adds a new file, as an example.',
+  });
 }
 quickstart();
 ```

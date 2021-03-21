@@ -12,7 +12,7 @@
     "*.js"
   ],
   "engines": {
-    "node": ">=14.16.0"
+    "node": ">=10"
   },
   "dependencies": {
     "@octokit/rest": "^18.3.5",
