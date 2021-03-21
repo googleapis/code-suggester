@@ -38,7 +38,8 @@
     "test": "c8 mocha build/test",
     "api-extractor": "api-extractor run --local",
     "api-documenter": "api-documenter yaml --input-folder=temp",
-    "pretest": "npm run compile"
+    "pretest": "npm run compile",
+    "prelint": "cd samples; npm link ../; npm install"
   },
   "dependencies": {
     "@octokit/rest": "^18.0.1",
