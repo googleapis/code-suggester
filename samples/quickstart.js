@@ -43,4 +43,9 @@ async function main() {
   quickstart();
   // [END suggester_quickstart]
 }
+
+process.on('unhandledRejection', err => {
+  console.error(err.message);
+  process.exitCode = 1;
+});
 main();
