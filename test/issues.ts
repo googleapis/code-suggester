@@ -16,7 +16,12 @@ import {expect} from 'chai';
 import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
+import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import {addLabels} from '../src/github-handler/issue-handler';
+
+type AddLabelsResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.issues.addLabels
+>;
 
 before(() => {
   setup();
@@ -41,7 +46,7 @@ describe('Adding labels', async () => {
     const responseAddLabelsData = await import(
       './fixtures/add-labels-response.json'
     );
-    const addLabelsResponse = {
+    const addLabelsResponse: AddLabelsResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',

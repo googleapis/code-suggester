@@ -16,7 +16,12 @@ import {expect} from 'chai';
 import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
+import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import {fork} from '../src/github-handler/fork-handler';
+
+type CreateRefResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.repos.createFork
+>;
 
 before(() => {
   setup();
@@ -32,10 +37,10 @@ describe('Forking function', () => {
     const responseData = await import('./fixtures/create-fork-response.json');
     const createRefResponse = {
       headers: {},
-      status: 200,
+      status: 202,
       url: 'http://fake-url.com',
       data: responseData,
-    };
+    } as CreateRefResponse;
     // setup
     const stub = sandbox
       .stub(octokit.repos, 'createFork')
@@ -51,10 +56,10 @@ describe('Forking function', () => {
     const responseData = await import('./fixtures/create-fork-response.json');
     const createRefResponse = {
       headers: {},
-      status: 200,
+      status: 202,
       url: 'http://fake-url.com',
       data: responseData,
-    };
+    } as CreateRefResponse;
     // setup
     sandbox.stub(octokit.repos, 'createFork').resolves(createRefResponse);
     // tests

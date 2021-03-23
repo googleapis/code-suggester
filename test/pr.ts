@@ -16,7 +16,27 @@ import {expect} from 'chai';
 import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
+import {
+  GetResponseTypeFromEndpointMethod,
+  GetResponseDataTypeFromEndpointMethod,
+} from '@octokit/types';
 import {openPullRequest} from '../src/github-handler/pull-request-handler';
+
+type ListPullsResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.pulls.list
+>;
+
+type ListPullsResponseData = GetResponseDataTypeFromEndpointMethod<
+  typeof octokit.pulls.list
+>;
+
+type CreatePRResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.pulls.create
+>;
+
+type CreatePRResponseData = GetResponseDataTypeFromEndpointMethod<
+  typeof octokit.pulls.create
+>;
 
 before(() => {
   setup();
@@ -40,16 +60,16 @@ describe('Opening a pull request', async () => {
 
   it('Invokes octokit pull create when there is not an existing pull request open', async () => {
     // setup
-    const responseCreatePullData = await import(
+    const responseCreatePullData = ((await import(
       './fixtures/create-pr-response.json'
-    );
-    const createPrResponse = {
+    )) as unknown) as CreatePRResponseData;
+    const createPrResponse: CreatePRResponse = {
       headers: {},
-      status: 200,
+      status: 201,
       url: 'http://fake-url.com',
       data: responseCreatePullData,
     };
-    const listPullResponse = {
+    const listPullResponse: ListPullsResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
@@ -79,22 +99,22 @@ describe('Opening a pull request', async () => {
   });
 
   describe('When there are similar refs with pull requests open, the current new and unique ref still opens a pr', async () => {
-    const responseCreatePullData = await import(
+    const responseCreatePullData = ((await import(
       './fixtures/create-pr-response.json'
-    );
-    const responseListPullData = await import(
+    )) as unknown) as CreatePRResponseData;
+    const responseListPullData = ((await import(
       './fixtures/list-pulls-response.json'
-    );
+    )) as unknown) as ListPullsResponseData;
     afterEach(() => {
       sandbox.restore();
     });
-    const createPrResponse = {
+    const createPrResponse: CreatePRResponse = {
       headers: {},
-      status: 200,
+      status: 201,
       url: 'http://fake-url.com',
       data: responseCreatePullData,
     };
-    const listPullResponse = {
+    const listPullResponse: ListPullsResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
@@ -205,10 +225,10 @@ describe('Opening a pull request', async () => {
 
   it('Does not invoke octokit pull create when there is an existing pull request open', async () => {
     // setup
-    const responseListPullData = await import(
+    const responseListPullData = ((await import(
       './fixtures/list-pulls-response.json'
-    );
-    const listPullResponse = {
+    )) as unknown) as ListPullsResponseData;
+    const listPullResponse: ListPullsResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
@@ -248,7 +268,7 @@ describe('Opening a pull request', async () => {
 
   it('Passes up the error message with a throw when octokit create pull fails', async () => {
     // setup
-    const listPullResponse = {
+    const listPullResponse: ListPullsResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',

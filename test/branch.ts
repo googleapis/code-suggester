@@ -16,11 +16,24 @@ import {describe, it, before, afterEach} from 'mocha';
 import {assert, expect} from 'chai';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
+import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import {
   branch,
   getBranchHead,
   createRef,
 } from '../src/github-handler/branch-handler';
+
+type GetBranchResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.repos.getBranch
+>;
+
+type GetRefResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.git.getRef
+>;
+
+type CreateRefResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.git.createRef
+>;
 
 before(() => {
   setup();
@@ -45,7 +58,7 @@ describe('Branch', () => {
       status: 200,
       url: 'http://fake-url.com',
       data: branchResponseBody,
-    };
+    } as GetBranchResponse;
 
     const getBranchStub = sandbox
       .stub(octokit.repos, 'getBranch')
@@ -70,8 +83,8 @@ describe('Branch', () => {
       status: 200,
       url: 'http://fake-url.com',
       data: branchResponseBody,
-    };
-    const createRefResponse = {
+    } as GetBranchResponse;
+    const createRefResponse = ({
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
@@ -87,7 +100,7 @@ describe('Branch', () => {
             'https://api.github.com/repos/fake-Owner/HelloWorld/git/commits/f826b1caabafdffec3dc45a08e41d7021c68db41',
         },
       },
-    };
+    } as unknown) as CreateRefResponse;
     const getBranchStub = sandbox
       .stub(octokit.repos, 'getBranch')
       .resolves(branchResponse);
@@ -130,14 +143,14 @@ describe('Branch', () => {
       status: 200,
       url: 'http://fake-url.com',
       data: branchResponseBody,
-    };
+    } as GetBranchResponse;
     const getRefResponseBody = await import('./fixtures/get-ref-response.json');
-    const getRefResponse = {
+    const getRefResponse = ({
       headers: {},
       status: 404,
       url: 'http://fake-url.com',
       data: getRefResponseBody,
-    };
+    } as unknown) as GetRefResponse;
     const getBranchStub = sandbox
       .stub(octokit.repos, 'getBranch')
       .resolves(branchResponse);
@@ -185,7 +198,7 @@ describe('Branch', () => {
       status: 200,
       url: 'http://fake-url.com',
       data: branchResponseBody,
-    };
+    } as GetBranchResponse;
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
     sandbox.stub(octokit.git, 'getRef').rejects(Error(testErrorMessage));
     try {
@@ -204,7 +217,7 @@ describe('Branch', () => {
       status: 200,
       url: 'http://fake-url.com',
       data: branchResponseBody,
-    };
+    } as GetBranchResponse;
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
     const getRefError = Error('Not Found');
     Object.assign(getRefError, {status: 404});
@@ -226,7 +239,7 @@ describe('Branch', () => {
       status: 200,
       url: 'http://fake-url.com',
       data: branchResponseBody,
-    };
+    } as GetBranchResponse;
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
     try {
       await branch(octokit, origin, upstream, branchName, 'non-master-branch');

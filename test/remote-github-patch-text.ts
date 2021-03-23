@@ -18,7 +18,13 @@ import {setup} from './util';
 import * as sinon from 'sinon';
 import {getCurrentPullRequestPatches} from '../src/github-handler/comment-handler/get-hunk-scope-handler/remote-patch-ranges-handler';
 import {Octokit} from '@octokit/rest';
+import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import {logger} from '../src/logger';
+
+const octokit = new Octokit({});
+type ListFilesResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.pulls.listFiles
+>;
 
 before(() => {
   setup();
@@ -32,11 +38,10 @@ describe('getCurrentPullRequestPatches', () => {
   const upstream = {owner: 'upstream-owner', repo: 'upstream-repo'};
   const pullNumber = 10;
   const pageSize = 80;
-  const octokit = new Octokit({});
 
   it('Calls Octokit with the correct values', async () => {
     // setup
-    const listFilesOfPRResult = {
+    const listFilesOfPRResult: ListFilesResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
@@ -74,7 +79,7 @@ describe('getCurrentPullRequestPatches', () => {
   });
   it('Returns all the valid patches', async () => {
     // setup
-    const listFilesOfPRResult = {
+    const listFilesOfPRResult: ListFilesResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
@@ -168,7 +173,7 @@ describe('getCurrentPullRequestPatches', () => {
   });
   it('Throws when there is no list file data returned from octokit', async () => {
     // setup
-    const listFilesOfPRResult = {
+    const listFilesOfPRResult: ListFilesResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
