@@ -95,6 +95,8 @@ export interface CreatePullRequestUserOptions {
   maintainersCanModify?: boolean;
   // The list of labels to apply to the newly created PR. Default is empty. (optional)
   labels?: string[];
+  // Automatically retry the request if it fails.
+  retry?: boolean;
 }
 
 /**

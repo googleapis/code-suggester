@@ -134,6 +134,10 @@ async function createPullRequest(
     ...origin,
     branch: gitHubConfigs.branch,
   };
+
+  // The `retry` flag defaults to `true` to maintain compatibility
+  options.retry = options.retry === undefined ? true : options.retry;
+
   const refHeadSha: string = await retry(
     async () =>
       await handler.branch(
@@ -144,12 +148,14 @@ async function createPullRequest(
         gitHubConfigs.primary
       ),
     {
-      retries: 5,
+      retries: options.retry ? 5 : 0,
       factor: 2.8411, // https://www.wolframalpha.com/input/?i=Sum%5B3000*x%5Ek%2C+%7Bk%2C+0%2C+4%7D%5D+%3D+5+*+60+*+1000
       minTimeout: 3000,
       randomize: false,
-      onRetry: () => {
-        logger.info('Retrying at a later time...');
+      onRetry: (e, attempt) => {
+        e.message = `Error creating Pull Request: ${e.message}`;
+        logger.error(e);
+        logger.info(`Retry attempt #${attempt}...`);
       },
     }
   );

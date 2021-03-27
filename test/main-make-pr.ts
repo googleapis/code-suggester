@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {assert, expect} from 'chai';
+import {expect} from 'chai';
+import * as assert from 'assert';
 import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
@@ -20,13 +21,14 @@ import {Changes, FileData, CreatePullRequestUserOptions} from '../src/types';
 import {Octokit} from '@octokit/rest';
 import * as proxyquire from 'proxyquire';
 import * as retry from 'async-retry';
+import * as idx from '../src/index';
+import * as handler from '../src/github-handler/branch-handler';
+
 before(() => {
   setup();
 });
 
 /* eslint-disable  @typescript-eslint/no-unused-vars */
-// tslint:disable:no-unused-expression
-// .true triggers ts-lint failure, but is valid chai
 describe('Make PR main function', () => {
   const upstreamOwner = 'owner';
   const upstreamRepo = 'Hello-World';
@@ -271,6 +273,25 @@ describe('Make PR main function', () => {
       expect(err.message).equals('Create branch helper failed');
     }
   });
+
+  it('should respect the retry flag', async () => {
+    const stub = sinon.stub(handler, 'branch').throws('boop');
+    // eslint-disable-next-line node/no-unsupported-features/node-builtins
+    await assert.rejects(
+      idx.createPullRequest(octokit, changes, {
+        title: 'hello',
+        message: 'hello',
+        description: 'hello',
+        fork: false,
+        upstreamOwner: 'googleapis',
+        upstreamRepo: 'nodejs-storage',
+        retry: false,
+      }),
+      /boop/
+    );
+    assert.ok(stub.calledOnce);
+  });
+
   it('Passes up the error message with a throw when helper commit and push helper function fails', async () => {
     // setup
 
@@ -401,6 +422,5 @@ describe('Make PR main function', () => {
     await stubMakePr.createPullRequest(octokit, null, options);
     await stubMakePr.createPullRequest(octokit, undefined, options);
     await stubMakePr.createPullRequest(octokit, new Map(), options);
-    assert.isOk(true);
   });
 });
