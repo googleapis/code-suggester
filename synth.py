@@ -27,4 +27,5 @@ s.copy(templates, excludes=[
     'README.md',
     '.github/CODEOWNERS',
     '.github/release-please.yml',
+    'renovate.json'
 ])
