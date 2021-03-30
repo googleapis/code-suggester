@@ -179,7 +179,8 @@ export async function commitAndPush(
     );
     await updateRef(octokit, originBranch, commitSha, force);
   } catch (err) {
-    logger.error('Error while creating a tree and updating the ref');
+    err.message = `Error while creating a tree and updating the ref: ${err.message}`;
+    logger.error(err);
     throw err;
   }
 }
