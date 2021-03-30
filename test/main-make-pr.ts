@@ -285,7 +285,7 @@ describe('Make PR main function', () => {
         fork: false,
         upstreamOwner: 'googleapis',
         upstreamRepo: 'nodejs-storage',
-        retry: false,
+        retry: 0,
       }),
       /boop/
     );

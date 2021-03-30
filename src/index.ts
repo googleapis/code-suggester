@@ -135,8 +135,8 @@ async function createPullRequest(
     branch: gitHubConfigs.branch,
   };
 
-  // The `retry` flag defaults to `true` to maintain compatibility
-  options.retry = options.retry === undefined ? true : options.retry;
+  // The `retry` flag defaults to `5` to maintain compatibility
+  options.retry = options.retry === undefined ? 5 : options.retry;
 
   const refHeadSha: string = await retry(
     async () =>
@@ -148,7 +148,7 @@ async function createPullRequest(
         gitHubConfigs.primary
       ),
     {
-      retries: options.retry ? 5 : 0,
+      retries: options.retry,
       factor: 2.8411, // https://www.wolframalpha.com/input/?i=Sum%5B3000*x%5Ek%2C+%7Bk%2C+0%2C+4%7D%5D+%3D+5+*+60+*+1000
       minTimeout: 3000,
       randomize: false,
