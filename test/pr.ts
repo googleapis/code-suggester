@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
+import * as assert from 'assert';
 import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
@@ -95,7 +97,7 @@ describe('Opening a pull request', async () => {
       body: description.body,
       maintainer_can_modify: true,
     });
-    expect(number).to.equal(1347);
+    assert.strictEqual(number, 1347);
   });
 
   describe('When there are similar refs with pull requests open, the current new and unique ref still opens a pr', async () => {
@@ -256,14 +258,12 @@ describe('Opening a pull request', async () => {
 
   it('Passes up the error message with a throw when octokit list pull fails', async () => {
     // setup
-    const errorMsg = 'Error message';
-    sandbox.stub(octokit.pulls, 'list').rejects(Error(errorMsg));
-    try {
-      await openPullRequest(octokit, upstream, origin, description);
-      expect.fail();
-    } catch (err) {
-      expect(err.message).to.equal(errorMsg);
-    }
+    const error = new Error('Error message');
+    sandbox.stub(octokit.pulls, 'list').rejects(error);
+    await assert.rejects(
+      openPullRequest(octokit, upstream, origin, description),
+      error
+    );
   });
 
   it('Passes up the error message with a throw when octokit create pull fails', async () => {
@@ -275,13 +275,11 @@ describe('Opening a pull request', async () => {
       data: [],
     };
     sandbox.stub(octokit.pulls, 'list').resolves(listPullResponse);
-    const errorMsg = 'Error message';
-    sandbox.stub(octokit.pulls, 'create').rejects(Error(errorMsg));
-    try {
-      await openPullRequest(octokit, upstream, origin, description);
-      expect.fail();
-    } catch (err) {
-      expect(err.message).to.equal(errorMsg);
-    }
+    const error = new Error('Error message');
+    sandbox.stub(octokit.pulls, 'create').rejects(error);
+    await assert.rejects(
+      openPullRequest(octokit, upstream, origin, description),
+      error
+    );
   });
 });

@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
+import * as assert from 'assert';
 import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
@@ -50,7 +52,7 @@ describe('Push', () => {
   it('GitHub tree objects that are generated correctly for text files in a sub-directory', () => {
     const changes: Changes = new Map();
     changes.set('a/foo.txt', new FileData('Foo content'));
-    expect(handler.generateTreeObjects(changes)).to.deep.equal([
+    assert.deepStrictEqual(handler.generateTreeObjects(changes), [
       {
         path: 'a/foo.txt',
         mode: '100644',
@@ -62,7 +64,7 @@ describe('Push', () => {
   it('has objects that are generated correctly for text files that are deleted', () => {
     const changes: Changes = new Map();
     changes.set('b/bar.txt', new FileData(null));
-    expect(handler.generateTreeObjects(changes)).to.deep.equal([
+    assert.deepStrictEqual(handler.generateTreeObjects(changes), [
       {
         path: 'b/bar.txt',
         mode: '100644',
@@ -74,7 +76,7 @@ describe('Push', () => {
   it('has objects that are generated correctly for deleted exe files', () => {
     const changes: Changes = new Map();
     changes.set('baz.exe', new FileData(null, '100755'));
-    expect(handler.generateTreeObjects(changes)).to.deep.equal([
+    assert.deepStrictEqual(handler.generateTreeObjects(changes), [
       {
         path: 'baz.exe',
         mode: '100755',
@@ -86,7 +88,7 @@ describe('Push', () => {
   it('has objects that are generated correctly for empty text files', () => {
     const changes: Changes = new Map();
     changes.set('empty.txt', new FileData(''));
-    expect(handler.generateTreeObjects(changes)).to.deep.equal([
+    assert.deepStrictEqual(handler.generateTreeObjects(changes), [
       {
         path: 'empty.txt',
         mode: '100644',
@@ -161,7 +163,7 @@ describe('Push', () => {
       tree,
       base_tree: getCommitResponse.data.tree.sha,
     });
-    expect(treeSha).to.equal(createTreeResponse.data.sha);
+    assert.strictEqual(treeSha, createTreeResponse.data.sha);
   });
 });
 
@@ -199,7 +201,7 @@ describe('Commit', () => {
       treeSha,
       message
     );
-    expect(sha).equals(createCommitResponse.data.sha);
+    assert.strictEqual(sha, createCommitResponse.data.sha);
     sandbox.assert.calledOnceWithExactly(stubCreateCommit, {
       owner: origin.owner,
       repo: origin.repo,
@@ -330,55 +332,16 @@ describe('Commit and push function', async () => {
     });
   });
   it('Forwards GitHub error if getCommit fails', async () => {
-    // setup
-    const commitErrorMsg = 'Error committing';
-    sandbox.stub(octokit.git, 'getCommit').rejects(Error(commitErrorMsg));
-    try {
-      // tests
-      await handler.createTree(octokit, origin, '', []);
-    } catch (err) {
-      expect(err.message).to.equal(commitErrorMsg);
-    }
+    const error = new Error('Error committing');
+    sandbox.stub(octokit.git, 'getCommit').rejects(error);
+    await assert.rejects(handler.createTree(octokit, origin, '', []), error);
   });
   it('Forwards GitHub error if createTree fails', async () => {
     // setup
-    const createTreeErrorMsg = 'Error committing';
+    const error = new Error('Error committing');
     sandbox.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
-    sandbox.stub(octokit.git, 'createTree').rejects(Error(createTreeErrorMsg));
-    try {
-      // tests
-      await handler.createTree(octokit, origin, '', []);
-    } catch (err) {
-      expect(err.message).to.equal(createTreeErrorMsg);
-    }
-  });
-  it('Forwards GitHub error if createCommit fails', async () => {
-    // setup
-    sandbox.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
-    sandbox.stub(octokit.git, 'createTree').resolves(createTreeResponse);
-    const createCommitErrorMsg = 'Error creating commit';
-    sandbox
-      .stub(octokit.git, 'createCommit')
-      .rejects(Error(createCommitErrorMsg));
-    try {
-      // tests
-      await handler.createTree(octokit, origin, '', []);
-    } catch (err) {
-      expect(err.message).to.equal(createCommitErrorMsg);
-    }
-  });
-  it('Forwards GitHub error if updateRef fails', async () => {
-    // setup
-    sandbox.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
-    sandbox.stub(octokit.git, 'createTree').resolves(createTreeResponse);
-    sandbox.stub(octokit.git, 'createCommit').resolves(createCommitResponse);
-    const updateRefErrorMsg = 'Error updating reference';
-    sandbox.stub(octokit.git, 'updateRef').rejects(Error(updateRefErrorMsg));
-    try {
-      // tests
-      await handler.createTree(octokit, origin, '', []);
-    } catch (err) {
-      expect(err.message).to.equal(updateRefErrorMsg);
-    }
+    sandbox.stub(octokit.git, 'createTree').rejects(error);
+    // tests
+    await assert.rejects(handler.createTree(octokit, origin, '', []), error);
   });
 });

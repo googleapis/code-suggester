@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+import * as assert from 'assert';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
 import {getRawSuggestionHunks} from '../src/github-handler/comment-handler/raw-patch-handler/raw-hunk-handler';
@@ -41,42 +41,46 @@ describe('getRawSuggestionHunks', () => {
 
   it("Does not update the user's input of text file diff contents", () => {
     getRawSuggestionHunks(diffContents);
-    expect(fileDiffContent1.oldContent).equals('foo');
-    expect(fileDiffContent1.newContent).equals('FOO');
-    expect(diffContents.get(fileName1)!.oldContent).equals('foo');
-    expect(diffContents.get(fileName1)!.newContent).equals('FOO');
-    expect(fileDiffContent2.oldContent).equals(
+    assert.strictEqual(fileDiffContent1.oldContent, 'foo');
+    assert.strictEqual(fileDiffContent1.newContent, 'FOO');
+    assert.strictEqual(diffContents.get(fileName1)!.oldContent, 'foo');
+    assert.strictEqual(diffContents.get(fileName1)!.newContent, 'FOO');
+    assert.strictEqual(
+      fileDiffContent2.oldContent,
       'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar'
     );
-    expect(fileDiffContent2.newContent).equals(
+    assert.strictEqual(
+      fileDiffContent2.newContent,
       'foo\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo'
     );
-    expect(diffContents.get(fileName2)!.oldContent).equals(
+    assert.strictEqual(
+      diffContents.get(fileName2)!.oldContent,
       'bar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar'
     );
-    expect(diffContents.get(fileName2)!.newContent).equals(
+    assert.strictEqual(
+      diffContents.get(fileName2)!.newContent,
       'foo\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nbar\nfoo'
     );
   });
 
   it('Generates the hunks that are produced by the diff library for all files that are updated', () => {
     const fileHunks = getRawSuggestionHunks(diffContents);
-    expect(fileHunks.size).equals(2);
-    expect(fileHunks.get(fileName1)!.length).equals(1);
-    expect(fileHunks.get(fileName1)![0].oldStart).equals(1);
-    expect(fileHunks.get(fileName1)![0].oldEnd).equals(1);
-    expect(fileHunks.get(fileName1)![0].newStart).equals(1);
-    expect(fileHunks.get(fileName1)![0].newEnd).equals(1);
-    expect(fileHunks.get(fileName2)!.length).equals(2);
-    expect(fileHunks.get(fileName2)![0].oldStart).equals(1);
+    assert.strictEqual(fileHunks.size, 2);
+    assert.strictEqual(fileHunks.get(fileName1)!.length, 1);
+    assert.strictEqual(fileHunks.get(fileName1)![0].oldStart, 1);
+    assert.strictEqual(fileHunks.get(fileName1)![0].oldEnd, 1);
+    assert.strictEqual(fileHunks.get(fileName1)![0].newStart, 1);
+    assert.strictEqual(fileHunks.get(fileName1)![0].newEnd, 1);
+    assert.strictEqual(fileHunks.get(fileName2)!.length, 2);
+    assert.strictEqual(fileHunks.get(fileName2)![0].oldStart, 1);
     // FIXME: See #126
-    expect(fileHunks.get(fileName2)![0].oldEnd).equals(0);
-    expect(fileHunks.get(fileName2)![0].newStart).equals(1);
-    expect(fileHunks.get(fileName2)![0].newEnd).equals(1);
-    expect(fileHunks.get(fileName2)![1].oldStart).equals(16);
-    expect(fileHunks.get(fileName2)![1].oldEnd).equals(16);
-    expect(fileHunks.get(fileName2)![1].newStart).equals(17);
-    expect(fileHunks.get(fileName2)![1].newEnd).equals(18);
+    assert.strictEqual(fileHunks.get(fileName2)![0].oldEnd, 0);
+    assert.strictEqual(fileHunks.get(fileName2)![0].newStart, 1);
+    assert.strictEqual(fileHunks.get(fileName2)![0].newEnd, 1);
+    assert.strictEqual(fileHunks.get(fileName2)![1].oldStart, 16);
+    assert.strictEqual(fileHunks.get(fileName2)![1].oldEnd, 16);
+    assert.strictEqual(fileHunks.get(fileName2)![1].newStart, 17);
+    assert.strictEqual(fileHunks.get(fileName2)![1].newEnd, 18);
   });
 
   it('Does not generate hunks for changes that contain no updates', () => {
@@ -87,6 +91,6 @@ describe('getRawSuggestionHunks', () => {
       newContent: 'same',
     });
     const fileHunks = getRawSuggestionHunks(samediffContents);
-    expect(fileHunks.size).equals(0);
+    assert.strictEqual(fileHunks.size, 0);
   });
 });

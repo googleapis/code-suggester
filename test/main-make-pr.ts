@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
 import * as assert from 'assert';
 import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
@@ -66,8 +67,8 @@ describe('Make PR main function', () => {
   it('Returns correct values on success', async () => {
     const stubHelperHandlers = {
       fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
-        expect(upstream.owner).equals(upstreamOwner);
-        expect(upstream.repo).equals(upstreamRepo);
+        assert.strictEqual(upstream.owner, upstreamOwner);
+        assert.strictEqual(upstream.repo, upstreamRepo);
         return {
           owner: originOwner,
           repo: originRepo,
@@ -80,12 +81,12 @@ describe('Make PR main function', () => {
         testBranch: string,
         testprimary: string
       ) => {
-        expect(origin.owner).equals(originOwner);
-        expect(origin.repo).equals(originRepo);
-        expect(upstream.owner).equals(upstreamOwner);
-        expect(upstream.repo).equals(upstreamRepo);
-        expect(testBranch).equals(branch);
-        expect(testprimary).equals(primary);
+        assert.strictEqual(origin.owner, originOwner);
+        assert.strictEqual(origin.repo, originRepo);
+        assert.strictEqual(upstream.owner, upstreamOwner);
+        assert.strictEqual(upstream.repo, upstreamRepo);
+        assert.strictEqual(testBranch, branch);
+        assert.strictEqual(testprimary, primary);
         return oldHeadSha;
       },
       commitAndPush: (
@@ -95,12 +96,12 @@ describe('Make PR main function', () => {
         originBranch: {owner: string; repo: string; branch: string},
         testMessage: string
       ) => {
-        expect(testOldHeadSha).equals(oldHeadSha);
-        expect(originBranch.owner).equals(originOwner);
-        expect(originBranch.repo).equals(originRepo);
-        expect(originBranch.branch).equals(branch);
-        expect(testChanges).deep.equals(changes);
-        expect(testMessage).equals(message);
+        assert.strictEqual(testOldHeadSha, oldHeadSha);
+        assert.strictEqual(originBranch.owner, originOwner);
+        assert.strictEqual(originBranch.repo, originRepo);
+        assert.strictEqual(originBranch.branch, branch);
+        assert.deepStrictEqual(testChanges, changes);
+        assert.strictEqual(testMessage, message);
       },
       openPullRequest: (
         octokit: Octokit,
@@ -110,15 +111,15 @@ describe('Make PR main function', () => {
         testMaintainersCanModify: boolean,
         testPrimary: string
       ) => {
-        expect(originBranch.owner).equals(originOwner);
-        expect(originBranch.repo).equals(originRepo);
-        expect(originBranch.branch).equals(branch);
-        expect(upstream.owner).equals(upstreamOwner);
-        expect(upstream.repo).equals(upstreamRepo);
-        expect(testDescription.body).equals(description);
-        expect(testDescription.title).equals(title);
-        expect(testMaintainersCanModify).equals(maintainersCanModify);
-        expect(testPrimary).equals(primary);
+        assert.strictEqual(originBranch.owner, originOwner);
+        assert.strictEqual(originBranch.repo, originRepo);
+        assert.strictEqual(originBranch.branch, branch);
+        assert.strictEqual(upstream.owner, upstreamOwner);
+        assert.strictEqual(upstream.repo, upstreamRepo);
+        assert.strictEqual(testDescription.body, description);
+        assert.strictEqual(testDescription.title, title);
+        assert.strictEqual(testMaintainersCanModify, maintainersCanModify);
+        assert.strictEqual(testPrimary, primary);
       },
       addLabels: (
         octokit: Octokit,
@@ -127,12 +128,12 @@ describe('Make PR main function', () => {
         issue_number: number,
         labels: string[]
       ) => {
-        expect(originBranch.owner).equals(originOwner);
-        expect(originBranch.repo).equals(originRepo);
-        expect(originBranch.branch).equals(branch);
-        expect(upstream.owner).equals(upstreamOwner);
-        expect(upstream.repo).equals(upstreamRepo);
-        expect(labels).equals(labelsToAdd);
+        assert.strictEqual(originBranch.owner, originOwner);
+        assert.strictEqual(originBranch.repo, originRepo);
+        assert.strictEqual(originBranch.branch, branch);
+        assert.strictEqual(upstream.owner, upstreamOwner);
+        assert.strictEqual(upstream.repo, upstreamRepo);
+        assert.strictEqual(labels, labelsToAdd);
       },
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
@@ -153,8 +154,8 @@ describe('Make PR main function', () => {
         testBranch: string,
         testprimary: string
       ) => {
-        expect(upstream.owner).equals(origin.owner);
-        expect(upstream.repo).equals(origin.repo);
+        assert.strictEqual(upstream.owner, origin.owner);
+        assert.strictEqual(upstream.repo, origin.repo);
         return oldHeadSha;
       },
       commitAndPush: (
@@ -164,12 +165,12 @@ describe('Make PR main function', () => {
         originBranch: {owner: string; repo: string; branch: string},
         testMessage: string
       ) => {
-        expect(testOldHeadSha).equals(oldHeadSha);
-        expect(originBranch.owner).equals(upstreamOwner);
-        expect(originBranch.repo).equals(upstreamRepo);
-        expect(originBranch.branch).equals(branch);
-        expect(testChanges).deep.equals(changes);
-        expect(testMessage).equals(message);
+        assert.strictEqual(testOldHeadSha, oldHeadSha);
+        assert.strictEqual(originBranch.owner, upstreamOwner);
+        assert.strictEqual(originBranch.repo, upstreamRepo);
+        assert.strictEqual(originBranch.branch, branch);
+        assert.deepStrictEqual(testChanges, changes);
+        assert.strictEqual(testMessage, message);
       },
       openPullRequest: (
         octokit: Octokit,
@@ -179,15 +180,15 @@ describe('Make PR main function', () => {
         testMaintainersCanModify: boolean,
         testPrimary: string
       ) => {
-        expect(originBranch.owner).equals(upstreamOwner);
-        expect(originBranch.repo).equals(upstreamRepo);
-        expect(originBranch.branch).equals(branch);
-        expect(upstream.owner).equals(upstreamOwner);
-        expect(upstream.repo).equals(upstreamRepo);
-        expect(testDescription.body).equals(description);
-        expect(testDescription.title).equals(title);
-        expect(testMaintainersCanModify).equals(maintainersCanModify);
-        expect(testPrimary).equals(primary);
+        assert.strictEqual(originBranch.owner, upstreamOwner);
+        assert.strictEqual(originBranch.repo, upstreamRepo);
+        assert.strictEqual(originBranch.branch, branch);
+        assert.strictEqual(upstream.owner, upstreamOwner);
+        assert.strictEqual(upstream.repo, upstreamRepo);
+        assert.strictEqual(testDescription.body, description);
+        assert.strictEqual(testDescription.title, title);
+        assert.strictEqual(testMaintainersCanModify, maintainersCanModify);
+        assert.strictEqual(testPrimary, primary);
       },
       addLabels: (
         octokit: Octokit,
@@ -196,12 +197,12 @@ describe('Make PR main function', () => {
         issue_number: number,
         labels: string[]
       ) => {
-        expect(originBranch.owner).equals(upstreamOwner);
-        expect(originBranch.repo).equals(upstreamRepo);
-        expect(originBranch.branch).equals(branch);
-        expect(upstream.owner).equals(upstreamOwner);
-        expect(upstream.repo).equals(upstreamRepo);
-        expect(labels).equals(labelsToAdd);
+        assert.strictEqual(originBranch.owner, upstreamOwner);
+        assert.strictEqual(originBranch.repo, upstreamRepo);
+        assert.strictEqual(originBranch.branch, branch);
+        assert.strictEqual(upstream.owner, upstreamOwner);
+        assert.strictEqual(upstream.repo, upstreamRepo);
+        assert.strictEqual(labels, labelsToAdd);
       },
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
@@ -215,38 +216,34 @@ describe('Make PR main function', () => {
   });
 
   it('Passes up the error message with a throw when create fork helper function fails', async () => {
-    // setup
-
+    const error = new Error('Create fork helper failed');
     const stubHelperHandlers = {
       fork: () => {
-        throw Error('Create fork helper failed');
+        throw error;
       },
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,
     });
-    try {
-      await stubMakePr.createPullRequest(octokit, changes, options);
-      expect.fail(
-        'The main function should have errored because the fork helper function failed.'
-      );
-    } catch (err) {
-      expect(err.message).equals('Create fork helper failed');
-    }
+    await assert.rejects(
+      stubMakePr.createPullRequest(octokit, changes, options),
+      error
+    );
   });
   it('Passes up the error message with a throw when create branch helper fails', async () => {
     // setup
+    const error = new Error('Create branch helper failed');
     const stubHelperHandlers = {
       fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
-        expect(upstream.owner).equals(upstreamOwner);
-        expect(upstream.repo).equals(upstreamRepo);
+        assert.strictEqual(upstream.owner, upstreamOwner);
+        assert.strictEqual(upstream.repo, upstreamRepo);
         return {
           owner: originOwner,
           repo: originRepo,
         };
       },
       branch: () => {
-        throw Error('Create branch helper failed');
+        throw error;
       },
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
@@ -255,23 +252,19 @@ describe('Make PR main function', () => {
         fn: Function,
         options: {[index: string]: unknown}
       ) => {
-        expect(options.retries).equals(5);
-        expect(options.factor).equals(2.8411);
-        expect(options.minTimeout).equals(3000);
-        expect(options.randomize).equals(false);
+        assert.strictEqual(options.retries, 5);
+        assert.strictEqual(options.factor, 2.8411);
+        assert.strictEqual(options.minTimeout, 3000);
+        assert.strictEqual(options.randomize, false);
         await retry(() => fn(), {
           retries: 0,
         });
       },
     });
-    try {
-      await stubMakePr.createPullRequest(octokit, changes, options);
-      expect.fail(
-        'The main function should have errored because the branch helper function failed.'
-      );
-    } catch (err) {
-      expect(err.message).equals('Create branch helper failed');
-    }
+    await assert.rejects(
+      stubMakePr.createPullRequest(octokit, changes, options),
+      error
+    );
   });
 
   it('should respect the retry flag', async () => {
@@ -294,11 +287,11 @@ describe('Make PR main function', () => {
 
   it('Passes up the error message with a throw when helper commit and push helper function fails', async () => {
     // setup
-
+    const error = new Error('Commit and push helper failed');
     const stubHelperHandlers = {
       fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
-        expect(upstream.owner).equals(upstreamOwner);
-        expect(upstream.repo).equals(upstreamRepo);
+        assert.strictEqual(upstream.owner, upstreamOwner);
+        assert.strictEqual(upstream.repo, upstreamRepo);
         return {
           owner: originOwner,
           repo: originRepo,
@@ -311,37 +304,33 @@ describe('Make PR main function', () => {
         testBranch: string,
         testprimary: string
       ) => {
-        expect(origin.owner).equals(originOwner);
-        expect(origin.repo).equals(originRepo);
-        expect(upstream.owner).equals(upstreamOwner);
-        expect(upstream.repo).equals(upstreamRepo);
-        expect(testBranch).equals(branch);
-        expect(testprimary).equals(primary);
+        assert.strictEqual(origin.owner, originOwner);
+        assert.strictEqual(origin.repo, originRepo);
+        assert.strictEqual(upstream.owner, upstreamOwner);
+        assert.strictEqual(upstream.repo, upstreamRepo);
+        assert.strictEqual(testBranch, branch);
+        assert.strictEqual(testprimary, primary);
         return oldHeadSha;
       },
       commitAndPush: () => {
-        throw Error('Commit and push helper failed');
+        throw error;
       },
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,
     });
-    try {
-      await stubMakePr.createPullRequest(octokit, changes, options);
-      expect.fail(
-        'The main function should have errored because the commit and push helper function failed.'
-      );
-    } catch (err) {
-      expect(err.message).equals('Commit and push helper failed');
-    }
+    await assert.rejects(
+      stubMakePr.createPullRequest(octokit, changes, options),
+      error
+    );
   });
   it('Passes up the error message with a throw when helper create pr helper function fails', async () => {
     // setup
-
+    const error = new Error('Create PR helper failed');
     const stubHelperHandlers = {
       fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
-        expect(upstream.owner).equals(upstreamOwner);
-        expect(upstream.repo).equals(upstreamRepo);
+        assert.strictEqual(upstream.owner, upstreamOwner);
+        assert.strictEqual(upstream.repo, upstreamRepo);
         return {
           owner: originOwner,
           repo: originRepo,
@@ -354,12 +343,12 @@ describe('Make PR main function', () => {
         testBranch: string,
         testprimary: string
       ) => {
-        expect(origin.owner).equals(originOwner);
-        expect(origin.repo).equals(originRepo);
-        expect(upstream.owner).equals(upstreamOwner);
-        expect(upstream.repo).equals(upstreamRepo);
-        expect(testBranch).equals(branch);
-        expect(testprimary).equals(primary);
+        assert.strictEqual(origin.owner, originOwner);
+        assert.strictEqual(origin.repo, originRepo);
+        assert.strictEqual(upstream.owner, upstreamOwner);
+        assert.strictEqual(upstream.repo, upstreamRepo);
+        assert.strictEqual(testBranch, branch);
+        assert.strictEqual(testprimary, primary);
         return oldHeadSha;
       },
       commitAndPush: (
@@ -369,49 +358,45 @@ describe('Make PR main function', () => {
         originBranch: {owner: string; repo: string; branch: string},
         testMessage: string
       ) => {
-        expect(testOldHeadSha).equals(oldHeadSha);
-        expect(originBranch.owner).equals(originOwner);
-        expect(originBranch.repo).equals(originRepo);
-        expect(originBranch.branch).equals(branch);
-        expect(testChanges).deep.equals(changes);
-        expect(testMessage).equals(message);
+        assert.strictEqual(testOldHeadSha, oldHeadSha);
+        assert.strictEqual(originBranch.owner, originOwner);
+        assert.strictEqual(originBranch.repo, originRepo);
+        assert.strictEqual(originBranch.branch, branch);
+        assert.deepStrictEqual(testChanges, changes);
+        assert.strictEqual(testMessage, message);
       },
       openPullRequest: () => {
-        throw Error('Create PR helper failed');
+        throw error;
       },
     };
     const stubMakePr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,
     });
-    try {
-      await stubMakePr.createPullRequest(octokit, changes, options);
-      expect.fail(
-        'The main function should have errored because the commit and push helper function failed.'
-      );
-    } catch (err) {
-      expect(err.message).equals('Create PR helper failed');
-    }
+    await assert.rejects(
+      stubMakePr.createPullRequest(octokit, changes, options),
+      error
+    );
   });
   it('Does not execute any GitHub API calls when there are no changes to commit', async () => {
     // setup
     const stubHelperHandlers = {
       fork: () => {
-        expect.fail(
+        assert.fail(
           'When changeset is null or undefined then GitHub forking should not execute'
         );
       },
       branch: () => {
-        expect.fail(
+        assert.fail(
           'When changeset is null or undefined then GitHub forking should not execute'
         );
       },
       commitAndPush: () => {
-        expect.fail(
+        assert.fail(
           'When changeset is null or undefined then GitHub forking should not execute'
         );
       },
       openPullRequest: () => {
-        expect.fail(
+        assert.fail(
           'When changeset is null or undefined then GitHub forking should not execute'
         );
       },

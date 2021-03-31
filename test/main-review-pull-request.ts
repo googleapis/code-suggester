@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {assert, expect} from 'chai';
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
+import * as assert from 'assert';
 import {describe, it, before} from 'mocha';
 import {octokit, setup} from './util';
 import {CreateReviewComment, RepoDomain, FileDiffContent} from '../src/types';
@@ -23,8 +25,6 @@ before(() => {
 });
 
 /* eslint-disable  @typescript-eslint/no-unused-vars */
-// tslint:disable:no-unused-expression
-// .true triggers ts-lint failure, but is valid chai
 describe('reviewPullRequest', () => {
   const diffContents: Map<string, FileDiffContent> = new Map();
   diffContents.set('src/index.ts', {
@@ -52,11 +52,11 @@ describe('reviewPullRequest', () => {
         testPPageSize: number,
         testDiffContents: Map<string, FileDiffContent>
       ) => {
-        expect(remote.owner).equals(owner);
-        expect(remote.repo).equals(repo);
-        expect(testPullNumber).equals(pullNumber);
-        expect(testPPageSize).equals(pageSize);
-        expect(testDiffContents).equals(diffContents);
+        assert.strictEqual(remote.owner, owner);
+        assert.strictEqual(remote.repo, repo);
+        assert.strictEqual(testPullNumber, pullNumber);
+        assert.strictEqual(testPPageSize, pageSize);
+        assert.strictEqual(testDiffContents, diffContents);
         numMockedHelpersCalled += 1;
       },
     };
@@ -64,7 +64,7 @@ describe('reviewPullRequest', () => {
       './github-handler': stubHelperHandlers,
     });
     await stubReviewPr.reviewPullRequest(octokit, diffContents, options);
-    expect(numMockedHelpersCalled).equals(1);
+    assert.strictEqual(numMockedHelpersCalled, 1);
   });
 
   it('Does not call the github handlers when there are no changes to make because user passed null', async () => {
@@ -76,7 +76,7 @@ describe('reviewPullRequest', () => {
         pageSize: number,
         testDiffContents: Map<string, FileDiffContent>
       ) => {
-        assert.isOk(false);
+        assert.fail();
       },
     };
     const stubReviewPr = proxyquire.noCallThru()('../src/', {
@@ -94,7 +94,7 @@ describe('reviewPullRequest', () => {
         pageSize: number,
         testDiffContents: Map<string, FileDiffContent>
       ) => {
-        assert.isOk(false);
+        assert.fail();
       },
     };
     const stubReviewPr = proxyquire.noCallThru()('../src/', {
@@ -112,7 +112,7 @@ describe('reviewPullRequest', () => {
         pageSize: number,
         testDiffContents: Map<string, FileDiffContent>
       ) => {
-        assert.isOk(false);
+        assert.fail();
       },
     };
     const stubReviewPr = proxyquire.noCallThru()('../src/', {
@@ -122,8 +122,7 @@ describe('reviewPullRequest', () => {
   });
 
   it('Passes up the error message when the create review comment helper fails', async () => {
-    // setup
-
+    const error = new Error('Review pull request helper failed');
     const stubHelperHandlers = {
       reviewPullRequest: (
         octokit: Octokit,
@@ -132,19 +131,15 @@ describe('reviewPullRequest', () => {
         pageSize: number,
         testDiffContents: Map<string, FileDiffContent>
       ) => {
-        throw Error('Review pull request helper failed');
+        throw error;
       },
     };
     const stubReviewPr = proxyquire.noCallThru()('../src/', {
       './github-handler': stubHelperHandlers,
     });
-    try {
-      await stubReviewPr.reviewPullRequest(octokit, diffContents, options);
-      expect.fail(
-        'The main function should have errored because the sub-function failed.'
-      );
-    } catch (err) {
-      expect(err.message).equals('Review pull request helper failed');
-    }
+    await assert.rejects(
+      stubReviewPr.reviewPullRequest(octokit, diffContents, options),
+      error
+    );
   });
 });

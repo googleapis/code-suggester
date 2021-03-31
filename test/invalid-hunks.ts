@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+import * as assert from 'assert';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
 import {buildSummaryComment} from '../src/github-handler/comment-handler/make-review-handler/message-handler';
@@ -27,7 +27,7 @@ describe('buildErrorMessage', () => {
     const expectedMessage = '';
 
     const errorMessage = buildSummaryComment(invalidHunks);
-    expect(errorMessage).to.be.equal(expectedMessage);
+    assert.strictEqual(errorMessage, expectedMessage);
   });
 
   it('should handle multiple file entries', () => {
@@ -45,7 +45,7 @@ describe('buildErrorMessage', () => {
   * lines 3-4`;
 
     const errorMessage = buildSummaryComment(invalidHunks);
-    expect(errorMessage).to.be.equal(expectedMessage);
+    assert.strictEqual(errorMessage, expectedMessage);
   });
 
   it('should handle multiple entries for a file', () => {
@@ -60,6 +60,6 @@ describe('buildErrorMessage', () => {
   * lines 3-4`;
 
     const errorMessage = buildSummaryComment(invalidHunks);
-    expect(errorMessage).to.be.equal(expectedMessage);
+    assert.strictEqual(errorMessage, expectedMessage);
   });
 });
