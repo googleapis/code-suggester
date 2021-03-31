@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
+import * as assert from 'assert';
 import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
@@ -64,20 +66,16 @@ describe('Forking function', () => {
     sandbox.stub(octokit.repos, 'createFork').resolves(createRefResponse);
     // tests
     const res = await fork(octokit, upstream);
-    expect(res.owner).equals(responseData.owner.login);
-    expect(res.repo).equals(responseData.name);
+    assert.strictEqual(res.owner, responseData.owner.login);
+    assert.strictEqual(res.repo, responseData.name);
   });
   it('Passes the error message with a throw when octokit fails', async () => {
     // setup
     const errorMsg = 'Error message';
     sandbox.stub(octokit.repos, 'createFork').rejects(errorMsg);
-    try {
-      await fork(octokit, upstream);
-      expect.fail(
-        'The fork function should have failed because Octokit failed.'
-      );
-    } catch (err) {
-      expect(err.message).to.equal(errorMsg);
-    }
+    await assert.rejects(
+      fork(octokit, upstream),
+      'The fork function should have failed because Octokit failed.'
+    );
   });
 });

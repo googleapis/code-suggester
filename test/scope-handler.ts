@@ -15,7 +15,7 @@
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
 import {partitionSuggestedHunksByScope} from '../src/github-handler/comment-handler/get-hunk-scope-handler/scope-handler';
-import {expect} from 'chai';
+import * as assert from 'assert';
 import {Hunk} from '../src/types';
 
 before(() => {
@@ -55,9 +55,9 @@ describe('partitionSuggestedHunksByScope', () => {
       pullRequestHunks,
       suggestedHunks
     );
-    expect(validHunks.get('file1.txt')!.length).to.equal(2);
-    expect(validHunks.get('file1.txt')).to.eql([hunk1, hunk2]);
-    expect(invalidHunks.size).to.equal(0);
+    assert.strictEqual(validHunks.get('file1.txt')!.length, 2);
+    assert.deepStrictEqual(validHunks.get('file1.txt'), [hunk1, hunk2]);
+    assert.strictEqual(invalidHunks.size, 0);
   });
 
   it('allows suggestions in a second hunk', () => {
@@ -92,9 +92,9 @@ describe('partitionSuggestedHunksByScope', () => {
       pullRequestHunks,
       suggestedHunks
     );
-    expect(validHunks.get('file1.txt')!.length).to.equal(1);
-    expect(validHunks.get('file1.txt')).to.eql([hunk1]);
-    expect(invalidHunks.size).to.equal(0);
+    assert.strictEqual(validHunks.get('file1.txt')!.length, 1);
+    assert.deepStrictEqual(validHunks.get('file1.txt'), [hunk1]);
+    assert.strictEqual(invalidHunks.size, 0);
   });
 
   it('disallows hunk not included in range', () => {
@@ -129,9 +129,9 @@ describe('partitionSuggestedHunksByScope', () => {
       pullRequestHunks,
       suggestedHunks
     );
-    expect(validHunks.size).to.equal(0);
-    expect(invalidHunks.get('file1.txt')!.length).to.equal(2);
-    expect(invalidHunks.get('file1.txt')).to.eql([hunk1, hunk2]);
+    assert.strictEqual(validHunks.size, 0);
+    assert.strictEqual(invalidHunks.get('file1.txt')!.length, 2);
+    assert.deepStrictEqual(invalidHunks.get('file1.txt'), [hunk1, hunk2]);
   });
 
   it('disallows files not included in valid files', () => {
@@ -152,9 +152,9 @@ describe('partitionSuggestedHunksByScope', () => {
       pullRequestHunks,
       suggestedHunks
     );
-    expect(validHunks.size).to.equal(0);
-    expect(invalidHunks.get('file2.txt')!.length).to.equal(1);
-    expect(invalidHunks.get('file2.txt')).to.eql([hunk1]);
+    assert.strictEqual(validHunks.size, 0);
+    assert.strictEqual(invalidHunks.get('file2.txt')!.length, 1);
+    assert.deepStrictEqual(invalidHunks.get('file2.txt'), [hunk1]);
   });
 
   it('allows an addition only suggestion', () => {
@@ -190,9 +190,9 @@ describe('partitionSuggestedHunksByScope', () => {
       newEnd: 15,
       newContent: ['previousLine', 'original'],
     };
-    expect(validHunks.get('file1.txt')!.length).to.equal(1);
-    expect(validHunks.get('file1.txt')).to.eql([expectedHunk]);
-    expect(invalidHunks.size).to.equal(0);
+    assert.strictEqual(validHunks.get('file1.txt')!.length, 1);
+    assert.deepStrictEqual(validHunks.get('file1.txt'), [expectedHunk]);
+    assert.strictEqual(invalidHunks.size, 0);
   });
 
   it('allows an addition only suggestion at the beginning of the range', () => {
@@ -229,9 +229,9 @@ describe('partitionSuggestedHunksByScope', () => {
       newEnd: 11,
       newContent: ['original', 'nextLine'],
     };
-    expect(validHunks.get('file1.txt')!.length).to.equal(1);
-    expect(validHunks.get('file1.txt')).to.eql([expectedHunk]);
-    expect(invalidHunks.size).to.equal(0);
+    assert.strictEqual(validHunks.get('file1.txt')!.length, 1);
+    assert.deepStrictEqual(validHunks.get('file1.txt'), [expectedHunk]);
+    assert.strictEqual(invalidHunks.size, 0);
   });
 
   it('allows an deletion only suggestion', () => {
@@ -267,9 +267,9 @@ describe('partitionSuggestedHunksByScope', () => {
       newEnd: 14,
       newContent: ['previousLine'],
     };
-    expect(validHunks.get('file1.txt')!.length).to.equal(1);
-    expect(validHunks.get('file1.txt')).to.eql([expectedHunk]);
-    expect(invalidHunks.size).to.equal(0);
+    assert.strictEqual(validHunks.get('file1.txt')!.length, 1);
+    assert.deepStrictEqual(validHunks.get('file1.txt'), [expectedHunk]);
+    assert.strictEqual(invalidHunks.size, 0);
   });
 
   it('allows an deletion only suggestion at the start of the range', () => {
@@ -306,8 +306,8 @@ describe('partitionSuggestedHunksByScope', () => {
       newEnd: 10,
       newContent: ['nextLine'],
     };
-    expect(validHunks.get('file1.txt')!.length).to.equal(1);
-    expect(validHunks.get('file1.txt')).to.eql([expectedHunk]);
-    expect(invalidHunks.size).to.equal(0);
+    assert.strictEqual(validHunks.get('file1.txt')!.length, 1);
+    assert.deepStrictEqual(validHunks.get('file1.txt'), [expectedHunk]);
+    assert.strictEqual(invalidHunks.size, 0);
   });
 });

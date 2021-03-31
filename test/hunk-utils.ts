@@ -14,7 +14,7 @@
 
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
-import {expect} from 'chai';
+import * as assert from 'assert';
 import {adjustHunkUp, adjustHunkDown} from '../src/github-handler/hunk-utils';
 
 before(() => {
@@ -33,7 +33,7 @@ describe('adjustHunkUp', () => {
       previousLine: "- name: 'ubuntu'",
     };
     const adjustedHunk = adjustHunkUp(hunk);
-    expect(adjustedHunk).to.eql({
+    assert.deepStrictEqual(adjustedHunk, {
       oldStart: 4,
       oldEnd: 5,
       newStart: 4,
@@ -50,7 +50,7 @@ describe('adjustHunkUp', () => {
       newContent: ["  args: ['sleep', '301']"],
     };
     const adjustedHunk = adjustHunkUp(hunk);
-    expect(adjustedHunk).to.eql(null);
+    assert.strictEqual(adjustedHunk, null);
   });
 });
 
@@ -66,7 +66,7 @@ describe('adjustHunkDown', () => {
       previousLine: "- name: 'ubuntu'",
     };
     const adjustedHunk = adjustHunkDown(hunk);
-    expect(adjustedHunk).to.eql({
+    assert.deepStrictEqual(adjustedHunk, {
       oldStart: 5,
       oldEnd: 6,
       newStart: 5,
@@ -83,6 +83,6 @@ describe('adjustHunkDown', () => {
       newContent: ["  args: ['sleep', '301']"],
     };
     const adjustedHunk = adjustHunkDown(hunk);
-    expect(adjustedHunk).to.eql(null);
+    assert.deepStrictEqual(adjustedHunk, null);
   });
 });

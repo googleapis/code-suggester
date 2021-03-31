@@ -18,8 +18,6 @@ import * as yargs from 'yargs';
 import {CREATE_PR_COMMAND, REVIEW_PR_COMMAND, main} from './workflow';
 import {logger} from '../logger';
 
-// tslint:disable:no-unused-expression
-// yargs actually is a used expression. TS-lint does not detect it.
 yargs
   .scriptName('code-suggester')
   .usage('$0 <command> [args]')

@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
+import * as assert from 'assert';
 import {describe, it, before, afterEach} from 'mocha';
 import {setup} from './util';
 import * as sinon from 'sinon';
@@ -87,25 +89,21 @@ describe('getPullRequestHunks', () => {
       per_page: pageSize,
     });
     const hunks = pullRequestHunks.get('Readme.md');
-    expect(hunks).not.equals(null);
-    expect(hunks!.length).equals(1);
-    expect(hunks![0].newStart).equals(2);
-    expect(hunks![0].newEnd).equals(5);
+    assert.notStrictEqual(hunks, null);
+    assert.strictEqual(hunks!.length, 1);
+    assert.strictEqual(hunks![0].newStart, 2);
+    assert.strictEqual(hunks![0].newEnd, 5);
   });
 
   it('Passes up the error when a sub-method fails', async () => {
     // setup
-    const errorMsg = 'Test error for list files';
-    sandbox.stub(octokit.pulls, 'listFiles').rejects(new Error(errorMsg));
+    const error = new Error('Test error for list files');
+    sandbox.stub(octokit.pulls, 'listFiles').rejects(error);
 
     // tests
-    try {
-      await getPullRequestHunks(octokit, upstream, pullNumber, pageSize);
-      expect.fail(
-        'The getPullRequestHunks function should have failed because Octokit failed.'
-      );
-    } catch (err) {
-      expect(err.message).equals(errorMsg);
-    }
+    await assert.rejects(
+      getPullRequestHunks(octokit, upstream, pullNumber, pageSize),
+      error
+    );
   });
 });

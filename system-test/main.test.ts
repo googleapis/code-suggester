@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {assert} from 'chai';
+import * as assert from 'assert';
 import {describe, it} from 'mocha';
 
 describe('System test', () => {
   it('has a test case', () => {
-    assert.isOk(true);
+    assert.ok(true);
   });
 });

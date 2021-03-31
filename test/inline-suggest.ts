@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
+import * as assert from 'assert';
 import {describe, it, before, afterEach} from 'mocha';
 import {
   GetResponseTypeFromEndpointMethod,
@@ -56,7 +58,7 @@ describe('buildFileComments', () => {
     };
     suggestions.set(fileName1, [hunk1]);
     const comments = buildReviewComments(suggestions);
-    expect(comments).deep.equals([
+    assert.deepStrictEqual(comments, [
       {
         body: '```suggestion\nFoo\n```',
         path: 'foo.txt',
@@ -88,7 +90,7 @@ describe('buildFileComments', () => {
     suggestions.set(fileName2, [hunk1]);
     suggestions.set(fileName1, [hunk1, hunk2]);
     const comments = buildReviewComments(suggestions);
-    expect(comments).deep.equals([
+    assert.deepStrictEqual(comments, [
       {
         body: '```suggestion\nFoo\n```',
         path: 'bar.txt',
@@ -118,7 +120,7 @@ describe('buildFileComments', () => {
   it('Maps empty suggestion to empty list', () => {
     const suggestions: Map<string, Hunk[]> = new Map();
     const comments = buildReviewComments(suggestions);
-    expect(comments.length).deep.equals(0);
+    assert.strictEqual(comments.length, 0);
   });
   it('Builds single line comments', () => {
     const suggestions: Map<string, Hunk[]> = new Map();
@@ -132,7 +134,7 @@ describe('buildFileComments', () => {
     };
     suggestions.set(fileName1, [hunk1]);
     const comments = buildReviewComments(suggestions);
-    expect(comments).deep.equals([
+    assert.deepStrictEqual(comments, [
       {
         body: '```suggestion\nFoo\n```',
         path: 'foo.txt',
@@ -241,7 +243,7 @@ describe('makeInlineSuggestions', () => {
       remote,
       pullNumber
     );
-    expect(reivewNumber).equals(80);
+    assert.strictEqual(reivewNumber, 80);
     sandbox.assert.calledOnceWithExactly(stubGetPulls, {
       owner: remote.owner,
       repo: remote.repo,
@@ -324,7 +326,7 @@ describe('makeInlineSuggestions', () => {
     );
     sandbox.assert.notCalled(stubGetPulls);
     sandbox.assert.notCalled(stubCreateReview);
-    expect(reviewNumber).equals(null);
+    assert.strictEqual(reviewNumber, null);
   });
 
   it('Throws and does not continue when get pull request fails', async () => {
@@ -336,19 +338,18 @@ describe('makeInlineSuggestions', () => {
 
     const stubCreateReview = sandbox.stub(octokit.pulls, 'createReview');
     // tests
-    try {
-      await makeInlineSuggestions(
+    await assert.rejects(
+      makeInlineSuggestions(
         octokit,
         suggestions,
         outOfScopeSuggestions,
         remote,
         pullNumber
-      );
-      expect.fail('Should have failed because get pull request failed');
-    } catch (err) {
-      sandbox.assert.called(stubGetPulls);
-      sandbox.assert.notCalled(stubCreateReview);
-    }
+      ),
+      'Should have failed because get pull request failed'
+    );
+    sandbox.assert.called(stubGetPulls);
+    sandbox.assert.notCalled(stubCreateReview);
   });
   it('Throws when create review comments fails', async () => {
     // setup
@@ -371,20 +372,17 @@ describe('makeInlineSuggestions', () => {
       .stub(octokit.pulls, 'createReview')
       .rejects(new Error());
     // tests
-    try {
-      await makeInlineSuggestions(
+    await assert.rejects(
+      makeInlineSuggestions(
         octokit,
         suggestions,
         outOfScopeSuggestions,
         remote,
         pullNumber
-      );
-      expect.fail(
-        'Should have failed because create pull request review failed'
-      );
-    } catch (err) {
-      sandbox.assert.called(stubGetPulls);
-      sandbox.assert.called(stubCreateReview);
-    }
+      ),
+      'Should have failed because create pull request review failed'
+    );
+    sandbox.assert.called(stubGetPulls);
+    sandbox.assert.called(stubCreateReview);
   });
 });
