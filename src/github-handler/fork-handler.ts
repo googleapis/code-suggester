@@ -40,7 +40,7 @@ async function fork(
     ).data;
     const origin: RepoDomain = {
       repo: forkedRepo.name,
-      owner: forkedRepo.owner.login,
+      owner: forkedRepo.owner!.login,
     };
     logger.info(
       `Create fork request was successful for ${origin.owner}/${origin.repo}`

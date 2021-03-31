@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.10.0](https://www.github.com/googleapis/code-suggester/compare/v1.9.3...v1.10.0) (2021-03-30)
+
+
+### Features
+
+* add a flag to prevent retries ([#188](https://www.github.com/googleapis/code-suggester/issues/188)) ([aede629](https://www.github.com/googleapis/code-suggester/commit/aede629cf72f60cc7b8bc2f5a2da02b931cf05c9))
+
+### [1.9.3](https://www.github.com/googleapis/code-suggester/compare/v1.9.2...v1.9.3) (2021-03-23)
+
+
+### Bug Fixes
+
+* **deps:** update to the latest version of octokit ([#181](https://www.github.com/googleapis/code-suggester/issues/181)) ([2c6c89d](https://www.github.com/googleapis/code-suggester/commit/2c6c89dcf3e597c6627b886973910254d2f805ce))
+
 ### [1.9.2](https://www.github.com/googleapis/code-suggester/compare/v1.9.1...v1.9.2) (2021-03-15)
 
 

@@ -14,6 +14,10 @@
 
 import {expect} from 'chai';
 import {describe, it, before, afterEach} from 'mocha';
+import {
+  GetResponseTypeFromEndpointMethod,
+  GetResponseDataTypeFromEndpointMethod,
+} from '@octokit/types';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {
@@ -22,6 +26,18 @@ import {
   PullsCreateReviewParamsComments,
 } from '../src/github-handler/comment-handler/make-review-handler/upload-comments-handler';
 import {Hunk} from '../src/types';
+
+type GetPullResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.pulls.get
+>;
+
+type GetPullResponseData = GetResponseDataTypeFromEndpointMethod<
+  typeof octokit.pulls.get
+>;
+
+type CreateReviewResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.pulls.createReview
+>;
 
 before(() => {
   setup();
@@ -147,16 +163,16 @@ describe('makeInlineSuggestions', () => {
   const pullNumber = 711;
   it("Calls Octokit with the correct values and returns the successfully created review's number", async () => {
     suggestions.set(fileName1, [hunk1]);
-    const responseData = await import(
+    const responseData: GetPullResponseData = ((await import(
       './fixtures/get-pull-request-response.json'
-    );
-    const getPullRequestResponse = {
+    )) as unknown) as GetPullResponseData;
+    const getPullRequestResponse: GetPullResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
       data: responseData,
     };
-    const createReviewResponse = {
+    const createReviewResponse: CreateReviewResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
@@ -205,7 +221,8 @@ describe('makeInlineSuggestions', () => {
         },
         submitted_at: '2019-11-17T17:43:43Z',
         commit_id: 'ecdd80bb57125d7ba9641ffaa4d7d2c19d3f3091',
-      },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any,
     };
     // setup
     const stubGetPulls = sandbox
@@ -255,11 +272,11 @@ describe('makeInlineSuggestions', () => {
     const responseData = await import(
       './fixtures/get-pull-request-response.json'
     );
-    const getPullRequestResponse = {
+    const getPullRequestResponse: GetPullResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
-      data: responseData,
+      data: (responseData as unknown) as GetPullResponseData,
     };
     // setup
     const stubGetPulls = sandbox
@@ -284,11 +301,11 @@ describe('makeInlineSuggestions', () => {
     const responseData = await import(
       './fixtures/get-pull-request-response.json'
     );
-    const getPullRequestResponse = {
+    const getPullRequestResponse: GetPullResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
-      data: responseData,
+      data: (responseData as unknown) as GetPullResponseData,
     };
     // setup
     const stubGetPulls = sandbox
@@ -339,11 +356,11 @@ describe('makeInlineSuggestions', () => {
     const responseData = await import(
       './fixtures/get-pull-request-response.json'
     );
-    const getPullRequestResponse = {
+    const getPullRequestResponse: GetPullResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
-      data: responseData,
+      data: (responseData as unknown) as GetPullResponseData,
     };
     // setup
     const stubGetPulls = sandbox
