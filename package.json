@@ -47,7 +47,7 @@
     "diff": "^5.0.0",
     "glob": "^7.1.6",
     "parse-diff": "^0.8.0",
-    "pino": "^6.3.2",
+    "pino": "^6.11.2",
     "yargs": "^16.0.0"
   },
   "devDependencies": {
