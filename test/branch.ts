@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
 import {describe, it, before, afterEach} from 'mocha';
-import {assert, expect} from 'chai';
+import * as assert from 'assert';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
@@ -65,7 +67,7 @@ describe('Branch', () => {
       .resolves(branchResponse);
     // // tests
     const headSHA = await getBranchHead(octokit, origin, 'master');
-    expect(headSHA).to.equal(branchResponse.data.commit.sha);
+    assert.strictEqual(headSHA, branchResponse.data.commit.sha);
     sandbox.assert.calledOnceWithExactly(getBranchStub, {
       owner: origin.owner,
       repo: origin.repo,
@@ -114,7 +116,7 @@ describe('Branch', () => {
       .resolves(createRefResponse);
     // tests
     const sha = await branch(octokit, origin, upstream, branchName, 'master');
-    expect(sha).to.equal(branchResponse.data.commit.sha);
+    assert.strictEqual(sha, branchResponse.data.commit.sha);
     sandbox.assert.calledOnceWithExactly(getBranchStub, {
       owner: upstream.owner,
       repo: upstream.repo,
@@ -166,7 +168,7 @@ describe('Branch', () => {
       'existing-branch',
       'master'
     );
-    expect(sha).to.equal(branchResponse.data.commit.sha);
+    assert.strictEqual(sha, branchResponse.data.commit.sha);
     sandbox.assert.calledOnceWithExactly(getBranchStub, {
       owner: upstream.owner,
       repo: upstream.repo,
@@ -181,13 +183,12 @@ describe('Branch', () => {
   });
 
   it('Branching fails when Octokit get branch fails', async () => {
-    sandbox.stub(octokit.repos, 'getBranch').rejects(Error(testErrorMessage));
-    try {
-      await branch(octokit, origin, upstream, branchName, 'master');
-      assert.fail();
-    } catch (err) {
-      expect(err.message).to.equal(testErrorMessage);
-    }
+    const error = new Error(testErrorMessage);
+    sandbox.stub(octokit.repos, 'getBranch').rejects(error);
+    await assert.rejects(
+      branch(octokit, origin, upstream, branchName, 'master'),
+      error
+    );
   });
   it('Branching fails when Octokit list branch fails', async () => {
     const branchResponseBody = await import(
@@ -199,14 +200,13 @@ describe('Branch', () => {
       url: 'http://fake-url.com',
       data: branchResponseBody,
     } as GetBranchResponse;
+    const error = new Error(testErrorMessage);
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
-    sandbox.stub(octokit.git, 'getRef').rejects(Error(testErrorMessage));
-    try {
-      await branch(octokit, origin, upstream, branchName, 'master');
-      assert.fail();
-    } catch (err) {
-      expect(err.message).to.equal(testErrorMessage);
-    }
+    sandbox.stub(octokit.git, 'getRef').rejects(error);
+    await assert.rejects(
+      branch(octokit, origin, upstream, branchName, 'master'),
+      error
+    );
   });
   it('Branching fails when Octokit create ref fails', async () => {
     const branchResponseBody = await import(
@@ -220,15 +220,14 @@ describe('Branch', () => {
     } as GetBranchResponse;
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
     const getRefError = Error('Not Found');
+    const createRefError = Error(testErrorMessage);
     Object.assign(getRefError, {status: 404});
     sandbox.stub(octokit.git, 'getRef').rejects(getRefError);
-    sandbox.stub(octokit.git, 'createRef').rejects(Error(testErrorMessage));
-    try {
-      await branch(octokit, origin, upstream, branchName, 'master');
-      assert.fail();
-    } catch (err) {
-      expect(err.message).to.equal(testErrorMessage);
-    }
+    sandbox.stub(octokit.git, 'createRef').rejects(createRefError);
+    await assert.rejects(
+      branch(octokit, origin, upstream, branchName, 'master'),
+      createRefError
+    );
   });
   it('Branching fails when primary branch specified did not match any of the branches returned', async () => {
     const branchResponseBody = await import(
@@ -241,16 +240,13 @@ describe('Branch', () => {
       data: branchResponseBody,
     } as GetBranchResponse;
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
-    try {
-      await branch(octokit, origin, upstream, branchName, 'non-master-branch');
-      assert.fail();
-    } catch (err) {
-      assert.isOk(true);
-    }
+    await assert.rejects(
+      branch(octokit, origin, upstream, branchName, 'non-master-branch')
+    );
   });
   it('the reference string parsing function correctly appends branch name to reference prefix', () => {
-    assert.equal(createRef('master'), 'refs/heads/master');
-    assert.equal(createRef('foo/bar/baz'), 'refs/heads/foo/bar/baz');
-    assert.equal(createRef('+++'), 'refs/heads/+++');
+    assert.strictEqual(createRef('master'), 'refs/heads/master');
+    assert.strictEqual(createRef('foo/bar/baz'), 'refs/heads/foo/bar/baz');
+    assert.strictEqual(createRef('+++'), 'refs/heads/+++');
   });
 });

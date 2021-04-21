@@ -17,7 +17,7 @@ import {readFileSync} from 'fs';
 import {setup} from './util';
 import {resolve} from 'path';
 import {parseAllHunks} from '../src/github-handler/diff-utils';
-import {expect} from 'chai';
+import * as assert from 'assert';
 
 const fixturePath = 'test/fixtures/diffs';
 
@@ -31,9 +31,9 @@ describe('parseAllHunks', () => {
       resolve(fixturePath, 'one-line-to-one.diff')
     ).toString();
     const allHunks = parseAllHunks(diff);
-    expect(allHunks.size).to.equal(1);
+    assert.strictEqual(allHunks.size, 1);
     const hunks = allHunks.get('cloudbuild.yaml');
-    expect(hunks).to.eql([
+    assert.deepStrictEqual(hunks, [
       {
         oldStart: 5,
         oldEnd: 5,
@@ -50,9 +50,9 @@ describe('parseAllHunks', () => {
       resolve(fixturePath, 'one-line-to-many.diff')
     ).toString();
     const allHunks = parseAllHunks(diff);
-    expect(allHunks.size).to.equal(1);
+    assert.strictEqual(allHunks.size, 1);
     const hunks = allHunks.get('cloudbuild.yaml');
-    expect(hunks).to.eql([
+    assert.deepStrictEqual(hunks, [
       {
         oldStart: 7,
         oldEnd: 7,
@@ -68,9 +68,9 @@ describe('parseAllHunks', () => {
       resolve(fixturePath, 'one-line-to-many-newline.diff')
     ).toString();
     const allHunks = parseAllHunks(diff);
-    expect(allHunks.size).to.equal(1);
+    assert.strictEqual(allHunks.size, 1);
     const hunks = allHunks.get('cloudbuild.yaml');
-    expect(hunks).to.eql([
+    assert.deepStrictEqual(hunks, [
       {
         oldStart: 5,
         oldEnd: 5,
@@ -86,9 +86,9 @@ describe('parseAllHunks', () => {
       resolve(fixturePath, 'many-to-many.diff')
     ).toString();
     const allHunks = parseAllHunks(diff);
-    expect(allHunks.size).to.equal(1);
+    assert.strictEqual(allHunks.size, 1);
     const hunks = allHunks.get('cloudbuild.yaml');
-    expect(hunks).to.eql([
+    assert.deepStrictEqual(hunks, [
       {
         oldStart: 2,
         oldEnd: 5,
@@ -106,9 +106,9 @@ describe('parseAllHunks', () => {
       resolve(fixturePath, 'many-to-one.diff')
     ).toString();
     const allHunks = parseAllHunks(diff);
-    expect(allHunks.size).to.equal(1);
+    assert.strictEqual(allHunks.size, 1);
     const hunks = allHunks.get('cloudbuild.yaml');
-    expect(hunks).to.eql([
+    assert.deepStrictEqual(hunks, [
       {
         oldStart: 2,
         oldEnd: 5,
@@ -123,9 +123,9 @@ describe('parseAllHunks', () => {
   it('parses deletions', () => {
     const diff = readFileSync(resolve(fixturePath, 'deletion.diff')).toString();
     const allHunks = parseAllHunks(diff);
-    expect(allHunks.size).to.equal(1);
+    assert.strictEqual(allHunks.size, 1);
     const hunks = allHunks.get('cloudbuild.yaml');
-    expect(hunks).to.eql([
+    assert.deepStrictEqual(hunks, [
       {
         oldStart: 4,
         oldEnd: 5,
@@ -140,9 +140,9 @@ describe('parseAllHunks', () => {
   it('parses additions', () => {
     const diff = readFileSync(resolve(fixturePath, 'addition.diff')).toString();
     const allHunks = parseAllHunks(diff);
-    expect(allHunks.size).to.equal(1);
+    assert.strictEqual(allHunks.size, 1);
     const hunks = allHunks.get('cloudbuild.yaml');
-    expect(hunks).to.eql([
+    assert.deepStrictEqual(hunks, [
       {
         oldStart: 6,
         oldEnd: 5,

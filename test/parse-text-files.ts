@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+import * as assert from 'assert';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
 import {parseTextFiles} from '../src/';
@@ -22,32 +22,27 @@ before(() => {
   setup();
 });
 
-// tslint:disable:no-unused-expression
-// .true triggers ts-lint failure, but is valid chai
-
 describe('Parse text files function', () => {
-  it('Parses map objects into Change object', () => {
+  it('should parse map objects into Change object', () => {
     const userFilesMap = new Map<string, string | null>();
     userFilesMap.set('src/index.js', "console.log('hello index!'");
     userFilesMap.set('src/foo.js', "console.log('hello foo!'");
     userFilesMap.set('src/deleted.js', null);
 
     const parsedMap = new Map<string, FileData>();
-    parsedMap.set('src/index.js', {
-      content: "console.log('hello index!'",
-      mode: '100644',
-    });
-    parsedMap.set('src/foo.js', {
-      content: "console.log('hello foo!'",
-      mode: '100644',
-    });
-    parsedMap.set('src/deleted.js', {
-      content: null,
-      mode: '100644',
-    });
+    parsedMap.set(
+      'src/index.js',
+      new FileData("console.log('hello index!'", '100644')
+    );
+    parsedMap.set(
+      'src/foo.js',
+      new FileData("console.log('hello foo!'", '100644')
+    );
+    parsedMap.set('src/deleted.js', new FileData(null, '100644'));
     // tests
     const changes = parseTextFiles(userFilesMap);
-    expect(changes).to.deep.equal(parsedMap);
+    console.log(changes);
+    assert.deepStrictEqual(changes, parsedMap);
   });
   it('Parses objects of string property value into Change object', () => {
     const userFilesObject = {
@@ -55,93 +50,81 @@ describe('Parse text files function', () => {
       'src/foo.js': "console.log('hello foo!'",
       'src/deleted.js': null,
     };
-
     const parsedMap = new Map<string, FileData>();
-    parsedMap.set('src/index.js', {
-      content: "console.log('hello index!'",
-      mode: '100644',
-    });
-    parsedMap.set('src/foo.js', {
-      content: "console.log('hello foo!'",
-      mode: '100644',
-    });
-    parsedMap.set('src/deleted.js', {
-      content: null,
-      mode: '100644',
-    });
+    parsedMap.set(
+      'src/index.js',
+      new FileData("console.log('hello index!'", '100644')
+    );
+    parsedMap.set(
+      'src/foo.js',
+      new FileData("console.log('hello foo!'", '100644')
+    );
+    parsedMap.set('src/deleted.js', new FileData(null, '100644'));
     // tests
     const changes = parseTextFiles(userFilesObject);
-    expect(changes).to.deep.equal(parsedMap);
+    assert.deepStrictEqual(changes, parsedMap);
   });
   it('Rejects invalid file data for objects', () => {
     // tests
-    try {
-      const userFilesObject = {
-        'src/index.js': [],
-      };
-      parseTextFiles((userFilesObject as unknown) as {[index: string]: string});
-      expect.fail(
-        'Text files parsing should not accept non-null/non-string content'
-      );
-    } catch (err) {
-      expect(err instanceof TypeError).true;
-    }
-    try {
-      const userFilesObject = {
-        'src/foo.js': 1234,
-      };
-      parseTextFiles((userFilesObject as unknown) as {[index: string]: string});
-      expect.fail(
-        'Text files parsing should not accept non-null/non-string content'
-      );
-    } catch (err) {
-      expect(err instanceof TypeError).true;
-    }
-    try {
-      const userFilesObject = {
-        'src/deleted.js': undefined,
-      };
-      parseTextFiles((userFilesObject as unknown) as {[index: string]: string});
-      expect.fail(
-        'Text files parsing should not accept non-null/non-string content'
-      );
-    } catch (err) {
-      expect(err instanceof TypeError).true;
-    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let userFilesObject: any = {
+      'src/index.js': [],
+    };
+    assert.throws(
+      () => parseTextFiles(userFilesObject),
+      err => {
+        assert.ok(err instanceof TypeError);
+        return true;
+      }
+    );
+    userFilesObject = {
+      'src/foo.js': 1234,
+    };
+    assert.throws(
+      () => parseTextFiles(userFilesObject),
+      err => {
+        assert.ok(err instanceof TypeError);
+        return true;
+      }
+    );
+    userFilesObject = {
+      'src/deleted.js': undefined,
+    };
+    assert.throws(
+      () => parseTextFiles(userFilesObject),
+      err => {
+        assert.ok(err instanceof TypeError);
+        return true;
+      }
+    );
   });
   it('Rejects invalid file data for map', () => {
-    // tests
-    try {
-      const userFilesMap = new Map();
-      userFilesMap.set('asfd', 1);
-      parseTextFiles(userFilesMap);
-      expect.fail(
-        'Text files parsing should not accept non-null/non-string content'
-      );
-    } catch (err) {
-      expect(err instanceof TypeError).true;
-    }
-    try {
-      const userFilesMap = new Map();
-      userFilesMap.set('asfd', undefined);
-      parseTextFiles(userFilesMap);
-      parseTextFiles(userFilesMap);
-      expect.fail(
-        'Text files parsing should not accept non-null/non-string content'
-      );
-    } catch (err) {
-      expect(err instanceof TypeError).true;
-    }
-    try {
-      const userFilesMap = new Map();
-      userFilesMap.set('asfd', []);
-      parseTextFiles(userFilesMap);
-      parseTextFiles(userFilesMap);
-      expect.fail(
-        'Text files parsing should not accept non-null/non-string content'
-      );
-    } catch (err) {
-      expect(err instanceof TypeError).true;
-    }
+    const userFilesMap = new Map();
+    userFilesMap.set('asfd', 1);
+    assert.throws(
+      () => parseTextFiles(userFilesMap),
+      err => {
+        assert.ok(err instanceof TypeError);
+        return true;
+      }
+    );
+
+    userFilesMap.set('asfd', undefined);
+    assert.throws(
+      () => parseTextFiles(userFilesMap),
+      err => {
+        assert.ok(err instanceof TypeError);
+        return true;
+      }
+    );
+
+    userFilesMap.set('asfd', []);
+    assert.throws(
+      () => parseTextFiles(userFilesMap),
+      err => {
+        assert.ok(err instanceof TypeError);
+        return true;
+      }
+    );
   });
 });

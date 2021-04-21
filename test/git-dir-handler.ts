@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
 import {describe, it, before, afterEach} from 'mocha';
-import {assert, expect} from 'chai';
+import * as assert from 'assert';
 import {setup} from './util';
 import {
   getGitFileData,
@@ -31,9 +33,6 @@ before(() => {
   setup();
 });
 
-// tslint:disable:no-unused-expression
-// .null triggers ts-lint failure, but is valid chai
-// .true triggers ts-lint failure, but is valid chai
 describe('git directory diff output to git file data + content', () => {
   const relativeGitDir = '/fixtures/some/git/dir';
   const absoluteGitDir = process.cwd() + relativeGitDir;
@@ -47,9 +46,9 @@ describe('git directory diff output to git file data + content', () => {
     const stubReadFile = sandbox.stub(fs, 'readFile').resolves('Text');
     const gitDiffTxt = ':100644 000000 8e6c063 0000000 D\tReadme.md';
     const gitFileData = await getGitFileData(absoluteGitDir, gitDiffTxt);
-    expect(gitFileData.path).equals('Readme.md');
-    expect(gitFileData.fileData.mode).equals('100644');
-    expect(gitFileData.fileData.content).is.null;
+    assert.strictEqual(gitFileData.path, 'Readme.md');
+    assert.strictEqual(gitFileData.fileData.mode, '100644');
+    assert.strictEqual(gitFileData.fileData.content, null);
     sinon.assert.notCalled(stubReadFile);
   });
   it('gets the new file mode, content and path for created files', async () => {
@@ -57,9 +56,9 @@ describe('git directory diff output to git file data + content', () => {
     const stubReadFile = sandbox.stub(fs, 'readFile').yields(null, 'Text');
     const gitDiffTxtAdd = ':000000 100644 0000000 8e6c063 A\tReadme.md';
     const gitFileDataAdd = await getGitFileData(absoluteGitDir, gitDiffTxtAdd);
-    expect(gitFileDataAdd.fileData.content).equals('Text');
-    expect(gitFileDataAdd.fileData.mode).equals('100644');
-    expect(gitFileDataAdd.path).equals('Readme.md');
+    assert.strictEqual(gitFileDataAdd.fileData.content, 'Text');
+    assert.strictEqual(gitFileDataAdd.fileData.mode, '100644');
+    assert.strictEqual(gitFileDataAdd.path, 'Readme.md');
     sinon.assert.calledOnce(stubReadFile);
   });
   it('gets the new file mode, content and path for content modified files', async () => {
@@ -71,9 +70,9 @@ describe('git directory diff output to git file data + content', () => {
       absoluteGitDir,
       gitDiffTxtModified
     );
-    expect(gitFileDataModified.fileData.content).equals('new text');
-    expect(gitFileDataModified.fileData.mode).equals('100644');
-    expect(gitFileDataModified.path).equals('modified/test.txt');
+    assert.strictEqual(gitFileDataModified.fileData.content, 'new text');
+    assert.strictEqual(gitFileDataModified.fileData.mode, '100644');
+    assert.strictEqual(gitFileDataModified.path, 'modified/test.txt');
     sinon.assert.calledOnce(stubReadFile);
   });
 
@@ -88,9 +87,12 @@ describe('git directory diff output to git file data + content', () => {
       absoluteGitDir,
       gitDiffTxtToExecutable
     );
-    expect(gitFileDataTxtToExecutable.fileData.content).equals('#!/bin/bash');
-    expect(gitFileDataTxtToExecutable.fileData.mode).equals('100755');
-    expect(gitFileDataTxtToExecutable.path).equals('bin/main/test.exe');
+    assert.strictEqual(
+      gitFileDataTxtToExecutable.fileData.content,
+      '#!/bin/bash'
+    );
+    assert.strictEqual(gitFileDataTxtToExecutable.fileData.mode, '100755');
+    assert.strictEqual(gitFileDataTxtToExecutable.path, 'bin/main/test.exe');
     sinon.assert.calledOnce(stubReadFile);
   });
 });
@@ -119,13 +121,13 @@ describe('Path resolving', () => {
   it("Resolves to absolute path when './' is a prefix", () => {
     const relativeGitDir = './test/fixtures';
     const testingPath = resolvePath(relativeGitDir);
-    expect(path.isAbsolute(testingPath)).to.be.true;
+    assert.strictEqual(path.isAbsolute(testingPath), true);
   });
 
   it('Resolves to absolute path when the leading chars are letters', () => {
     const relativeGitDir = 'test/fixtures';
     const testingPath = resolvePath(relativeGitDir);
-    expect(path.isAbsolute(testingPath)).to.be.true;
+    assert.strictEqual(path.isAbsolute(testingPath), true);
   });
 });
 
@@ -139,18 +141,16 @@ describe('Finding repository root', () => {
     sandbox
       .stub(child_process, 'execSync')
       .returns(Buffer.from('/home/user/work\n'));
-    expect(findRepoRoot('home/user/work/subdir')).equals('/home/user/work');
+    assert.strictEqual(
+      findRepoRoot('home/user/work/subdir'),
+      '/home/user/work'
+    );
   });
 
   it('Rethrows execsync error', () => {
-    sandbox.stub(child_process, 'execSync').throws(Error('Execsync error'));
-    try {
-      findRepoRoot('home/user/work/subdir');
-      assert.fail();
-    } catch (err) {
-      assert.isOk(true);
-      expect(err.message).equals('Execsync error');
-    }
+    const error = new Error('Execsync error');
+    sandbox.stub(child_process, 'execSync').throws(error);
+    assert.throws(() => findRepoRoot('home/user/work/subdir'), error);
   });
 });
 
@@ -170,9 +170,12 @@ describe('parse all git diff output', () => {
         )
       );
     const diffs = getAllDiffs(testDir);
-    expect(diffs[0]).equals(':000000 100644 0000000 8e6c063 A\tadded.txt');
-    expect(diffs[1]).equals(':100644 000000 8e6c063 0000000 D\tdeleted.txt');
-    expect(diffs.length).equals(2);
+    assert.strictEqual(diffs[0], ':000000 100644 0000000 8e6c063 A\tadded.txt');
+    assert.strictEqual(
+      diffs[1],
+      ':100644 000000 8e6c063 0000000 D\tdeleted.txt'
+    );
+    assert.strictEqual(diffs.length, 2);
   });
 });
 
@@ -190,39 +193,24 @@ describe('parse changes', () => {
   it('populates change object with everything from a diff output', async () => {
     sandbox.stub(fs, 'readFile').yields(null, 'new text');
     const changes = await parseChanges(diffs, testDir);
-    expect(changes.get('added.txt')?.mode).equals('100644');
-    expect(changes.get('added.txt')?.content).equals('new text');
-    expect(changes.get('deleted.txt')?.mode).equals('100644');
-    expect(changes.get('deleted.txt')?.content).is.null;
+    assert.strictEqual(changes.get('added.txt')?.mode, '100644');
+    assert.strictEqual(changes.get('added.txt')?.content, 'new text');
+    assert.strictEqual(changes.get('deleted.txt')?.mode, '100644');
+    assert.strictEqual(changes.get('deleted.txt')?.content, null);
   });
   it('Passes up the error message with a throw when it is ', async () => {
     // setup
     sandbox.stub(fs, 'readFile').throws(Error());
-    try {
-      await parseChanges(diffs, '');
-      assert.fail();
-    } catch (err) {
-      assert.isOk(true);
-    }
+    await assert.rejects(parseChanges(diffs, ''));
   });
   it('Passes up the error message with a throw when reading the file fails', async () => {
     // setup
     sandbox.stub(fs, 'readFile').yields(Error(), '');
-    try {
-      await parseChanges(diffs, '');
-      assert.fail();
-    } catch (err) {
-      assert.isOk(true);
-    }
+    await assert.rejects(parseChanges(diffs, ''));
   });
   it('Passes up the error message with a throw when parsing the diff fails', async () => {
     // setup
-    try {
-      const badDiff = [':000000 100644 0000000 8e6c063 Aadded.txt'];
-      await parseChanges(badDiff, '');
-      assert.fail();
-    } catch (err) {
-      assert.isOk(true);
-    }
+    const badDiff = [':000000 100644 0000000 8e6c063 Aadded.txt'];
+    await assert.rejects(parseChanges(badDiff, ''));
   });
 });

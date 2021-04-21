@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
+import * as assert from 'assert';
 import {describe, it, before, afterEach} from 'mocha';
 import {setup} from './util';
 import * as sinon from 'sinon';
@@ -141,35 +143,29 @@ describe('getCurrentPullRequestPatches', () => {
       pullNumber,
       pageSize
     );
-    expect(patches.size).equals(3);
-    expect(patches.get(listFilesOfPRResult.data[0].filename)).equals(
+    assert.strictEqual(patches.size, 3);
+    assert.strictEqual(
+      patches.get(listFilesOfPRResult.data[0].filename),
       '@@ -1,2 +1,5 @@\n Hello world\n-!\n+Goodbye World\n+gOodBYE world\n+\n+Goodbye World'
     );
-    expect(patches.get(listFilesOfPRResult.data[1].filename)).equals(
+    assert.strictEqual(
+      patches.get(listFilesOfPRResult.data[1].filename),
       '@@ -1 +1 @@\n-Hello foo\n+'
     );
-    expect(patches.get(listFilesOfPRResult.data[2].filename)).equals(
+    assert.strictEqual(
+      patches.get(listFilesOfPRResult.data[2].filename),
       '@@ -1 +0,0 @@\n-hello world'
     );
-    expect(filesMissingPatch.length).equals(0);
+    assert.strictEqual(filesMissingPatch.length, 0);
   });
   it('Passes the error message up from octokit when octokit fails', async () => {
     // setup
-    const errorMsg = 'Error message';
-    sandbox.stub(octokit.pulls, 'listFiles').rejects(Error(errorMsg));
-    try {
-      await getCurrentPullRequestPatches(
-        octokit,
-        upstream,
-        pullNumber,
-        pageSize
-      );
-      expect.fail(
-        'The getCurrentPulLRequestPatches function should have failed because Octokit failed.'
-      );
-    } catch (err) {
-      expect(err.message).to.equal(errorMsg);
-    }
+    const error = new Error('Error message');
+    sandbox.stub(octokit.pulls, 'listFiles').rejects(error);
+    await assert.rejects(
+      getCurrentPullRequestPatches(octokit, upstream, pullNumber, pageSize),
+      error
+    );
   });
   it('Throws when there is no list file data returned from octokit', async () => {
     // setup
@@ -180,19 +176,10 @@ describe('getCurrentPullRequestPatches', () => {
       data: [],
     };
     sandbox.stub(octokit.pulls, 'listFiles').resolves(listFilesOfPRResult);
-    try {
-      await getCurrentPullRequestPatches(
-        octokit,
-        upstream,
-        pullNumber,
-        pageSize
-      );
-      expect.fail(
-        'The getCurrentPulLRequestPatches function should have failed because Octokit failed.'
-      );
-    } catch (err) {
-      expect(err.message).to.equal('Empty Pull Request');
-    }
+    await assert.rejects(
+      getCurrentPullRequestPatches(octokit, upstream, pullNumber, pageSize),
+      /Empty Pull Request/
+    );
   });
   it('Does not error when there is list file data but no patch data', async () => {
     // setup
@@ -237,7 +224,7 @@ describe('getCurrentPullRequestPatches', () => {
       pageSize
     );
     sandbox.assert.called(stub);
-    expect(filesMissingPatch.length).equals(1);
-    expect(filesMissingPatch[0]).equals('Readme.md');
+    assert.strictEqual(filesMissingPatch.length, 1);
+    assert.strictEqual(filesMissingPatch[0], 'Readme.md');
   });
 });

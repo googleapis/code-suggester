@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {assert, expect} from 'chai';
+import * as assert from 'assert';
 import {describe, it, before} from 'mocha';
 import {octokit, setup} from './util';
 import {RepoDomain, FileDiffContent, Hunk} from '../src/types';
@@ -54,12 +54,12 @@ describe('reviewPullRequest', () => {
             testPullNumber: number,
             testPageSize: number
           ) => {
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.owner).equals(owner);
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.repo).equals(repo);
-            expect(testPullNumber).equals(pullNumber);
-            expect(testPageSize).equals(pageSize);
+            assert.strictEqual(testOctokit, octokit);
+            assert.strictEqual(testRemote.owner, owner);
+            assert.strictEqual(testOctokit, octokit);
+            assert.strictEqual(testRemote.repo, repo);
+            assert.strictEqual(testPullNumber, pullNumber);
+            assert.strictEqual(testPageSize, pageSize);
             numMockedHelpersCalled += 1;
             return validFileHunks;
           },
@@ -68,7 +68,7 @@ describe('reviewPullRequest', () => {
           getRawSuggestionHunks: (
             testDiffContents: Map<string, FileDiffContent>
           ) => {
-            expect(testDiffContents).equals(diffContents);
+            assert.strictEqual(testDiffContents, diffContents);
             numMockedHelpersCalled += 1;
             return suggestionHunks;
           },
@@ -78,8 +78,8 @@ describe('reviewPullRequest', () => {
             testPullRequestHunks: Map<string, Hunk[]>,
             testSuggestedHunks: Map<string, Hunk[]>
           ) => {
-            expect(testPullRequestHunks).equals(validFileHunks);
-            expect(testSuggestedHunks).equals(suggestionHunks);
+            assert.strictEqual(testPullRequestHunks, validFileHunks);
+            assert.strictEqual(testSuggestedHunks, suggestionHunks);
             numMockedHelpersCalled += 1;
             return {validHunks: validFileHunks, invalidHunks: invalidFileHunks};
           },
@@ -92,11 +92,11 @@ describe('reviewPullRequest', () => {
             testRemote: RepoDomain,
             testPullNumber: number
           ) => {
-            expect(testOctokit).equals(octokit);
-            expect(testValidHunks).equals(validFileHunks);
-            expect(testRemote).equals(remote);
-            expect(testInvalidHunks).equals(invalidFileHunks);
-            expect(testPullNumber).equals(pullNumber);
+            assert.strictEqual(testOctokit, octokit);
+            assert.strictEqual(testValidHunks, validFileHunks);
+            assert.strictEqual(testRemote, remote);
+            assert.strictEqual(testInvalidHunks, invalidFileHunks);
+            assert.strictEqual(testPullNumber, pullNumber);
             numMockedHelpersCalled += 1;
           },
         },
@@ -109,7 +109,7 @@ describe('reviewPullRequest', () => {
       pageSize,
       diffContents
     );
-    expect(numMockedHelpersCalled).equals(4);
+    assert.strictEqual(numMockedHelpersCalled, 4);
   });
 
   it('Succeeds when diff string provided', async () => {
@@ -138,12 +138,12 @@ describe('reviewPullRequest', () => {
             testPullNumber: number,
             testPageSize: number
           ) => {
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.owner).equals(owner);
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.repo).equals(repo);
-            expect(testPullNumber).equals(pullNumber);
-            expect(testPageSize).equals(pageSize);
+            assert.strictEqual(testOctokit, octokit);
+            assert.strictEqual(testRemote.owner, owner);
+            assert.strictEqual(testOctokit, octokit);
+            assert.strictEqual(testRemote.repo, repo);
+            assert.strictEqual(testPullNumber, pullNumber);
+            assert.strictEqual(testPageSize, pageSize);
             numMockedHelpersCalled += 1;
             return validFileHunks;
           },
@@ -156,11 +156,11 @@ describe('reviewPullRequest', () => {
             testRemote: RepoDomain,
             testPullNumber: number
           ) => {
-            expect(testOctokit).equals(octokit);
-            expect(testValidHunks.size).to.equal(1);
-            expect(testRemote).equals(remote);
-            expect(testInvalidHunks.size).to.equal(0);
-            expect(testPullNumber).equals(pullNumber);
+            assert.strictEqual(testOctokit, octokit);
+            assert.strictEqual(testValidHunks.size, 1);
+            assert.strictEqual(testRemote, remote);
+            assert.strictEqual(testInvalidHunks.size, 0);
+            assert.strictEqual(testPullNumber, pullNumber);
             numMockedHelpersCalled += 1;
           },
         },
@@ -173,7 +173,7 @@ describe('reviewPullRequest', () => {
       pageSize,
       diffString
     );
-    expect(numMockedHelpersCalled).equals(2);
+    assert.strictEqual(numMockedHelpersCalled, 2);
   });
 
   it('Passes up the error message when getPullRequestHunks helper fails', async () => {
@@ -188,12 +188,12 @@ describe('reviewPullRequest', () => {
             testPullNumber: number,
             testPageSize: number
           ) => {
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.owner).equals(owner);
-            expect(testOctokit).equals(octokit);
-            expect(testRemote.repo).equals(repo);
-            expect(testPullNumber).equals(pullNumber);
-            expect(testPageSize).equals(pageSize);
+            assert.strictEqual(testOctokit, octokit);
+            assert.strictEqual(testRemote.owner, owner);
+            assert.strictEqual(testOctokit, octokit);
+            assert.strictEqual(testRemote.repo, repo);
+            assert.strictEqual(testPullNumber, pullNumber);
+            assert.strictEqual(testPageSize, pageSize);
             numMockedHelpersCalled += 1;
             throw new Error('getPullRequestHunks failed');
           },
@@ -210,8 +210,8 @@ describe('reviewPullRequest', () => {
       );
       assert.ok(false);
     } catch (err) {
-      expect(numMockedHelpersCalled).equals(1);
-      expect(err.message).equals('getPullRequestHunks failed');
+      assert.strictEqual(numMockedHelpersCalled, 1);
+      assert.strictEqual(err.message, 'getPullRequestHunks failed');
     }
   });
 });

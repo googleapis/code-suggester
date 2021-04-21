@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
+import * as assert from 'assert';
 import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
@@ -69,7 +71,7 @@ describe('Adding labels', async () => {
       issue_number: issue_number,
       labels: labels,
     });
-    expect(resultingLabels).to.deep.equal(['bug', 'enhancement']);
+    assert.deepStrictEqual(resultingLabels, ['bug', 'enhancement']);
   });
 
   it('No-op undefined labels', async () => {
@@ -83,7 +85,7 @@ describe('Adding labels', async () => {
       issue_number
     );
     sandbox.assert.neverCalledWith(stub, sinon.match.any);
-    expect(resultingLabels).to.deep.equal([]);
+    assert.deepStrictEqual(resultingLabels, []);
   });
 
   it('No-op with empty labels', async () => {
@@ -98,18 +100,16 @@ describe('Adding labels', async () => {
       []
     );
     sandbox.assert.neverCalledWith(stub, sinon.match.any);
-    expect(resultingLabels).to.deep.equal([]);
+    assert.deepStrictEqual(resultingLabels, []);
   });
 
   it('Passes up the error message with a throw when octokit issues add labels fails', async () => {
     // setup
-    const errorMsg = 'Error message';
-    sandbox.stub(octokit.issues, 'addLabels').rejects(Error(errorMsg));
-    try {
-      await addLabels(octokit, upstream, origin, issue_number, labels);
-      expect.fail();
-    } catch (err) {
-      expect(err.message).to.equal(errorMsg);
-    }
+    const error = new Error('Error message');
+    sandbox.stub(octokit.issues, 'addLabels').rejects(error);
+    await assert.rejects(
+      addLabels(octokit, upstream, origin, issue_number, labels),
+      error
+    );
   });
 });

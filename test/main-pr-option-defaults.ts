@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {expect} from 'chai';
+import * as assert from 'assert';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
 import {
@@ -38,7 +38,7 @@ describe('addPullRequestDefaults', () => {
       message: 'chore: custom description',
     };
     const gitHubPr1 = addPullRequestDefaults(upstreamOnly);
-    expect(gitHubPr1).to.deep.equal({
+    assert.deepStrictEqual(gitHubPr1, {
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
       branch: 'code-suggestions',
@@ -58,7 +58,7 @@ describe('addPullRequestDefaults', () => {
       message: 'chore: custom description',
     };
     const gitHubPr2 = addPullRequestDefaults(upstreamAndPrimary);
-    expect(gitHubPr2).to.deep.equal({
+    assert.deepStrictEqual(gitHubPr2, {
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
       branch: 'code-suggestions',
@@ -77,7 +77,7 @@ describe('addPullRequestDefaults', () => {
       message: 'chore: custom code suggestions message',
     };
     const gitHubPr3 = addPullRequestDefaults(upstreamAndPrDescription);
-    expect(gitHubPr3).to.deep.equal({
+    assert.deepStrictEqual(gitHubPr3, {
       upstreamOwner: 'owner',
       upstreamRepo: 'repo',
       branch: 'code-suggestions',
@@ -102,7 +102,7 @@ describe('addPullRequestDefaults', () => {
       maintainersCanModify: false,
     };
     const gitHubPr = addPullRequestDefaults(options);
-    expect(gitHubPr).to.deep.equal(options);
+    assert.deepStrictEqual(gitHubPr, options);
   });
 });
 
@@ -116,7 +116,7 @@ describe('addReviewCommentsDefaults', () => {
     const gitHubPrReview = addReviewCommentsDefaults(
       reviewOptionsWithDefaultPageSize
     );
-    expect(gitHubPrReview).to.deep.equal({
+    assert.deepStrictEqual(gitHubPrReview, {
       owner: 'owner',
       repo: 'repo',
       pullNumber: 12345678,
@@ -131,6 +131,6 @@ describe('addReviewCommentsDefaults', () => {
       pageSize: 4321,
     };
     const gitHubPrReview = addReviewCommentsDefaults(reviewOptions);
-    expect(gitHubPrReview).to.deep.equal(reviewOptions);
+    assert.deepStrictEqual(gitHubPrReview, reviewOptions);
   });
 });
