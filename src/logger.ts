@@ -12,16 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Logger, Level} from 'pino';
+import {Logger} from './types';
 import * as Pino from 'pino';
 let logger: Logger;
 
-function setupLogger(userLogger?: Logger | Pino.LoggerOptions) {
-  if (typeof userLogger === 'undefined' || typeof userLogger === 'object') {
-    logger = Pino(userLogger);
+function defaultLogger(): Logger {
+  return Pino();
+}
+
+function setupLogger(userLogger?: Logger) {
+  if (userLogger) {
+    logger = userLogger;
   } else {
-    logger = userLogger as Logger;
+    logger = defaultLogger();
   }
 }
 
-export {logger, Logger, Level, setupLogger};
+export {logger, setupLogger};

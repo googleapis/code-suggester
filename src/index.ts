@@ -22,10 +22,10 @@ import {
   FileData,
   FileDiffContent,
   CreateReviewCommentUserOptions,
+  Logger,
 } from './types';
 export {Changes} from './types';
 import {Octokit} from '@octokit/rest';
-import {Logger, LoggerOptions} from 'pino';
 import {logger, setupLogger} from './logger';
 import {
   addPullRequestDefaults,
@@ -54,7 +54,7 @@ export async function reviewPullRequest(
   octokit: Octokit,
   diffContents: Map<string, FileDiffContent> | string,
   options: CreateReviewCommentUserOptions,
-  loggerOption?: Logger | LoggerOptions
+  loggerOption?: Logger
 ): Promise<number | null> {
   setupLogger(loggerOption);
   // if null undefined, or the empty map then no changes have been provided.
@@ -111,7 +111,7 @@ async function createPullRequest(
   octokit: Octokit,
   changes: Changes | null | undefined,
   options: CreatePullRequestUserOptions,
-  loggerOption?: Logger | LoggerOptions
+  loggerOption?: Logger
 ): Promise<number> {
   setupLogger(loggerOption);
   // if null undefined, or the empty map then no changes have been provided.
