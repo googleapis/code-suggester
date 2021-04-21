@@ -177,9 +177,16 @@ export interface Hunk {
 }
 
 interface LogFn {
-  /* tslint:disable:no-unnecessary-generics */
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   <T extends object>(obj: T, msg?: string, ...args: any[]): void;
   (msg: string, ...args: any[]): void;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
-export type Logger = { [key: string]: LogFn };
+export interface Logger {
+  error: LogFn;
+  warn: LogFn;
+  info: LogFn;
+  debug: LogFn;
+  trace: LogFn;
+}

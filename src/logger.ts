@@ -13,18 +13,21 @@
 // limitations under the License.
 
 import {Logger} from './types';
-import * as Pino from 'pino';
 let logger: Logger;
 
-function defaultLogger(): Logger {
-  return Pino();
+class NullLogger implements Logger {
+  error = () => {};
+  warn = () => {};
+  info = () => {};
+  debug = () => {};
+  trace = () => {};
 }
 
 function setupLogger(userLogger?: Logger) {
   if (userLogger) {
     logger = userLogger;
   } else {
-    logger = defaultLogger();
+    logger = new NullLogger();
   }
 }
 
