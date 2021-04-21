@@ -1,0 +1,33 @@
+on:
+  release:
+    types: [published]
+name: release
+jobs:
+  update-major:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v3
+        id: parse-major
+        with:
+          script: |
+            const ref = context.payload.release.tag_name;
+            const versionRegex = new RegExp('v?(\\d+)\\.\\d+\\.\\d+');
+            const match = ref.match(versionRegex);
+            if (match) {
+              return "v" + match[1];
+            }
+            return "";
+          result-encoding: string
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+        if: ${{ steps.parse-major.outputs.result }}
+      - name: delete existing major tag
+        run: |
+          (git tag -d ${{ steps.parse-major.outputs.result }} && git push origin :${{ steps.parse-major.outputs.result }}) || true
+        if: ${{ steps.parse-major.outputs.result }}
+      - name: create major tag
+        run: |
+          git tag ${{ steps.parse-major.outputs.result }} ${{ github.event.GITHUB_REF }}
+          git push origin --tags
+        if: ${{ steps.parse-major.outputs.result }}
