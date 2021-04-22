@@ -191,7 +191,7 @@ export async function createPullRequestReview(
 ): Promise<number | null> {
   try {
     // get the hunks from the pull request
-    const pullRequestHunks = await getPullRequestHunks(
+    const pullRequestHunks = await exports.getPullRequestHunks(
       octokit,
       remote,
       pullNumber,
@@ -211,7 +211,7 @@ export async function createPullRequestReview(
     );
 
     // create pull request review
-    const reviewNumber = await makeInlineSuggestions(
+    const reviewNumber = await exports.makeInlineSuggestions(
       octokit,
       validHunks,
       invalidHunks,
