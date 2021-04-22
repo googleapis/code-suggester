@@ -37,7 +37,7 @@ async function openPullRequest(
   description: Description,
   maintainersCanModify = true,
   upstreamPrimary: string = DEFAULT_PRIMARY,
-  draft? : boolean
+  draft?: boolean
 ): Promise<number> {
   const head = `${origin.owner}:${origin.branch}`;
   const existingPullRequest = (
@@ -62,7 +62,7 @@ async function openPullRequest(
       base: upstreamPrimary,
       body: description.body,
       maintainer_can_modify: maintainersCanModify,
-      draft: draft
+      draft: draft,
     })
   ).data;
   logger.info(

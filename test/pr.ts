@@ -99,7 +99,7 @@ describe('Opening a pull request', async () => {
       base: 'master',
       body: description.body,
       maintainer_can_modify: true,
-      draft: true
+      draft: true,
     });
     assert.strictEqual(number, 1347);
   });
@@ -140,8 +140,15 @@ describe('Opening a pull request', async () => {
         branch: 'new-topic-1',
       };
       // tests
-      await openPullRequest(octokit, upstream, similarOrigin1, description,
-        undefined, undefined, false);
+      await openPullRequest(
+        octokit,
+        upstream,
+        similarOrigin1,
+        description,
+        undefined,
+        undefined,
+        false
+      );
       sandbox.assert.calledOnceWithExactly(stub, {
         owner: upstream.owner,
         repo: similarOrigin1.repo,
@@ -150,7 +157,7 @@ describe('Opening a pull request', async () => {
         base: 'master',
         body: description.body,
         maintainer_can_modify: true,
-        draft: false
+        draft: false,
       });
     });
 
@@ -176,7 +183,7 @@ describe('Opening a pull request', async () => {
         base: 'master',
         body: description.body,
         maintainer_can_modify: true,
-        draft: undefined
+        draft: undefined,
       });
     });
 
@@ -203,7 +210,7 @@ describe('Opening a pull request', async () => {
         base: 'master',
         body: description.body,
         maintainer_can_modify: true,
-        draft: undefined
+        draft: undefined,
       });
     });
 
@@ -229,7 +236,7 @@ describe('Opening a pull request', async () => {
         base: 'master',
         body: description.body,
         maintainer_can_modify: true,
-        draft: undefined
+        draft: undefined,
       });
     });
   });
