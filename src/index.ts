@@ -184,7 +184,8 @@ async function createPullRequest(
     originBranch,
     description,
     gitHubConfigs.maintainersCanModify,
-    gitHubConfigs.primary
+    gitHubConfigs.primary,
+    options.draft
   );
   logger.info(`Successfully opened pull request: ${prNumber}.`);
 
