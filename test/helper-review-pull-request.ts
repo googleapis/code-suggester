@@ -33,7 +33,7 @@ before(() => {
   setup();
 });
 
-describe('createReviewPullRequest', () => {
+describe('createPullRequestReview', () => {
   const diffContents: Map<string, FileDiffContent> = new Map();
   diffContents.set('src/index.ts', {
     newContent: 'hello world',
