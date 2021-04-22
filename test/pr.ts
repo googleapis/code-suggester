@@ -183,7 +183,7 @@ describe('Opening a pull request', async () => {
         base: 'master',
         body: description.body,
         maintainer_can_modify: true,
-        draft: undefined,
+        draft: false,
       });
     });
 
@@ -210,7 +210,7 @@ describe('Opening a pull request', async () => {
         base: 'master',
         body: description.body,
         maintainer_can_modify: true,
-        draft: undefined,
+        draft: false,
       });
     });
 
@@ -236,7 +236,7 @@ describe('Opening a pull request', async () => {
         base: 'master',
         body: description.body,
         maintainer_can_modify: true,
-        draft: undefined,
+        draft: false,
       });
     });
   });
