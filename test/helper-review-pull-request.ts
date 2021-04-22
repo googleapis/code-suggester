@@ -12,22 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable node/no-unsupported-features/node-builtins */
+
 import * as assert from 'assert';
 import {describe, it, before} from 'mocha';
 import {octokit, setup} from './util';
+import * as sinon from 'sinon';
 import {RepoDomain, FileDiffContent, Hunk} from '../src/types';
 import {Octokit} from '@octokit/rest';
-import * as proxyquire from 'proxyquire';
 import {readFileSync} from 'fs';
 import {resolve} from 'path';
+import * as reviewPullRequestHandler from '../src/github/review-pull-request';
+import * as hunkHandler from '../src/utils/hunk-utils';
 
 const fixturePath = 'test/fixtures/diffs';
+
+const sandbox = sinon.createSandbox();
 
 before(() => {
   setup();
 });
 
-describe('reviewPullRequest', () => {
+describe('createReviewPullRequest', () => {
   const diffContents: Map<string, FileDiffContent> = new Map();
   diffContents.set('src/index.ts', {
     newContent: 'hello world',
@@ -39,84 +45,82 @@ describe('reviewPullRequest', () => {
   const owner = 'helper-comment-review-owner';
   const remote: RepoDomain = {repo, owner};
 
+  let getPullRequestHunksStub: sinon.SinonStub;
+  let makeInlineSuggestionsStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    getPullRequestHunksStub = sandbox.stub(
+      reviewPullRequestHandler,
+      'getPullRequestHunks'
+    );
+    makeInlineSuggestionsStub = sandbox.stub(
+      reviewPullRequestHandler,
+      'makeInlineSuggestions'
+    );
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
   it('Succeeds when all values are passed as expected', async () => {
-    let numMockedHelpersCalled = 0;
     const validFileHunks = new Map();
     const invalidFileHunks = new Map();
     const suggestionHunks = new Map();
-    const stubMakePr = proxyquire.noCallThru()(
-      '../src/github-handler/comment-handler',
-      {
-        './get-hunk-scope-handler/remote-patch-ranges-handler': {
-          getPullRequestHunks: (
-            testOctokit: Octokit,
-            testRemote: RepoDomain,
-            testPullNumber: number,
-            testPageSize: number
-          ) => {
-            assert.strictEqual(testOctokit, octokit);
-            assert.strictEqual(testRemote.owner, owner);
-            assert.strictEqual(testOctokit, octokit);
-            assert.strictEqual(testRemote.repo, repo);
-            assert.strictEqual(testPullNumber, pullNumber);
-            assert.strictEqual(testPageSize, pageSize);
-            numMockedHelpersCalled += 1;
-            return validFileHunks;
-          },
-        },
-        './raw-patch-handler/raw-hunk-handler': {
-          getRawSuggestionHunks: (
-            testDiffContents: Map<string, FileDiffContent>
-          ) => {
-            assert.strictEqual(testDiffContents, diffContents);
-            numMockedHelpersCalled += 1;
-            return suggestionHunks;
-          },
-        },
-        './get-hunk-scope-handler/scope-handler': {
-          partitionSuggestedHunksByScope: (
-            testPullRequestHunks: Map<string, Hunk[]>,
-            testSuggestedHunks: Map<string, Hunk[]>
-          ) => {
-            assert.strictEqual(testPullRequestHunks, validFileHunks);
-            assert.strictEqual(testSuggestedHunks, suggestionHunks);
-            numMockedHelpersCalled += 1;
-            return {validHunks: validFileHunks, invalidHunks: invalidFileHunks};
-          },
-        },
-        './make-review-handler': {
-          makeInlineSuggestions: (
-            testOctokit: Octokit,
-            testValidHunks: Map<string, Hunk[]>,
-            testInvalidHunks: Map<string, Hunk[]>,
-            testRemote: RepoDomain,
-            testPullNumber: number
-          ) => {
-            assert.strictEqual(testOctokit, octokit);
-            assert.strictEqual(testValidHunks, validFileHunks);
-            assert.strictEqual(testRemote, remote);
-            assert.strictEqual(testInvalidHunks, invalidFileHunks);
-            assert.strictEqual(testPullNumber, pullNumber);
-            numMockedHelpersCalled += 1;
-          },
-        },
-      }
+    getPullRequestHunksStub.resolves(validFileHunks);
+    const getRawSuggestionHunksStub = sandbox.stub(
+      hunkHandler,
+      'getRawSuggestionHunks'
     );
-    await stubMakePr.reviewPullRequest(
+    getRawSuggestionHunksStub.returns(suggestionHunks);
+    const partitionHunksStub = sandbox.stub(
+      hunkHandler,
+      'partitionSuggestedHunksByScope'
+    );
+    partitionHunksStub.returns({
+      validHunks: validFileHunks,
+      invalidHunks: invalidFileHunks,
+    });
+    makeInlineSuggestionsStub.resolves(234);
+
+    await reviewPullRequestHandler.createPullRequestReview(
       octokit,
       remote,
       pullNumber,
       pageSize,
       diffContents
     );
-    assert.strictEqual(numMockedHelpersCalled, 4);
+
+    sinon.assert.calledWith(
+      getPullRequestHunksStub,
+      sinon.match.instanceOf(Octokit),
+      {
+        owner,
+        repo,
+      },
+      pullNumber,
+      pageSize
+    );
+    sinon.assert.calledWith(getRawSuggestionHunksStub, diffContents);
+    sinon.assert.calledWith(
+      partitionHunksStub,
+      validFileHunks,
+      suggestionHunks
+    );
+    sinon.assert.calledWith(
+      makeInlineSuggestionsStub,
+      sinon.match.instanceOf(Octokit),
+      validFileHunks,
+      invalidFileHunks,
+      remote,
+      pullNumber
+    );
   });
 
   it('Succeeds when diff string provided', async () => {
     const diffString = readFileSync(
       resolve(fixturePath, 'many-to-many.diff')
     ).toString();
-    let numMockedHelpersCalled = 0;
     const validFileHunks = new Map<string, Hunk[]>();
     validFileHunks.set('cloudbuild.yaml', [
       {
@@ -128,90 +132,47 @@ describe('reviewPullRequest', () => {
       },
     ]);
 
-    const stubMakePr = proxyquire.noCallThru()(
-      '../src/github-handler/comment-handler',
-      {
-        './get-hunk-scope-handler/remote-patch-ranges-handler': {
-          getPullRequestHunks: (
-            testOctokit: Octokit,
-            testRemote: RepoDomain,
-            testPullNumber: number,
-            testPageSize: number
-          ) => {
-            assert.strictEqual(testOctokit, octokit);
-            assert.strictEqual(testRemote.owner, owner);
-            assert.strictEqual(testOctokit, octokit);
-            assert.strictEqual(testRemote.repo, repo);
-            assert.strictEqual(testPullNumber, pullNumber);
-            assert.strictEqual(testPageSize, pageSize);
-            numMockedHelpersCalled += 1;
-            return validFileHunks;
-          },
-        },
-        './make-review-handler': {
-          makeInlineSuggestions: (
-            testOctokit: Octokit,
-            testValidHunks: Map<string, Hunk[]>,
-            testInvalidHunks: Map<string, Hunk[]>,
-            testRemote: RepoDomain,
-            testPullNumber: number
-          ) => {
-            assert.strictEqual(testOctokit, octokit);
-            assert.strictEqual(testValidHunks.size, 1);
-            assert.strictEqual(testRemote, remote);
-            assert.strictEqual(testInvalidHunks.size, 0);
-            assert.strictEqual(testPullNumber, pullNumber);
-            numMockedHelpersCalled += 1;
-          },
-        },
-      }
-    );
-    await stubMakePr.reviewPullRequest(
+    getPullRequestHunksStub.resolves(validFileHunks);
+    makeInlineSuggestionsStub.resolves(234);
+
+    await reviewPullRequestHandler.createPullRequestReview(
       octokit,
       remote,
       pullNumber,
       pageSize,
       diffString
     );
-    assert.strictEqual(numMockedHelpersCalled, 2);
+
+    sinon.assert.calledWith(
+      getPullRequestHunksStub,
+      sinon.match.instanceOf(Octokit),
+      {owner, repo},
+      pullNumber,
+      pageSize
+    );
+    sinon.assert.calledWith(
+      makeInlineSuggestionsStub,
+      sinon.match.instanceOf(Octokit),
+      sinon.match.map,
+      sinon.match.map,
+      remote,
+      pullNumber
+    );
   });
 
   it('Passes up the error message when getPullRequestHunks helper fails', async () => {
-    let numMockedHelpersCalled = 0;
-    const stubMakePr = proxyquire.noCallThru()(
-      '../src/github-handler/comment-handler',
-      {
-        './get-hunk-scope-handler/remote-patch-ranges-handler': {
-          getPullRequestHunks: (
-            testOctokit: Octokit,
-            testRemote: RepoDomain,
-            testPullNumber: number,
-            testPageSize: number
-          ) => {
-            assert.strictEqual(testOctokit, octokit);
-            assert.strictEqual(testRemote.owner, owner);
-            assert.strictEqual(testOctokit, octokit);
-            assert.strictEqual(testRemote.repo, repo);
-            assert.strictEqual(testPullNumber, pullNumber);
-            assert.strictEqual(testPageSize, pageSize);
-            numMockedHelpersCalled += 1;
-            throw new Error('getPullRequestHunks failed');
-          },
-        },
-      }
-    );
-    try {
-      await stubMakePr.reviewPullRequest(
+    const error = new Error('getPullRequestHunks failed');
+    getPullRequestHunksStub.rejects(error);
+
+    await assert.rejects(
+      reviewPullRequestHandler.createPullRequestReview(
         octokit,
         remote,
         pullNumber,
         pageSize,
         diffContents
-      );
-      assert.ok(false);
-    } catch (err) {
-      assert.strictEqual(numMockedHelpersCalled, 1);
-      assert.strictEqual(err.message, 'getPullRequestHunks failed');
-    }
+      ),
+      error
+    );
   });
 });
