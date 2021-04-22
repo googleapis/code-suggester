@@ -27,6 +27,7 @@ const DEFAULT_PRIMARY = 'master';
  * @param {Description} description The pull request title and detailed description
  * @param {boolean} maintainersCanModify Whether or not maintainers can modify the pull request. Default is true
  * @param {string} upstreamPrimary The upstream repository's primary branch. Default is master.
+ * @param draft Open a DRAFT pull request.
  * @returns {Promise<void>}
  */
 async function openPullRequest(
@@ -35,7 +36,8 @@ async function openPullRequest(
   origin: BranchDomain,
   description: Description,
   maintainersCanModify = true,
-  upstreamPrimary: string = DEFAULT_PRIMARY
+  upstreamPrimary: string = DEFAULT_PRIMARY,
+  draft? : boolean
 ): Promise<number> {
   const head = `${origin.owner}:${origin.branch}`;
   const existingPullRequest = (
@@ -60,6 +62,7 @@ async function openPullRequest(
       base: upstreamPrimary,
       body: description.body,
       maintainer_can_modify: maintainersCanModify,
+      draft: draft
     })
   ).data;
   logger.info(
