@@ -15,7 +15,7 @@
 import * as assert from 'assert';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
-import {buildSummaryComment} from '../src/github-handler/comment-handler/make-review-handler/message-handler';
+import {buildSummaryComment} from '../src/github/review-pull-request';
 
 before(() => {
   setup();

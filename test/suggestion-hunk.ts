@@ -15,7 +15,7 @@
 import * as assert from 'assert';
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
-import {getRawSuggestionHunks} from '../src/github-handler/comment-handler/raw-patch-handler/raw-hunk-handler';
+import {getRawSuggestionHunks} from '../src/utils/hunk-utils';
 import {FileDiffContent} from '../src/types';
 
 before(() => {

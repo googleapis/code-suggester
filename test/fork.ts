@@ -19,7 +19,7 @@ import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
-import {fork} from '../src/github-handler/fork-handler';
+import {fork} from '../src/github/fork';
 
 type CreateRefResponse = GetResponseTypeFromEndpointMethod<
   typeof octokit.repos.createFork

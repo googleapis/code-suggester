@@ -19,7 +19,7 @@ import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
-import * as handler from '../src/github-handler/commit-and-push-handler';
+import * as handler from '../src/github/commit-and-push';
 import {Changes, FileData, TreeObject, RepoDomain} from '../src/types';
 
 type GetCommitResponse = GetResponseTypeFromEndpointMethod<

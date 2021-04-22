@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as handler from './github-handler';
 import {
   Changes,
   Description,
@@ -32,6 +31,12 @@ import {
   addReviewCommentsDefaults,
 } from './default-options-handler';
 import * as retry from 'async-retry';
+import {createPullRequestReview} from './github/review-pull-request';
+import {branch} from './github/branch';
+import {fork} from './github/fork';
+import {commitAndPush} from './github/commit-and-push';
+import {openPullRequest} from './github/open-pull-request';
+import {addLabels} from './github/labels';
 
 /**
  * Given a set of suggestions, make all the multiline inline review comments on a given pull request given
@@ -74,7 +79,7 @@ export async function reviewPullRequest(
     owner: gitHubConfigs.owner,
     repo: gitHubConfigs.repo,
   };
-  const reviewNumber = await handler.reviewPullRequest(
+  const reviewNumber = await createPullRequestReview(
     octokit,
     remote,
     gitHubConfigs.pullNumber,
@@ -129,7 +134,7 @@ async function createPullRequest(
     repo: gitHubConfigs.upstreamRepo,
   };
   const origin: RepoDomain =
-    options.fork === false ? upstream : await handler.fork(octokit, upstream);
+    options.fork === false ? upstream : await fork(octokit, upstream);
   const originBranch: BranchDomain = {
     ...origin,
     branch: gitHubConfigs.branch,
@@ -140,7 +145,7 @@ async function createPullRequest(
 
   const refHeadSha: string = await retry(
     async () =>
-      await handler.branch(
+      await branch(
         octokit,
         origin,
         upstream,
@@ -160,7 +165,7 @@ async function createPullRequest(
     }
   );
 
-  await handler.commitAndPush(
+  await commitAndPush(
     octokit,
     refHeadSha,
     changes,
@@ -173,7 +178,7 @@ async function createPullRequest(
     body: gitHubConfigs.description,
     title: gitHubConfigs.title,
   };
-  const prNumber = await handler.openPullRequest(
+  const prNumber = await openPullRequest(
     octokit,
     upstream,
     originBranch,
@@ -184,13 +189,7 @@ async function createPullRequest(
   logger.info(`Successfully opened pull request: ${prNumber}.`);
 
   // addLabels will no-op if options.labels is undefined or empty.
-  await handler.addLabels(
-    octokit,
-    upstream,
-    originBranch,
-    prNumber,
-    options.labels
-  );
+  await addLabels(octokit, upstream, originBranch, prNumber, options.labels);
 
   return prNumber;
 }

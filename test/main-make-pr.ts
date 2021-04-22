@@ -23,7 +23,7 @@ import {Octokit} from '@octokit/rest';
 import * as proxyquire from 'proxyquire';
 import * as retry from 'async-retry';
 import * as idx from '../src/index';
-import * as handler from '../src/github-handler/branch-handler';
+import * as handler from '../src/github/branch';
 
 before(() => {
   setup();
