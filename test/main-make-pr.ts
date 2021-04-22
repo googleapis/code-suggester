@@ -20,10 +20,14 @@ import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {Changes, FileData, CreatePullRequestUserOptions} from '../src/types';
 import {Octokit} from '@octokit/rest';
-import * as proxyquire from 'proxyquire';
-import * as retry from 'async-retry';
-import * as idx from '../src/index';
-import * as handler from '../src/github/branch';
+import {createPullRequest} from '../src/index';
+import * as branchHandler from '../src/github/branch';
+import * as forkHandler from '../src/github/fork';
+import * as commitAndPushHandler from '../src/github/commit-and-push';
+import * as openPullRequestHandler from '../src/github/open-pull-request';
+import * as labelsHandler from '../src/github/labels';
+
+const sandbox = sinon.createSandbox();
 
 before(() => {
   setup();
@@ -53,225 +57,207 @@ describe('Make PR main function', () => {
     message,
     primary,
     labels: labelsToAdd,
+    retry: 0,
   };
   const oldHeadSha = '7fd1a60b01f91b314f59955a4e4d4e80d8edf11d';
   const changes: Changes = new Map();
   changes.set('src/index.ts', new FileData("console.log('new file')"));
 
-  const sandbox = sinon.createSandbox();
+  let forkStub: sinon.SinonStub;
+  let branchStub: sinon.SinonStub;
+  let openPullRequestStub: sinon.SinonStub;
+  let commitAndPushStub: sinon.SinonStub;
+  let addLabelsStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    forkStub = sandbox.stub(forkHandler, 'fork');
+    branchStub = sandbox.stub(branchHandler, 'branch');
+    commitAndPushStub = sandbox.stub(commitAndPushHandler, 'commitAndPush');
+    openPullRequestStub = sandbox.stub(
+      openPullRequestHandler,
+      'openPullRequest'
+    );
+    addLabelsStub = sandbox.stub(labelsHandler, 'addLabels');
+  });
 
   afterEach(() => {
     sandbox.restore();
   });
 
   it('Returns correct values on success', async () => {
-    const stubHelperHandlers = {
-      fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
-        assert.strictEqual(upstream.owner, upstreamOwner);
-        assert.strictEqual(upstream.repo, upstreamRepo);
-        return {
-          owner: originOwner,
-          repo: originRepo,
-        };
-      },
-      branch: (
-        octokit: Octokit,
-        origin: {owner: string; repo: string},
-        upstream: {owner: string; repo: string},
-        testBranch: string,
-        testprimary: string
-      ) => {
-        assert.strictEqual(origin.owner, originOwner);
-        assert.strictEqual(origin.repo, originRepo);
-        assert.strictEqual(upstream.owner, upstreamOwner);
-        assert.strictEqual(upstream.repo, upstreamRepo);
-        assert.strictEqual(testBranch, branch);
-        assert.strictEqual(testprimary, primary);
-        return oldHeadSha;
-      },
-      commitAndPush: (
-        octokit: Octokit,
-        testOldHeadSha: string,
-        testChanges: Changes,
-        originBranch: {owner: string; repo: string; branch: string},
-        testMessage: string
-      ) => {
-        assert.strictEqual(testOldHeadSha, oldHeadSha);
-        assert.strictEqual(originBranch.owner, originOwner);
-        assert.strictEqual(originBranch.repo, originRepo);
-        assert.strictEqual(originBranch.branch, branch);
-        assert.deepStrictEqual(testChanges, changes);
-        assert.strictEqual(testMessage, message);
-      },
-      openPullRequest: (
-        octokit: Octokit,
-        upstream: {owner: string; repo: string},
-        originBranch: {owner: string; repo: string; branch: string},
-        testDescription: {title: string; body: string},
-        testMaintainersCanModify: boolean,
-        testPrimary: string
-      ) => {
-        assert.strictEqual(originBranch.owner, originOwner);
-        assert.strictEqual(originBranch.repo, originRepo);
-        assert.strictEqual(originBranch.branch, branch);
-        assert.strictEqual(upstream.owner, upstreamOwner);
-        assert.strictEqual(upstream.repo, upstreamRepo);
-        assert.strictEqual(testDescription.body, description);
-        assert.strictEqual(testDescription.title, title);
-        assert.strictEqual(testMaintainersCanModify, maintainersCanModify);
-        assert.strictEqual(testPrimary, primary);
-      },
-      addLabels: (
-        octokit: Octokit,
-        upstream: {owner: string; repo: string},
-        originBranch: {owner: string; repo: string; branch: string},
-        issue_number: number,
-        labels: string[]
-      ) => {
-        assert.strictEqual(originBranch.owner, originOwner);
-        assert.strictEqual(originBranch.repo, originRepo);
-        assert.strictEqual(originBranch.branch, branch);
-        assert.strictEqual(upstream.owner, upstreamOwner);
-        assert.strictEqual(upstream.repo, upstreamRepo);
-        assert.strictEqual(labels, labelsToAdd);
-      },
-    };
-    const stubMakePr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
+    forkStub.resolves({
+      owner: originOwner,
+      repo: originRepo,
     });
-    await stubMakePr.createPullRequest(octokit, changes, options);
+    branchStub.resolves(oldHeadSha);
+    commitAndPushStub.resolves();
+    openPullRequestStub.resolves(123);
+    addLabelsStub.resolves();
+
+    await createPullRequest(octokit, changes, options);
+
+    sinon.assert.calledWith(forkStub, sinon.match.instanceOf(Octokit), {
+      owner: upstreamOwner,
+      repo: upstreamRepo,
+    });
+    sinon.assert.calledWith(
+      branchStub,
+      sinon.match.instanceOf(Octokit),
+      {
+        owner: originOwner,
+        repo: originRepo,
+      },
+      {
+        owner: upstreamOwner,
+        repo: upstreamRepo,
+      },
+      branch,
+      primary
+    );
+    sinon.assert.calledWith(
+      commitAndPushStub,
+      sinon.match.instanceOf(Octokit),
+      oldHeadSha,
+      changes,
+      {
+        owner: originOwner,
+        repo: originRepo,
+        branch: branch,
+      },
+      message
+    );
+    sinon.assert.calledWith(
+      openPullRequestStub,
+      sinon.match.instanceOf(Octokit),
+      {
+        owner: upstreamOwner,
+        repo: upstreamRepo,
+      },
+      {
+        owner: originOwner,
+        repo: originRepo,
+        branch: branch,
+      },
+      {
+        title: title,
+        body: description,
+      },
+      maintainersCanModify,
+      primary
+    );
+    sinon.assert.calledWith(
+      addLabelsStub,
+      sinon.match.instanceOf(Octokit),
+      {
+        owner: upstreamOwner,
+        repo: upstreamRepo,
+      },
+      {
+        owner: originOwner,
+        repo: originRepo,
+        branch: branch,
+      },
+      123,
+      labelsToAdd
+    );
   });
 
   it('does not create fork when fork is false', async () => {
-    const stubHelperHandlers = {
-      fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
-        throw Error('should not call fork');
-      },
-      branch: (
-        octokit: Octokit,
-        origin: {owner: string; repo: string},
-        upstream: {owner: string; repo: string},
-        testBranch: string,
-        testprimary: string
-      ) => {
-        assert.strictEqual(upstream.owner, origin.owner);
-        assert.strictEqual(upstream.repo, origin.repo);
-        return oldHeadSha;
-      },
-      commitAndPush: (
-        octokit: Octokit,
-        testOldHeadSha: string,
-        testChanges: Changes,
-        originBranch: {owner: string; repo: string; branch: string},
-        testMessage: string
-      ) => {
-        assert.strictEqual(testOldHeadSha, oldHeadSha);
-        assert.strictEqual(originBranch.owner, upstreamOwner);
-        assert.strictEqual(originBranch.repo, upstreamRepo);
-        assert.strictEqual(originBranch.branch, branch);
-        assert.deepStrictEqual(testChanges, changes);
-        assert.strictEqual(testMessage, message);
-      },
-      openPullRequest: (
-        octokit: Octokit,
-        upstream: {owner: string; repo: string},
-        originBranch: {owner: string; repo: string; branch: string},
-        testDescription: {title: string; body: string},
-        testMaintainersCanModify: boolean,
-        testPrimary: string
-      ) => {
-        assert.strictEqual(originBranch.owner, upstreamOwner);
-        assert.strictEqual(originBranch.repo, upstreamRepo);
-        assert.strictEqual(originBranch.branch, branch);
-        assert.strictEqual(upstream.owner, upstreamOwner);
-        assert.strictEqual(upstream.repo, upstreamRepo);
-        assert.strictEqual(testDescription.body, description);
-        assert.strictEqual(testDescription.title, title);
-        assert.strictEqual(testMaintainersCanModify, maintainersCanModify);
-        assert.strictEqual(testPrimary, primary);
-      },
-      addLabels: (
-        octokit: Octokit,
-        upstream: {owner: string; repo: string},
-        originBranch: {owner: string; repo: string; branch: string},
-        issue_number: number,
-        labels: string[]
-      ) => {
-        assert.strictEqual(originBranch.owner, upstreamOwner);
-        assert.strictEqual(originBranch.repo, upstreamRepo);
-        assert.strictEqual(originBranch.branch, branch);
-        assert.strictEqual(upstream.owner, upstreamOwner);
-        assert.strictEqual(upstream.repo, upstreamRepo);
-        assert.strictEqual(labels, labelsToAdd);
-      },
-    };
-    const stubMakePr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
-    });
-    await stubMakePr.createPullRequest(
+    forkStub.rejects('should not call fork');
+    branchStub.resolves(oldHeadSha);
+    commitAndPushStub.resolves();
+    openPullRequestStub.resolves(123);
+    addLabelsStub.resolves();
+
+    await createPullRequest(
       octokit,
       changes,
       Object.assign({fork: false}, options)
+    );
+
+    sinon.assert.notCalled(forkStub);
+    sinon.assert.calledWith(
+      branchStub,
+      sinon.match.instanceOf(Octokit),
+      {
+        owner: upstreamOwner,
+        repo: upstreamRepo,
+      },
+      {
+        owner: upstreamOwner,
+        repo: upstreamRepo,
+      },
+      branch,
+      primary
+    );
+    sinon.assert.calledWith(
+      commitAndPushStub,
+      sinon.match.instanceOf(Octokit),
+      oldHeadSha,
+      changes,
+      {
+        owner: upstreamOwner,
+        repo: upstreamRepo,
+        branch: branch,
+      },
+      message
+    );
+    sinon.assert.calledWith(
+      openPullRequestStub,
+      sinon.match.instanceOf(Octokit),
+      {
+        owner: upstreamOwner,
+        repo: upstreamRepo,
+      },
+      {
+        owner: upstreamOwner,
+        repo: upstreamRepo,
+        branch: branch,
+      },
+      {
+        title: title,
+        body: description,
+      },
+      maintainersCanModify,
+      primary
+    );
+    sinon.assert.calledWith(
+      addLabelsStub,
+      sinon.match.instanceOf(Octokit),
+      {
+        owner: upstreamOwner,
+        repo: upstreamRepo,
+      },
+      {
+        owner: upstreamOwner,
+        repo: upstreamRepo,
+        branch: branch,
+      },
+      123,
+      labelsToAdd
     );
   });
 
   it('Passes up the error message with a throw when create fork helper function fails', async () => {
     const error = new Error('Create fork helper failed');
-    const stubHelperHandlers = {
-      fork: () => {
-        throw error;
-      },
-    };
-    const stubMakePr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
-    });
-    await assert.rejects(
-      stubMakePr.createPullRequest(octokit, changes, options),
-      error
-    );
+    forkStub.rejects(error);
+    await assert.rejects(createPullRequest(octokit, changes, options), error);
   });
   it('Passes up the error message with a throw when create branch helper fails', async () => {
-    // setup
-    const error = new Error('Create branch helper failed');
-    const stubHelperHandlers = {
-      fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
-        assert.strictEqual(upstream.owner, upstreamOwner);
-        assert.strictEqual(upstream.repo, upstreamRepo);
-        return {
-          owner: originOwner,
-          repo: originRepo,
-        };
-      },
-      branch: () => {
-        throw error;
-      },
-    };
-    const stubMakePr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
-      'async-retry': async (
-        fn: Function,
-        options: {[index: string]: unknown}
-      ) => {
-        assert.strictEqual(options.retries, 5);
-        assert.strictEqual(options.factor, 2.8411);
-        assert.strictEqual(options.minTimeout, 3000);
-        assert.strictEqual(options.randomize, false);
-        await retry(() => fn(), {
-          retries: 0,
-        });
-      },
+    forkStub.resolves({
+      owner: originOwner,
+      repo: originRepo,
     });
-    await assert.rejects(
-      stubMakePr.createPullRequest(octokit, changes, options),
-      error
-    );
+    const error = new Error('Create branch helper failed');
+    branchStub.rejects(error);
+    await assert.rejects(createPullRequest(octokit, changes, options), error);
   });
 
   it('should respect the retry flag', async () => {
-    const stub = sinon.stub(handler, 'branch').throws('boop');
+    branchStub.throws('boop');
     // eslint-disable-next-line node/no-unsupported-features/node-builtins
     await assert.rejects(
-      idx.createPullRequest(octokit, changes, {
+      createPullRequest(octokit, changes, {
         title: 'hello',
         message: 'hello',
         description: 'hello',
@@ -282,130 +268,42 @@ describe('Make PR main function', () => {
       }),
       /boop/
     );
-    assert.ok(stub.calledOnce);
+    sinon.assert.calledOnce(branchStub);
   });
 
   it('Passes up the error message with a throw when helper commit and push helper function fails', async () => {
-    // setup
+    forkStub.resolves({
+      owner: originOwner,
+      repo: originRepo,
+    });
+    branchStub.resolves(oldHeadSha);
     const error = new Error('Commit and push helper failed');
-    const stubHelperHandlers = {
-      fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
-        assert.strictEqual(upstream.owner, upstreamOwner);
-        assert.strictEqual(upstream.repo, upstreamRepo);
-        return {
-          owner: originOwner,
-          repo: originRepo,
-        };
-      },
-      branch: (
-        octokit: Octokit,
-        origin: {owner: string; repo: string},
-        upstream: {owner: string; repo: string},
-        testBranch: string,
-        testprimary: string
-      ) => {
-        assert.strictEqual(origin.owner, originOwner);
-        assert.strictEqual(origin.repo, originRepo);
-        assert.strictEqual(upstream.owner, upstreamOwner);
-        assert.strictEqual(upstream.repo, upstreamRepo);
-        assert.strictEqual(testBranch, branch);
-        assert.strictEqual(testprimary, primary);
-        return oldHeadSha;
-      },
-      commitAndPush: () => {
-        throw error;
-      },
-    };
-    const stubMakePr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
-    });
-    await assert.rejects(
-      stubMakePr.createPullRequest(octokit, changes, options),
-      error
-    );
+    commitAndPushStub.rejects(error);
+
+    await assert.rejects(createPullRequest(octokit, changes, options), error);
   });
+
   it('Passes up the error message with a throw when helper create pr helper function fails', async () => {
-    // setup
+    forkStub.resolves({
+      owner: originOwner,
+      repo: originRepo,
+    });
+    branchStub.resolves(oldHeadSha);
+    commitAndPushStub.resolves();
     const error = new Error('Create PR helper failed');
-    const stubHelperHandlers = {
-      fork: (octokit: Octokit, upstream: {owner: string; repo: string}) => {
-        assert.strictEqual(upstream.owner, upstreamOwner);
-        assert.strictEqual(upstream.repo, upstreamRepo);
-        return {
-          owner: originOwner,
-          repo: originRepo,
-        };
-      },
-      branch: (
-        octokit: Octokit,
-        origin: {owner: string; repo: string},
-        upstream: {owner: string; repo: string},
-        testBranch: string,
-        testprimary: string
-      ) => {
-        assert.strictEqual(origin.owner, originOwner);
-        assert.strictEqual(origin.repo, originRepo);
-        assert.strictEqual(upstream.owner, upstreamOwner);
-        assert.strictEqual(upstream.repo, upstreamRepo);
-        assert.strictEqual(testBranch, branch);
-        assert.strictEqual(testprimary, primary);
-        return oldHeadSha;
-      },
-      commitAndPush: (
-        octokit: Octokit,
-        testOldHeadSha: string,
-        testChanges: Changes,
-        originBranch: {owner: string; repo: string; branch: string},
-        testMessage: string
-      ) => {
-        assert.strictEqual(testOldHeadSha, oldHeadSha);
-        assert.strictEqual(originBranch.owner, originOwner);
-        assert.strictEqual(originBranch.repo, originRepo);
-        assert.strictEqual(originBranch.branch, branch);
-        assert.deepStrictEqual(testChanges, changes);
-        assert.strictEqual(testMessage, message);
-      },
-      openPullRequest: () => {
-        throw error;
-      },
-    };
-    const stubMakePr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
-    });
-    await assert.rejects(
-      stubMakePr.createPullRequest(octokit, changes, options),
-      error
-    );
+    openPullRequestStub.rejects(error);
+    await assert.rejects(createPullRequest(octokit, changes, options), error);
   });
+
   it('Does not execute any GitHub API calls when there are no changes to commit', async () => {
-    // setup
-    const stubHelperHandlers = {
-      fork: () => {
-        assert.fail(
-          'When changeset is null or undefined then GitHub forking should not execute'
-        );
-      },
-      branch: () => {
-        assert.fail(
-          'When changeset is null or undefined then GitHub forking should not execute'
-        );
-      },
-      commitAndPush: () => {
-        assert.fail(
-          'When changeset is null or undefined then GitHub forking should not execute'
-        );
-      },
-      openPullRequest: () => {
-        assert.fail(
-          'When changeset is null or undefined then GitHub forking should not execute'
-        );
-      },
-    };
-    const stubMakePr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
-    });
-    await stubMakePr.createPullRequest(octokit, null, options);
-    await stubMakePr.createPullRequest(octokit, undefined, options);
-    await stubMakePr.createPullRequest(octokit, new Map(), options);
+    await createPullRequest(octokit, null, options);
+    await createPullRequest(octokit, undefined, options);
+    await createPullRequest(octokit, new Map(), options);
+
+    sinon.assert.notCalled(forkStub);
+    sinon.assert.notCalled(branchStub);
+    sinon.assert.notCalled(commitAndPushStub);
+    sinon.assert.notCalled(openPullRequestStub);
+    sinon.assert.notCalled(addLabelsStub);
   });
 });
