@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://www.github.com/googleapis/code-suggester/compare/v1.10.0...v1.11.0) (2021-04-22)
+
+
+### Features
+
+* add optional draft flag to openPullRequest() ([#207](https://www.github.com/googleapis/code-suggester/issues/207)) ([ff9516c](https://www.github.com/googleapis/code-suggester/commit/ff9516ced31a6b8346b56870e54705412b79f52e))
+
 ## [1.10.0](https://www.github.com/googleapis/code-suggester/compare/v1.9.3...v1.10.0) (2021-03-30)
 
 
