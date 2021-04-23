@@ -105,6 +105,7 @@ describe('Mapping pr yargs to create PR options', () => {
       maintainersCanModify: true,
       fork: true,
       labels: ['automerge'],
+      logger: console,
     };
     sandbox.stub(yargs, 'argv').value({_: ['pr'], ...options});
     assert.deepStrictEqual(coerceUserCreatePullRequestOptions(), options);
