@@ -97,6 +97,8 @@ export interface CreatePullRequestUserOptions {
   labels?: string[];
   // Number of times to retry if the request fails.  Defaults to 5.
   retry?: number;
+  // Create a DRAFT pull request.
+  draft?: boolean;
 }
 
 /**
