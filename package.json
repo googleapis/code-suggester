@@ -1,7 +1,7 @@
 {
   "name": "code-suggester",
   "description": "Library to propose code changes",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "license": "Apache-2.0",
   "author": "Google LLC",
   "engines": {
@@ -47,7 +47,6 @@
     "diff": "^5.0.0",
     "glob": "^7.1.6",
     "parse-diff": "^0.8.0",
-    "pino": "^6.3.2",
     "yargs": "^16.0.0"
   },
   "devDependencies": {
@@ -58,7 +57,6 @@
     "@types/diff": "^5.0.0",
     "@types/mocha": "^8.0.0",
     "@types/node": "^14.0.20",
-    "@types/pino": "^6.3.0",
     "@types/sinon": "^10.0.0",
     "c8": "^7.0.1",
     "gts": "^3.0.0",

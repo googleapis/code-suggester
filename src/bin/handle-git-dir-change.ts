@@ -84,7 +84,7 @@ function parseGitDiff(
     const relativePath = statusAndPath[1];
     return {oldMode, newMode, status, relativePath};
   } catch (err) {
-    logger.warning(
+    logger.warn(
       `\`git diff --raw\` may have changed formats: \n ${gitDiffPattern}`
     );
     throw err;
