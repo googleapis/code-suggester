@@ -99,6 +99,8 @@ export interface CreatePullRequestUserOptions {
   retry?: number;
   // Create a DRAFT pull request.
   draft?: boolean;
+  // Optional logger to set
+  logger?: Logger;
 }
 
 /**
@@ -137,6 +139,8 @@ export interface CreateReviewCommentUserOptions {
   pullNumber: number;
   // The number of files to return per pull request list files query. Used when getting data on the remote PR's files.
   pageSize?: number;
+  // Optional logger to set
+  logger?: Logger;
 }
 
 /**
