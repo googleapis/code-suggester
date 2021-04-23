@@ -177,3 +177,18 @@ export interface Hunk {
   readonly previousLine?: string;
   readonly nextLine?: string;
 }
+
+interface LogFn {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  <T extends object>(obj: T, msg?: string, ...args: any[]): void;
+  (msg: string, ...args: any[]): void;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}
+
+export interface Logger {
+  error: LogFn;
+  warn: LogFn;
+  info: LogFn;
+  debug: LogFn;
+  trace: LogFn;
+}

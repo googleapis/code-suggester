@@ -15,7 +15,6 @@
 import {setupLogger, logger} from '../src/logger';
 import {Octokit} from '@octokit/rest';
 import {disableNetConnect} from 'nock';
-import * as Pino from 'pino';
 
 const octokit = new Octokit();
 
@@ -24,7 +23,7 @@ const octokit = new Octokit();
  */
 function setup() {
   disableNetConnect();
-  setupLogger(Pino({level: 'warn'}));
+  setupLogger(console);
 }
 
 export {logger, octokit, setup};
