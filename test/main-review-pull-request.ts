@@ -17,9 +17,14 @@
 import * as assert from 'assert';
 import {describe, it, before} from 'mocha';
 import {octokit, setup} from './util';
-import {CreateReviewComment, RepoDomain, FileDiffContent} from '../src/types';
+import * as sinon from 'sinon';
+import {CreateReviewComment, FileDiffContent} from '../src/types';
 import {Octokit} from '@octokit/rest';
-import * as proxyquire from 'proxyquire';
+import * as reviewPullRequestHandler from '../src/github/review-pull-request';
+import {reviewPullRequest} from '../src/index';
+
+const sandbox = sinon.createSandbox();
+
 before(() => {
   setup();
 });
@@ -41,104 +46,45 @@ describe('reviewPullRequest', () => {
     pullNumber,
     pageSize,
   };
+  let reviewPullRequestStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    reviewPullRequestStub = sandbox.stub(
+      reviewPullRequestHandler,
+      'createPullRequestReview'
+    );
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
 
   it('Does not error on success', async () => {
-    let numMockedHelpersCalled = 0;
-    const stubHelperHandlers = {
-      reviewPullRequest: (
-        octokit: Octokit,
-        remote: RepoDomain,
-        testPullNumber: number,
-        testPPageSize: number,
-        testDiffContents: Map<string, FileDiffContent>
-      ) => {
-        assert.strictEqual(remote.owner, owner);
-        assert.strictEqual(remote.repo, repo);
-        assert.strictEqual(testPullNumber, pullNumber);
-        assert.strictEqual(testPPageSize, pageSize);
-        assert.strictEqual(testDiffContents, diffContents);
-        numMockedHelpersCalled += 1;
+    reviewPullRequestStub.resolves();
+    await reviewPullRequest(octokit, diffContents, options);
+    sinon.assert.calledOnceWithMatch(
+      reviewPullRequestStub,
+      sinon.match.instanceOf(Octokit),
+      {
+        owner,
+        repo,
       },
-    };
-    const stubReviewPr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
-    });
-    await stubReviewPr.reviewPullRequest(octokit, diffContents, options);
-    assert.strictEqual(numMockedHelpersCalled, 1);
-  });
-
-  it('Does not call the github handlers when there are no changes to make because user passed null', async () => {
-    const stubHelperHandlers = {
-      reviewPullRequest: (
-        octokit: Octokit,
-        remote: RepoDomain,
-        pullNumber: number,
-        pageSize: number,
-        testDiffContents: Map<string, FileDiffContent>
-      ) => {
-        assert.fail();
-      },
-    };
-    const stubReviewPr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
-    });
-    await stubReviewPr.reviewPullRequest(octokit, null, options);
-  });
-
-  it('Does not call the github handlers when there are no changes to make because user passed undefined', async () => {
-    const stubHelperHandlers = {
-      reviewPullRequest: (
-        octokit: Octokit,
-        remote: RepoDomain,
-        pullNumber: number,
-        pageSize: number,
-        testDiffContents: Map<string, FileDiffContent>
-      ) => {
-        assert.fail();
-      },
-    };
-    const stubReviewPr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
-    });
-    await stubReviewPr.reviewPullRequest(octokit, undefined, options);
+      pullNumber,
+      pageSize,
+      diffContents
+    );
   });
 
   it('Does not call the github handlers when there are no changes to make because user passed an empty changeset', async () => {
-    const stubHelperHandlers = {
-      reviewPullRequest: (
-        octokit: Octokit,
-        remote: RepoDomain,
-        pullNumber: number,
-        pageSize: number,
-        testDiffContents: Map<string, FileDiffContent>
-      ) => {
-        assert.fail();
-      },
-    };
-    const stubReviewPr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
-    });
-    await stubReviewPr.reviewPullRequest(octokit, new Map(), options);
+    await reviewPullRequest(octokit, new Map(), options);
+    sinon.assert.notCalled(reviewPullRequestStub);
   });
 
   it('Passes up the error message when the create review comment helper fails', async () => {
     const error = new Error('Review pull request helper failed');
-    const stubHelperHandlers = {
-      reviewPullRequest: (
-        octokit: Octokit,
-        remote: RepoDomain,
-        pullNumber: number,
-        pageSize: number,
-        testDiffContents: Map<string, FileDiffContent>
-      ) => {
-        throw error;
-      },
-    };
-    const stubReviewPr = proxyquire.noCallThru()('../src/', {
-      './github-handler': stubHelperHandlers,
-    });
+    reviewPullRequestStub.rejects(error);
     await assert.rejects(
-      stubReviewPr.reviewPullRequest(octokit, diffContents, options),
+      reviewPullRequest(octokit, diffContents, options),
       error
     );
   });

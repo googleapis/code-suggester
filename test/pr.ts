@@ -22,7 +22,7 @@ import {
   GetResponseTypeFromEndpointMethod,
   GetResponseDataTypeFromEndpointMethod,
 } from '@octokit/types';
-import {openPullRequest} from '../src/github-handler/pull-request-handler';
+import {openPullRequest} from '../src/github/open-pull-request';
 
 type ListPullsResponse = GetResponseTypeFromEndpointMethod<
   typeof octokit.pulls.list

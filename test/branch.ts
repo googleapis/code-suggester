@@ -19,11 +19,7 @@ import * as assert from 'assert';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
-import {
-  branch,
-  getBranchHead,
-  createRef,
-} from '../src/github-handler/branch-handler';
+import {getBranchHead, branch, createRef} from '../src/github/branch';
 
 type GetBranchResponse = GetResponseTypeFromEndpointMethod<
   typeof octokit.repos.getBranch

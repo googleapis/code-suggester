@@ -16,8 +16,8 @@
 import {describe, it, afterEach} from 'mocha';
 import * as assert from 'assert';
 import {main, coerceUserCreatePullRequestOptions} from '../src/bin/workflow';
+import * as gitChangeHander from '../src/bin/handle-git-dir-change';
 import * as sinon from 'sinon';
-import * as proxyquire from 'proxyquire';
 import * as yargs from 'yargs';
 
 describe('main', () => {
@@ -35,17 +35,9 @@ describe('main', () => {
     sandbox
       .stub(yargs, 'argv')
       .value({...yargs.argv, _: ['pr'], 'git-dir': 'some/dir'});
-    const stubHelperHandlers = {
-      getChanges: () => {
-        return new Promise(resolve => {
-          resolve(new Map());
-        });
-      },
-    };
-    const stubWorkFlow = proxyquire.noCallThru()('../src/bin/workflow', {
-      './handle-git-dir-change': stubHelperHandlers,
-    });
-    stubWorkFlow.main();
+    const getChangesStub = sandbox.stub(gitChangeHander, 'getChanges');
+    getChangesStub.resolves(new Map());
+    await main();
   });
   it('fails when there is no env variable', async () => {
     sandbox
@@ -62,17 +54,10 @@ describe('main', () => {
     sandbox
       .stub(yargs, 'argv')
       .value({...yargs.argv, _: ['unknown-command'], 'git-dir': 'some/dir'});
-    const stubHelperHandlers = {
-      getChanges: () => {
-        return new Promise((resolve, reject) => {
-          reject(Error());
-        });
-      },
-    };
-    const stubWorkFlow = proxyquire.noCallThru()('../src/bin/workflow', {
-      './handle-git-dir-change': stubHelperHandlers,
-    });
-    await assert.rejects(stubWorkFlow.main());
+
+    const getChangesStub = sandbox.stub(gitChangeHander, 'getChanges');
+    getChangesStub.rejects(new Error('error getting changes'));
+    await assert.rejects(main());
   });
 
   it('Passes up the error message when fetching change failed', async () => {

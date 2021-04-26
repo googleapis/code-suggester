@@ -26,7 +26,7 @@ import {
   makeInlineSuggestions,
   buildReviewComments,
   PullsCreateReviewParamsComments,
-} from '../src/github-handler/comment-handler/make-review-handler/upload-comments-handler';
+} from '../src/github/review-pull-request';
 import {Hunk} from '../src/types';
 
 type GetPullResponse = GetResponseTypeFromEndpointMethod<
