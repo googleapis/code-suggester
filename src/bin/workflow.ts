@@ -41,6 +41,7 @@ export function coerceUserCreatePullRequestOptions(): CreatePullRequestUserOptio
     maintainersCanModify: yargs.argv.maintainersCanModify as boolean,
     fork: yargs.argv.fork as boolean,
     labels: yargs.argv.labels as string[],
+    logger,
   };
 }
 
@@ -52,6 +53,7 @@ export function coerceUserCreateReviewRequestOptions(): CreateReviewCommentUserO
     repo: yargs.argv.upstreamRepo as string,
     owner: yargs.argv.upstreamOwner as string,
     pullNumber: yargs.argv.pullNumber as number,
+    logger,
   };
 }
 
@@ -59,14 +61,14 @@ async function createCommand() {
   const options = coerceUserCreatePullRequestOptions();
   const changes = await git.getChanges(yargs.argv['git-dir'] as string);
   const octokit = new Octokit({auth: process.env.ACCESS_TOKEN});
-  await createPullRequest(octokit, changes, options, logger);
+  await createPullRequest(octokit, changes, options);
 }
 
 async function reviewCommand() {
   const reviewOptions = coerceUserCreateReviewRequestOptions();
   const diffContents = await git.getDiffString(yargs.argv['git-dir'] as string);
   const octokit = new Octokit({auth: process.env.ACCESS_TOKEN});
-  await reviewPullRequest(octokit, diffContents, reviewOptions, logger);
+  await reviewPullRequest(octokit, diffContents, reviewOptions);
 }
 
 /**
@@ -74,7 +76,7 @@ async function reviewCommand() {
  */
 export async function main() {
   try {
-    setupLogger();
+    setupLogger(console);
     if (!process.env.ACCESS_TOKEN) {
       throw Error('The ACCESS_TOKEN should not be undefined');
     }

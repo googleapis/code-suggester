@@ -21,7 +21,6 @@ import {
   FileData,
   FileDiffContent,
   CreateReviewCommentUserOptions,
-  Logger,
 } from './types';
 export {Changes} from './types';
 import {Octokit} from '@octokit/rest';
@@ -52,16 +51,14 @@ import {addLabels} from './github/labels';
  * @param octokit The authenticated octokit instance, instantiated with an access token having permissiong to create a fork on the target repository.
  * @param diffContents A set of changes. The changes may be empty.
  * @param options The configuration for interacting with GitHub provided by the user.
- * @param loggerOption The logger instance (optional).
  * @returns the created review's id number, or null if there are no changes to be made.
  */
 export async function reviewPullRequest(
   octokit: Octokit,
   diffContents: Map<string, FileDiffContent> | string,
-  options: CreateReviewCommentUserOptions,
-  loggerOption?: Logger
+  options: CreateReviewCommentUserOptions
 ): Promise<number | null> {
-  setupLogger(loggerOption);
+  setupLogger(options.logger);
   // if null undefined, or the empty map then no changes have been provided.
   // Do not execute GitHub workflow
   if (
@@ -109,16 +106,14 @@ export async function reviewPullRequest(
  * @param {Octokit} octokit The authenticated octokit instance, instantiated with an access token having permissiong to create a fork on the target repository
  * @param {Changes | null | undefined} changes A set of changes. The changes may be empty
  * @param {CreatePullRequestUserOptions} options The configuration for interacting with GitHub provided by the user.
- * @param {Logger} logger The logger instance (optional).
  * @returns {Promise<number>} the pull request number. Returns 0 if unsuccessful.
  */
 async function createPullRequest(
   octokit: Octokit,
   changes: Changes | null | undefined,
-  options: CreatePullRequestUserOptions,
-  loggerOption?: Logger
+  options: CreatePullRequestUserOptions
 ): Promise<number> {
-  setupLogger(loggerOption);
+  setupLogger(options.logger);
   // if null undefined, or the empty map then no changes have been provided.
   // Do not execute GitHub workflow
   if (changes === null || changes === undefined || changes.size === 0) {
