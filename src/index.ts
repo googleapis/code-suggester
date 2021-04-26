@@ -22,7 +22,6 @@ import {
   FileData,
   FileDiffContent,
   CreateReviewCommentUserOptions,
-  Logger,
 } from './types';
 export {Changes} from './types';
 import {Octokit} from '@octokit/rest';
@@ -107,7 +106,7 @@ export async function reviewPullRequest(
 async function createPullRequest(
   octokit: Octokit,
   changes: Changes | null | undefined,
-  options: CreatePullRequestUserOptions,
+  options: CreatePullRequestUserOptions
 ): Promise<number> {
   setupLogger(options.logger);
   // if null undefined, or the empty map then no changes have been provided.
