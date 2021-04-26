@@ -52,9 +52,7 @@ describe('Branch', () => {
   });
   it('invokes octokit get branch with correct parameters, invokes octokit correctly, and returns the HEAD sha', async () => {
     // setup
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,
@@ -77,9 +75,7 @@ describe('Branch', () => {
 
   it('The create branch function returns the primary SHA when create branching is successful', async () => {
     // setup
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,
@@ -137,9 +133,7 @@ describe('Branch', () => {
 
   it('When there is an existing branch the primary HEAD sha is still returned and no new branch is created', async () => {
     // setup
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,
@@ -191,9 +185,7 @@ describe('Branch', () => {
     );
   });
   it('Branching fails when Octokit list branch fails', async () => {
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,
@@ -209,9 +201,7 @@ describe('Branch', () => {
     );
   });
   it('Branching fails when Octokit create ref fails', async () => {
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,
@@ -230,9 +220,7 @@ describe('Branch', () => {
     );
   });
   it('Branching fails when primary branch specified did not match any of the branches returned', async () => {
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,
