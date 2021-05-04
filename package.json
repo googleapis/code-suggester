@@ -47,7 +47,7 @@
     "diff": "^5.0.0",
     "glob": "^7.1.6",
     "parse-diff": "^0.8.0",
-    "yargs": "^16.0.0"
+    "yargs": "^17.0.0"
   },
   "devDependencies": {
     "@microsoft/api-documenter": "^7.8.10",
