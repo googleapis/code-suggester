@@ -165,9 +165,9 @@ describe('makeInlineSuggestions', () => {
   const pullNumber = 711;
   it("Calls Octokit with the correct values and returns the successfully created review's number", async () => {
     suggestions.set(fileName1, [hunk1]);
-    const responseData: GetPullResponseData = ((await import(
+    const responseData: GetPullResponseData = (await import(
       './fixtures/get-pull-request-response.json'
-    )) as unknown) as GetPullResponseData;
+    )) as unknown as GetPullResponseData;
     const getPullRequestResponse: GetPullResponse = {
       headers: {},
       status: 200,
@@ -205,8 +205,7 @@ describe('makeInlineSuggestions', () => {
           type: 'User',
           site_admin: false,
         },
-        body:
-          'This is close to perfect! Please address the suggested inline change.',
+        body: 'This is close to perfect! Please address the suggested inline change.',
         state: 'CHANGES_REQUESTED',
         html_url:
           'https://github.com/octocat/Hello-World/pull/12#pullrequestreview-80',
@@ -214,8 +213,7 @@ describe('makeInlineSuggestions', () => {
           'https://api.github.com/repos/octocat/Hello-World/pulls/12',
         _links: {
           html: {
-            href:
-              'https://github.com/octocat/Hello-World/pull/12#pullrequestreview-80',
+            href: 'https://github.com/octocat/Hello-World/pull/12#pullrequestreview-80',
           },
           pull_request: {
             href: 'https://api.github.com/repos/octocat/Hello-World/pulls/12',
@@ -255,7 +253,7 @@ describe('makeInlineSuggestions', () => {
       pull_number: pullNumber,
       commit_id: '6dcb09b5b57875f334f61aebed695e2e4193db5e',
       body: '',
-      comments: ([
+      comments: [
         {
           body: '```suggestion\nFoo\n```',
           path: 'foo.txt',
@@ -264,7 +262,7 @@ describe('makeInlineSuggestions', () => {
           side: 'RIGHT',
           start_side: 'RIGHT',
         },
-      ] as unknown) as PullsCreateReviewParamsComments[],
+      ] as unknown as PullsCreateReviewParamsComments[],
       event: 'COMMENT',
       headers: {accept: 'application/vnd.github.comfort-fade-preview+json'},
     });
@@ -278,7 +276,7 @@ describe('makeInlineSuggestions', () => {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
-      data: (responseData as unknown) as GetPullResponseData,
+      data: responseData as unknown as GetPullResponseData,
     };
     // setup
     const stubGetPulls = sandbox
@@ -307,7 +305,7 @@ describe('makeInlineSuggestions', () => {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
-      data: (responseData as unknown) as GetPullResponseData,
+      data: responseData as unknown as GetPullResponseData,
     };
     // setup
     const stubGetPulls = sandbox
@@ -361,7 +359,7 @@ describe('makeInlineSuggestions', () => {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
-      data: (responseData as unknown) as GetPullResponseData,
+      data: responseData as unknown as GetPullResponseData,
     };
     // setup
     const stubGetPulls = sandbox

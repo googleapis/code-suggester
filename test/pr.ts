@@ -62,9 +62,9 @@ describe('Opening a pull request', async () => {
 
   it('Invokes octokit pull create when there is not an existing pull request open', async () => {
     // setup
-    const responseCreatePullData = ((await import(
+    const responseCreatePullData = (await import(
       './fixtures/create-pr-response.json'
-    )) as unknown) as CreatePRResponseData;
+    )) as unknown as CreatePRResponseData;
     const createPrResponse: CreatePRResponse = {
       headers: {},
       status: 201,
@@ -105,12 +105,12 @@ describe('Opening a pull request', async () => {
   });
 
   describe('When there are similar refs with pull requests open, the current new and unique ref still opens a pr', async () => {
-    const responseCreatePullData = ((await import(
+    const responseCreatePullData = (await import(
       './fixtures/create-pr-response.json'
-    )) as unknown) as CreatePRResponseData;
-    const responseListPullData = ((await import(
+    )) as unknown as CreatePRResponseData;
+    const responseListPullData = (await import(
       './fixtures/list-pulls-response.json'
-    )) as unknown) as ListPullsResponseData;
+    )) as unknown as ListPullsResponseData;
     afterEach(() => {
       sandbox.restore();
     });
@@ -243,9 +243,9 @@ describe('Opening a pull request', async () => {
 
   it('Does not invoke octokit pull create when there is an existing pull request open', async () => {
     // setup
-    const responseListPullData = ((await import(
+    const responseListPullData = (await import(
       './fixtures/list-pulls-response.json'
-    )) as unknown) as ListPullsResponseData;
+    )) as unknown as ListPullsResponseData;
     const listPullResponse: ListPullsResponse = {
       headers: {},
       status: 200,

@@ -67,9 +67,7 @@ export function findRepoRoot(dir: string): string {
  * @param {string} gitDiffPattern A single file diff. Renames and copies are broken up into separate diffs. See https://git-scm.com/docs/git-diff#Documentation/git-diff.txt-git-diff-filesltpatterngt82308203 for more details
  * @returns indexable git diff fields: old/new mode, status, and path
  */
-function parseGitDiff(
-  gitDiffPattern: string
-): {
+function parseGitDiff(gitDiffPattern: string): {
   oldMode: FileMode;
   newMode: FileMode;
   status: GitDiffStatus;
@@ -104,9 +102,8 @@ export function getGitFileData(
 ): Promise<GitFileData> {
   return new Promise((resolve, reject) => {
     try {
-      const {oldMode, newMode, status, relativePath} = parseGitDiff(
-        gitDiffPattern
-      );
+      const {oldMode, newMode, status, relativePath} =
+        parseGitDiff(gitDiffPattern);
       // if file is deleted, do not attempt to read it
       if (status === 'D') {
         resolve({path: relativePath, fileData: new FileData(null, oldMode)});

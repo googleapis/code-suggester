@@ -78,23 +78,21 @@ describe('Branch', () => {
       url: 'http://fake-url.com',
       data: branchResponseBody,
     } as GetBranchResponse;
-    const createRefResponse = ({
+    const createRefResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
       data: {
         ref: 'refs/heads/test-branch',
         node_id: 'MDM6UmVmMjc0NzM5ODIwOnJlZnMvaGVhZHMvVGVzdC1icmFuY2gtNQ==',
-        url:
-          'https://api.github.com/repos/fake-Owner/HelloWorld/git/refs/heads/Test-branch-5',
+        url: 'https://api.github.com/repos/fake-Owner/HelloWorld/git/refs/heads/Test-branch-5',
         object: {
           sha: 'f826b1caabafdffec3dc45a08e41d7021c68db41',
           type: 'commit',
-          url:
-            'https://api.github.com/repos/fake-Owner/HelloWorld/git/commits/f826b1caabafdffec3dc45a08e41d7021c68db41',
+          url: 'https://api.github.com/repos/fake-Owner/HelloWorld/git/commits/f826b1caabafdffec3dc45a08e41d7021c68db41',
         },
       },
-    } as unknown) as CreateRefResponse;
+    } as unknown as CreateRefResponse;
     const getBranchStub = sandbox
       .stub(octokit.repos, 'getBranch')
       .resolves(branchResponse);
@@ -137,12 +135,12 @@ describe('Branch', () => {
       data: branchResponseBody,
     } as GetBranchResponse;
     const getRefResponseBody = await import('./fixtures/get-ref-response.json');
-    const getRefResponse = ({
+    const getRefResponse = {
       headers: {},
       status: 404,
       url: 'http://fake-url.com',
       data: getRefResponseBody,
-    } as unknown) as GetRefResponse;
+    } as unknown as GetRefResponse;
     const getBranchStub = sandbox
       .stub(octokit.repos, 'getBranch')
       .resolves(branchResponse);
