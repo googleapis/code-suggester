@@ -166,7 +166,7 @@ export async function makeInlineSuggestions(
       body: summaryComment,
       headers: {accept: COMFORT_PREVIEW_HEADER},
       // Octokit type definitions doesn't support mulitiline comments, but the GitHub API does
-      comments: (comments as unknown) as PullsCreateReviewParamsComments[],
+      comments: comments as unknown as PullsCreateReviewParamsComments[],
     })
   ).data.id;
   logger.info(`Successfully created a review on pull request: ${pullNumber}.`);
