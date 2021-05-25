@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://www.github.com/googleapis/code-suggester/compare/v2.0.0...v2.1.0) (2021-05-25)
+
+
+### Features
+
+* add `gcf-owl-bot[bot]` to `ignoreAuthors` ([#224](https://www.github.com/googleapis/code-suggester/issues/224)) ([3ed8f15](https://www.github.com/googleapis/code-suggester/commit/3ed8f152307d3e197d5ee8445f47fb33ae282cef))
+
 ## [2.0.0](https://www.github.com/googleapis/code-suggester/compare/v1.11.0...v2.0.0) (2021-04-26)
 
 
