@@ -14,7 +14,7 @@
 
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
-import {partitionSuggestedHunksByScope} from '../src/github-handler/comment-handler/get-hunk-scope-handler/scope-handler';
+import {partitionSuggestedHunksByScope} from '../src/utils/hunk-utils';
 import * as assert from 'assert';
 import {Hunk} from '../src/types';
 

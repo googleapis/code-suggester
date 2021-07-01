@@ -15,7 +15,7 @@
 import {describe, it, before} from 'mocha';
 import {setup} from './util';
 import * as assert from 'assert';
-import {adjustHunkUp, adjustHunkDown} from '../src/github-handler/hunk-utils';
+import {adjustHunkUp, adjustHunkDown} from '../src/utils/hunk-utils';
 
 before(() => {
   setup();

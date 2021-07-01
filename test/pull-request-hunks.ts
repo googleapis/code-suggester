@@ -20,7 +20,7 @@ import {setup} from './util';
 import * as sinon from 'sinon';
 import {Octokit} from '@octokit/rest';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
-import {getPullRequestHunks} from '../src/github-handler/comment-handler/get-hunk-scope-handler/remote-patch-ranges-handler';
+import {getPullRequestHunks} from '../src/github/review-pull-request';
 
 const octokit = new Octokit();
 type ListFilesResponse = GetResponseTypeFromEndpointMethod<

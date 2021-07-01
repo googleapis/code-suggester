@@ -18,7 +18,7 @@ import * as assert from 'assert';
 import {describe, it, before, afterEach} from 'mocha';
 import {setup} from './util';
 import * as sinon from 'sinon';
-import {getCurrentPullRequestPatches} from '../src/github-handler/comment-handler/get-hunk-scope-handler/remote-patch-ranges-handler';
+import {getCurrentPullRequestPatches} from '../src/github/review-pull-request';
 import {Octokit} from '@octokit/rest';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import {logger} from '../src/logger';

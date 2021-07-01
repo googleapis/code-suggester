@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as handler from './github-handler';
 import {
   Changes,
   Description,
@@ -25,13 +24,18 @@ import {
 } from './types';
 export {Changes} from './types';
 import {Octokit} from '@octokit/rest';
-import {Logger, LoggerOptions} from 'pino';
 import {logger, setupLogger} from './logger';
 import {
   addPullRequestDefaults,
   addReviewCommentsDefaults,
 } from './default-options-handler';
 import * as retry from 'async-retry';
+import {createPullRequestReview} from './github/review-pull-request';
+import {branch} from './github/branch';
+import {fork} from './github/fork';
+import {commitAndPush} from './github/commit-and-push';
+import {openPullRequest} from './github/open-pull-request';
+import {addLabels} from './github/labels';
 
 /**
  * Given a set of suggestions, make all the multiline inline review comments on a given pull request given
@@ -47,16 +51,14 @@ import * as retry from 'async-retry';
  * @param octokit The authenticated octokit instance, instantiated with an access token having permissiong to create a fork on the target repository.
  * @param diffContents A set of changes. The changes may be empty.
  * @param options The configuration for interacting with GitHub provided by the user.
- * @param loggerOption The logger instance (optional).
  * @returns the created review's id number, or null if there are no changes to be made.
  */
 export async function reviewPullRequest(
   octokit: Octokit,
   diffContents: Map<string, FileDiffContent> | string,
-  options: CreateReviewCommentUserOptions,
-  loggerOption?: Logger | LoggerOptions
+  options: CreateReviewCommentUserOptions
 ): Promise<number | null> {
-  setupLogger(loggerOption);
+  setupLogger(options.logger);
   // if null undefined, or the empty map then no changes have been provided.
   // Do not execute GitHub workflow
   if (
@@ -74,7 +76,7 @@ export async function reviewPullRequest(
     owner: gitHubConfigs.owner,
     repo: gitHubConfigs.repo,
   };
-  const reviewNumber = await handler.reviewPullRequest(
+  const reviewNumber = await createPullRequestReview(
     octokit,
     remote,
     gitHubConfigs.pullNumber,
@@ -104,16 +106,14 @@ export async function reviewPullRequest(
  * @param {Octokit} octokit The authenticated octokit instance, instantiated with an access token having permissiong to create a fork on the target repository
  * @param {Changes | null | undefined} changes A set of changes. The changes may be empty
  * @param {CreatePullRequestUserOptions} options The configuration for interacting with GitHub provided by the user.
- * @param {Logger} logger The logger instance (optional).
  * @returns {Promise<number>} the pull request number. Returns 0 if unsuccessful.
  */
 async function createPullRequest(
   octokit: Octokit,
   changes: Changes | null | undefined,
-  options: CreatePullRequestUserOptions,
-  loggerOption?: Logger | LoggerOptions
+  options: CreatePullRequestUserOptions
 ): Promise<number> {
-  setupLogger(loggerOption);
+  setupLogger(options.logger);
   // if null undefined, or the empty map then no changes have been provided.
   // Do not execute GitHub workflow
   if (changes === null || changes === undefined || changes.size === 0) {
@@ -129,7 +129,7 @@ async function createPullRequest(
     repo: gitHubConfigs.upstreamRepo,
   };
   const origin: RepoDomain =
-    options.fork === false ? upstream : await handler.fork(octokit, upstream);
+    options.fork === false ? upstream : await fork(octokit, upstream);
   const originBranch: BranchDomain = {
     ...origin,
     branch: gitHubConfigs.branch,
@@ -140,7 +140,7 @@ async function createPullRequest(
 
   const refHeadSha: string = await retry(
     async () =>
-      await handler.branch(
+      await branch(
         octokit,
         origin,
         upstream,
@@ -160,7 +160,7 @@ async function createPullRequest(
     }
   );
 
-  await handler.commitAndPush(
+  await commitAndPush(
     octokit,
     refHeadSha,
     changes,
@@ -173,24 +173,19 @@ async function createPullRequest(
     body: gitHubConfigs.description,
     title: gitHubConfigs.title,
   };
-  const prNumber = await handler.openPullRequest(
+  const prNumber = await openPullRequest(
     octokit,
     upstream,
     originBranch,
     description,
     gitHubConfigs.maintainersCanModify,
-    gitHubConfigs.primary
+    gitHubConfigs.primary,
+    options.draft
   );
   logger.info(`Successfully opened pull request: ${prNumber}.`);
 
   // addLabels will no-op if options.labels is undefined or empty.
-  await handler.addLabels(
-    octokit,
-    upstream,
-    originBranch,
-    prNumber,
-    options.labels
-  );
+  await addLabels(octokit, upstream, originBranch, prNumber, options.labels);
 
   return prNumber;
 }

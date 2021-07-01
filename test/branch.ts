@@ -19,11 +19,7 @@ import * as assert from 'assert';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
-import {
-  branch,
-  getBranchHead,
-  createRef,
-} from '../src/github-handler/branch-handler';
+import {getBranchHead, branch, createRef} from '../src/github/branch';
 
 type GetBranchResponse = GetResponseTypeFromEndpointMethod<
   typeof octokit.repos.getBranch
@@ -52,9 +48,7 @@ describe('Branch', () => {
   });
   it('invokes octokit get branch with correct parameters, invokes octokit correctly, and returns the HEAD sha', async () => {
     // setup
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,
@@ -77,32 +71,28 @@ describe('Branch', () => {
 
   it('The create branch function returns the primary SHA when create branching is successful', async () => {
     // setup
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
       data: branchResponseBody,
     } as GetBranchResponse;
-    const createRefResponse = ({
+    const createRefResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
       data: {
         ref: 'refs/heads/test-branch',
         node_id: 'MDM6UmVmMjc0NzM5ODIwOnJlZnMvaGVhZHMvVGVzdC1icmFuY2gtNQ==',
-        url:
-          'https://api.github.com/repos/fake-Owner/HelloWorld/git/refs/heads/Test-branch-5',
+        url: 'https://api.github.com/repos/fake-Owner/HelloWorld/git/refs/heads/Test-branch-5',
         object: {
           sha: 'f826b1caabafdffec3dc45a08e41d7021c68db41',
           type: 'commit',
-          url:
-            'https://api.github.com/repos/fake-Owner/HelloWorld/git/commits/f826b1caabafdffec3dc45a08e41d7021c68db41',
+          url: 'https://api.github.com/repos/fake-Owner/HelloWorld/git/commits/f826b1caabafdffec3dc45a08e41d7021c68db41',
         },
       },
-    } as unknown) as CreateRefResponse;
+    } as unknown as CreateRefResponse;
     const getBranchStub = sandbox
       .stub(octokit.repos, 'getBranch')
       .resolves(branchResponse);
@@ -137,9 +127,7 @@ describe('Branch', () => {
 
   it('When there is an existing branch the primary HEAD sha is still returned and no new branch is created', async () => {
     // setup
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,
@@ -147,12 +135,12 @@ describe('Branch', () => {
       data: branchResponseBody,
     } as GetBranchResponse;
     const getRefResponseBody = await import('./fixtures/get-ref-response.json');
-    const getRefResponse = ({
+    const getRefResponse = {
       headers: {},
       status: 404,
       url: 'http://fake-url.com',
       data: getRefResponseBody,
-    } as unknown) as GetRefResponse;
+    } as unknown as GetRefResponse;
     const getBranchStub = sandbox
       .stub(octokit.repos, 'getBranch')
       .resolves(branchResponse);
@@ -191,9 +179,7 @@ describe('Branch', () => {
     );
   });
   it('Branching fails when Octokit list branch fails', async () => {
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,
@@ -209,9 +195,7 @@ describe('Branch', () => {
     );
   });
   it('Branching fails when Octokit create ref fails', async () => {
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,
@@ -230,9 +214,7 @@ describe('Branch', () => {
     );
   });
   it('Branching fails when primary branch specified did not match any of the branches returned', async () => {
-    const branchResponseBody = await import(
-      './fixtures/get-branch-response.json'
-    );
+    const branchResponseBody = require('./fixtures/get-branch-response.json');
     const branchResponse = {
       headers: {},
       status: 200,

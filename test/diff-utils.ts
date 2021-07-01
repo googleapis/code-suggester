@@ -16,7 +16,7 @@ import {describe, it, before} from 'mocha';
 import {readFileSync} from 'fs';
 import {setup} from './util';
 import {resolve} from 'path';
-import {parseAllHunks} from '../src/github-handler/diff-utils';
+import {parseAllHunks} from '../src/utils/diff-utils';
 import * as assert from 'assert';
 
 const fixturePath = 'test/fixtures/diffs';

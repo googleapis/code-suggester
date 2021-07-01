@@ -19,7 +19,7 @@ import {describe, it, before, afterEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
-import {addLabels} from '../src/github-handler/issue-handler';
+import {addLabels} from '../src/github/labels';
 
 type AddLabelsResponse = GetResponseTypeFromEndpointMethod<
   typeof octokit.issues.addLabels

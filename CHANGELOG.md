@@ -1,5 +1,38 @@
 # Changelog
 
+## [2.1.0](https://www.github.com/googleapis/code-suggester/compare/v2.0.0...v2.1.0) (2021-05-31)
+
+
+### Features
+
+* add `gcf-owl-bot[bot]` to `ignoreAuthors` ([#224](https://www.github.com/googleapis/code-suggester/issues/224)) ([3ed8f15](https://www.github.com/googleapis/code-suggester/commit/3ed8f152307d3e197d5ee8445f47fb33ae282cef))
+
+## [2.0.0](https://www.github.com/googleapis/code-suggester/compare/v1.11.0...v2.0.0) (2021-04-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* This does not actually break any interfaces that are intended to be public (exported in `index.ts`), but would be breaking if you are importing from deeply nested paths which is not intended.
+* move custom logger configuration into options (#212)
+* cleanup custom logging (#206)
+
+### Features
+
+* cleanup custom logging ([#206](https://www.github.com/googleapis/code-suggester/issues/206)) ([3e4df30](https://www.github.com/googleapis/code-suggester/commit/3e4df304f373eabeb0a3be272be017685a67d90d)), closes [#178](https://www.github.com/googleapis/code-suggester/issues/178) [#183](https://www.github.com/googleapis/code-suggester/issues/183)
+
+
+### Code Refactoring
+
+* move custom logger configuration into options ([#212](https://www.github.com/googleapis/code-suggester/issues/212)) ([89a1482](https://www.github.com/googleapis/code-suggester/commit/89a1482839e43728e1f1e56d0845058368e9d16c))
+* reorganize source code ([#208](https://www.github.com/googleapis/code-suggester/issues/208)) ([5c2edb1](https://www.github.com/googleapis/code-suggester/commit/5c2edb1a75ef394786575cc57afe09fff77932f0))
+
+## [1.11.0](https://www.github.com/googleapis/code-suggester/compare/v1.10.0...v1.11.0) (2021-04-22)
+
+
+### Features
+
+* add optional draft flag to openPullRequest() ([#207](https://www.github.com/googleapis/code-suggester/issues/207)) ([ff9516c](https://www.github.com/googleapis/code-suggester/commit/ff9516ced31a6b8346b56870e54705412b79f52e))
+
 ## [1.10.0](https://www.github.com/googleapis/code-suggester/compare/v1.9.3...v1.10.0) (2021-03-30)
 
 
