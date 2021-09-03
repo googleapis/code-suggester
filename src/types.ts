@@ -89,7 +89,7 @@ export interface CreatePullRequestUserOptions {
   force?: boolean;
   // Should a fork be used when creating pull request
   fork?: boolean;
-  // Primary upstream branch to open PRs against. Default is 'master' (optional)
+  // Primary upstream branch to open PRs against. Default is 'main' (optional)
   primary?: string;
   // Whether or not maintainers can modify the PR. Default is true. (optional)
   maintainersCanModify?: boolean;

@@ -6,9 +6,6 @@
 
 [![release level](https://img.shields.io/badge/release%20level-alpha-orange.svg?style=flat)](https://cloud.google.com/terms/launch-stages)
 [![npm version](https://img.shields.io/npm/v/@google-cloud/code-suggester.svg)](https://www.npmjs.org/package/@google-cloud/code-suggester)
-[![codecov](https://img.shields.io/codecov/c/github/googleapis/code-suggester/master.svg?style=flat)](https://codecov.io/gh/googleapis/code-suggester)
-
-
 
 
 ## Description
@@ -141,7 +138,7 @@ The `createPullRequest()` method creates a GitHub Pull request with the files gi
 |   description	  |   `string`	| The GitHub Pull Request description. Default is `'code suggestions'`.  |
 |   title       	|   `string`	| The GitHub Pull Request title. Default is `'chore: code suggestions'`.      |
 |   branch	      |   `string`	| The branch containing the changes. Default is `'code-suggestions'`.   |
-|   primary	      |   `string`	| The primary upstream branch to open a PR against. Default is `'master'`.   |
+|   primary	      |   `string`	| The primary upstream branch to open a PR against. Default is `'main'`.   |
 |   message     	|   `string`	| The commit message for the changes. Default is `'code suggestions'`. We recommend following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/).|
 |   force	        |   `boolean`	| Whether or not to force push the reference even if the ancestor commits differs. Default is `false`. |
 |   fork	        |   `boolean`	| Whether or not code suggestion should be made from a fork, defaults to `true` (_Note: forking does not work when using `secrets.GITHUB_TOKEN` in an action_). |
@@ -214,7 +211,7 @@ The GitHub working branch name. Default value is: `'code-suggestions'`.
 
 #### `--primary, -p`
 *string* <br>
-The primary upstream branch to open a PR against. Default value is: `'master'`.
+The primary upstream branch to open a PR against. Default value is: `'main'`.
 
 #### `--message, -m`
 *string* <br>
@@ -311,7 +308,7 @@ The GitHub working branch name. Default value is: `'code-suggestions'`.
 
 #### `primary`
 *string* <br>
-The primary upstream branch to open a PR against. Default value is: `'master'`.
+The primary upstream branch to open a PR against. Default value is: `'main'`.
 
 #### `message`
 *string* <br>
@@ -344,7 +341,7 @@ The following example is a `.github/workflows/main.yaml` file in repo `Octocat/H
 on:
   push:
     branches:
-      - master
+      - main
 name: ci
 jobs:
   add-license:
@@ -406,7 +403,7 @@ on:
   pull_request_target:
     types: [opened, synchronize]
     branches:
-      - master
+      - main
 name: ci
 jobs:
   add-license:
@@ -468,7 +465,7 @@ More Information: [Google Cloud Platform Launch Stages][launch_stages]
 
 ## Contributing
 
-Contributions welcome! See the [Contributing Guide](https://github.com/googleapis/code-suggester/blob/master/CONTRIBUTING.md).
+Contributions welcome! See the [Contributing Guide](https://github.com/googleapis/code-suggester/blob/main/CONTRIBUTING.md).
 
 Please note that this `README.md`, the `samples/README.md`,
 and a variety of configuration files in this repository (including `.nycrc` and `tsconfig.json`)
@@ -480,7 +477,7 @@ to its template in this
 
 Apache Version 2.0
 
-See [LICENSE](https://github.com/googleapis/code-suggester/blob/master/LICENSE)
+See [LICENSE](https://github.com/googleapis/code-suggester/blob/main/LICENSE)
 
 
 

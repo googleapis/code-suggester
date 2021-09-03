@@ -46,7 +46,7 @@ describe('addPullRequestDefaults', () => {
       description: 'custom description',
       title: 'chore: custom title',
       message: 'chore: custom description',
-      primary: 'master',
+      primary: 'main',
       maintainersCanModify: true,
     });
     const upstreamAndPrimary: CreatePullRequestUserOptions = {
@@ -85,7 +85,7 @@ describe('addPullRequestDefaults', () => {
       title: 'chore: code suggestions non-default PR ttile',
       force: false,
       message: 'chore: custom code suggestions message',
-      primary: 'master',
+      primary: 'main',
       maintainersCanModify: true,
     });
   });
