@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.1.1](https://www.github.com/googleapis/code-suggester/compare/v2.1.0...v2.1.1) (2021-09-03)
+
+
+### Bug Fixes
+
+* **build:** migrate to main branch ([#262](https://www.github.com/googleapis/code-suggester/issues/262)) ([7bfadc8](https://www.github.com/googleapis/code-suggester/commit/7bfadc861753b717e0929fd4bffdfa4f16eadeca))
+
 ## [2.1.0](https://www.github.com/googleapis/code-suggester/compare/v2.0.0...v2.1.0) (2021-05-31)
 
 
