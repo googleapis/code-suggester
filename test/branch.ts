@@ -60,12 +60,12 @@ describe('Branch', () => {
       .stub(octokit.repos, 'getBranch')
       .resolves(branchResponse);
     // // tests
-    const headSHA = await getBranchHead(octokit, origin, 'master');
+    const headSHA = await getBranchHead(octokit, origin, 'main');
     assert.strictEqual(headSHA, branchResponse.data.commit.sha);
     sandbox.assert.calledOnceWithExactly(getBranchStub, {
       owner: origin.owner,
       repo: origin.repo,
-      branch: 'master',
+      branch: 'main',
     });
   });
 
@@ -105,12 +105,12 @@ describe('Branch', () => {
       .stub(octokit.git, 'createRef')
       .resolves(createRefResponse);
     // tests
-    const sha = await branch(octokit, origin, upstream, branchName, 'master');
+    const sha = await branch(octokit, origin, upstream, branchName, 'main');
     assert.strictEqual(sha, branchResponse.data.commit.sha);
     sandbox.assert.calledOnceWithExactly(getBranchStub, {
       owner: upstream.owner,
       repo: upstream.repo,
-      branch: 'master',
+      branch: 'main',
     });
     sandbox.assert.calledOnceWithExactly(listBranchStub, {
       owner: origin.owner,
@@ -154,13 +154,13 @@ describe('Branch', () => {
       origin,
       upstream,
       'existing-branch',
-      'master'
+      'main'
     );
     assert.strictEqual(sha, branchResponse.data.commit.sha);
     sandbox.assert.calledOnceWithExactly(getBranchStub, {
       owner: upstream.owner,
       repo: upstream.repo,
-      branch: 'master',
+      branch: 'main',
     });
     sandbox.assert.calledOnceWithExactly(listBranchStub, {
       owner: origin.owner,
@@ -174,7 +174,7 @@ describe('Branch', () => {
     const error = new Error(testErrorMessage);
     sandbox.stub(octokit.repos, 'getBranch').rejects(error);
     await assert.rejects(
-      branch(octokit, origin, upstream, branchName, 'master'),
+      branch(octokit, origin, upstream, branchName, 'main'),
       error
     );
   });
@@ -190,7 +190,7 @@ describe('Branch', () => {
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
     sandbox.stub(octokit.git, 'getRef').rejects(error);
     await assert.rejects(
-      branch(octokit, origin, upstream, branchName, 'master'),
+      branch(octokit, origin, upstream, branchName, 'main'),
       error
     );
   });
@@ -209,7 +209,7 @@ describe('Branch', () => {
     sandbox.stub(octokit.git, 'getRef').rejects(getRefError);
     sandbox.stub(octokit.git, 'createRef').rejects(createRefError);
     await assert.rejects(
-      branch(octokit, origin, upstream, branchName, 'master'),
+      branch(octokit, origin, upstream, branchName, 'main'),
       createRefError
     );
   });
@@ -223,11 +223,11 @@ describe('Branch', () => {
     } as GetBranchResponse;
     sandbox.stub(octokit.repos, 'getBranch').resolves(branchResponse);
     await assert.rejects(
-      branch(octokit, origin, upstream, branchName, 'non-master-branch')
+      branch(octokit, origin, upstream, branchName, 'non-main-branch')
     );
   });
   it('the reference string parsing function correctly appends branch name to reference prefix', () => {
-    assert.strictEqual(createRef('master'), 'refs/heads/master');
+    assert.strictEqual(createRef('main'), 'refs/heads/main');
     assert.strictEqual(createRef('foo/bar/baz'), 'refs/heads/foo/bar/baz');
     assert.strictEqual(createRef('+++'), 'refs/heads/+++');
   });

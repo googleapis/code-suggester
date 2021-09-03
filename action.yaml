@@ -33,7 +33,7 @@ inputs:
     description: 'The GitHub working branch name. Required for "pr" command.'
   primary:
     description: 'The primary upstream branch to open a PR against.'
-    default: master
+    default: main
   force:
     description: >-
       Whether or not to force push a reference with different commit history

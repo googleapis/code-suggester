@@ -16,7 +16,7 @@ import {BranchDomain, Description, RepoDomain} from '../types';
 import {Octokit} from '@octokit/rest';
 import {logger} from '../logger';
 
-const DEFAULT_PRIMARY = 'master';
+const DEFAULT_PRIMARY = 'main';
 
 /**
  * Create a GitHub PR on the upstream organization's repo
@@ -26,7 +26,7 @@ const DEFAULT_PRIMARY = 'master';
  * @param {BranchDomain} origin The remote origin information that contains the origin branch
  * @param {Description} description The pull request title and detailed description
  * @param {boolean} maintainersCanModify Whether or not maintainers can modify the pull request. Default is true
- * @param {string} upstreamPrimary The upstream repository's primary branch. Default is master.
+ * @param {string} upstreamPrimary The upstream repository's primary branch. Default is main.
  * @param draft Open a DRAFT pull request.  Defaults to false.
  * @returns {Promise<void>}
  */

@@ -20,7 +20,7 @@ import {
 } from './types';
 
 const DEFAULT_BRANCH_NAME = 'code-suggestions';
-const DEFAULT_PRIMARY_BRANCH = 'master';
+const DEFAULT_PRIMARY_BRANCH = 'main';
 const DEFAULT_PAGE_SIZE = 100;
 
 /**

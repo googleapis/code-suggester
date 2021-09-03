@@ -61,8 +61,8 @@ yargs
     primary: {
       alias: 'p',
       describe:
-        "The primary upstream branch to open a Pull Request against. Default is 'master'.",
-      default: 'master',
+        "The primary upstream branch to open a Pull Request against. Default is 'main'.",
+      default: 'main',
       type: 'string',
     },
     force: {

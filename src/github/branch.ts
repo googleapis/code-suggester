@@ -17,7 +17,7 @@ import {RepoDomain} from '../types';
 import {Octokit} from '@octokit/rest';
 
 const REF_PREFIX = 'refs/heads/';
-const DEFAULT_PRIMARY_BRANCH = 'master';
+const DEFAULT_PRIMARY_BRANCH = 'main';
 
 /**
  * Create a new branch reference with the ref prefix
@@ -116,7 +116,7 @@ export async function createBranch(
  * @param {RepoDomain} origin The domain information of the remote origin repository
  * @param {RepoDomain} upstream The domain information of the remote upstream repository
  * @param {string} name The branch name to create on the origin repository
- * @param {string} baseBranch the name of the branch to base the new branch off of. Default is master
+ * @param {string} baseBranch the name of the branch to base the new branch off of. Default is main
  * @returns {Promise<string>} the base SHA for subsequent commits to be based off for the origin branch
  */
 export async function branch(
