@@ -6,7 +6,7 @@ jobs:
   update-major:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v3
+      - uses: actions/github-script@v5
         id: parse-major
         with:
           script: |
