@@ -82,10 +82,10 @@ export async function main() {
     }
     switch (yargs.argv._[0]) {
       case CREATE_PR_COMMAND:
-        createCommand();
+        await createCommand();
         break;
       case REVIEW_PR_COMMAND:
-        reviewCommand();
+        await reviewCommand();
         break;
       default:
         // yargs should have caught this.
