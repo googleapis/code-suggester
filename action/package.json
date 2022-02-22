@@ -1,0 +1,43 @@
+{
+  "name": "code-suggester-action",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Code Suggester action",
+  "main": "build/src/main.js",
+  "scripts": {
+    "build": "tsc",
+    "build-dist": "ncc build --source-map --license licenses.txt",
+    "fix": "gts fix",
+    "lint": "gts check",
+    "package": "npm run build && npm run build-dist",
+    "test": "c8 mocha build/test",
+    "all": "npm run build && npm run fix && npm run lint && npm run package && npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/googleapis/code-suggester.git"
+  },
+  "keywords": [
+    "actions",
+    "node",
+    "setup"
+  ],
+  "author": "Google LLC",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "code-suggester": "file:..",
+    "@octokit/rest": "^18.3.5"
+  },
+  "devDependencies": {
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^16.10.5",
+    "@vercel/ncc": "^0.31.1",
+    "c8": "^7.0.1",
+    "gts": "^3.0.0",
+    "js-yaml": "^4.1.0",
+    "mocha": "^8.0.0",
+    "ts-jest": "^27.1.2",
+    "typescript": "^3.9.5"
+  }
+}

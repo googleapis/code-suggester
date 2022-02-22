@@ -18,5 +18,7 @@ node.owlbot_main(templates_excludes=[
     'README.md',
     '.github/CODEOWNERS',
     '.github/release-please.yml',
-    'renovate.json'
+    'renovate.json',
+    '.eslintignore',
+    '.prettierignore',
 ])

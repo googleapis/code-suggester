@@ -137,6 +137,7 @@ export async function updateRef(
   newSha: string,
   force: boolean
 ): Promise<void> {
+  logger.info(`Updating reference heads/${origin.branch} to ${newSha}`);
   await octokit.git.updateRef({
     owner: origin.owner,
     repo: origin.repo,

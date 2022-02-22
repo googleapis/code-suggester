@@ -1,0 +1,46 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+on:
+  push:
+    branches:
+      - main
+name: build-action
+env:
+  ACTION_NAME: code-suggester-action
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build
+        run: |-
+          set -e
+          npm i
+          npm run compile
+          pushd action
+          npm ci
+          npm run package
+      - name: googleapis/code-suggester@v2
+        with:
+          command: pr
+          upstream_owner: googleapis
+          upstream_repo: code-suggester
+          description: 'Compiles the code-suggester-action dist'
+          title: 'build(action): build dist'
+          message: 'build(action): build dist'
+          fork: true
+          force: true
+          branch: build-dist
+          git_dir: './action/dist'
