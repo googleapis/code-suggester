@@ -1,5 +1,20 @@
 # Changelog
 
+### [2.1.4](https://github.com/googleapis/code-suggester/compare/v2.1.3...v2.1.4) (2022-02-23)
+
+
+### Bug Fixes
+
+* **cli:** don't crash when there are no changes ([#334](https://github.com/googleapis/code-suggester/issues/334)) ([e606126](https://github.com/googleapis/code-suggester/commit/e606126e818198bf54881a6fde264e04845ef420)), closes [#229](https://github.com/googleapis/code-suggester/issues/229)
+* try to merge the upstream repo branch on the fork ([#330](https://github.com/googleapis/code-suggester/issues/330)) ([2d5c3f9](https://github.com/googleapis/code-suggester/commit/2d5c3f9dd55804fa7e9aa0b776e238cb71776029)), closes [#335](https://github.com/googleapis/code-suggester/issues/335)
+
+### [2.1.3](https://github.com/googleapis/code-suggester/compare/v2.1.2...v2.1.3) (2022-02-22)
+
+
+### Bug Fixes
+
+* **cli,action:** fix unawaited async call ([#329](https://github.com/googleapis/code-suggester/issues/329)) ([3ef644c](https://github.com/googleapis/code-suggester/commit/3ef644c18c384267b45aa119d80e30729a9cfdfb)), closes [#259](https://github.com/googleapis/code-suggester/issues/259)
+
 ### [2.1.2](https://github.com/googleapis/code-suggester/compare/v2.1.1...v2.1.2) (2022-01-19)
 
 
