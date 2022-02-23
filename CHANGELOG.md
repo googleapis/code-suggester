@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.1.3](https://github.com/googleapis/code-suggester/compare/v2.1.2...v2.1.3) (2022-02-22)
+
+
+### Bug Fixes
+
+* **cli,action:** fix unawaited async call ([#329](https://github.com/googleapis/code-suggester/issues/329)) ([3ef644c](https://github.com/googleapis/code-suggester/commit/3ef644c18c384267b45aa119d80e30729a9cfdfb)), closes [#259](https://github.com/googleapis/code-suggester/issues/259)
+
 ### [2.1.2](https://github.com/googleapis/code-suggester/compare/v2.1.1...v2.1.2) (2022-01-19)
 
 
