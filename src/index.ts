@@ -130,6 +130,28 @@ async function createPullRequest(
   };
   const origin: RepoDomain =
     options.fork === false ? upstream : await fork(octokit, upstream);
+  if (options.fork) {
+    // try to sync the fork
+    await retry(
+      async () =>
+        await octokit.repos.mergeUpstream({
+          owner: origin.owner,
+          repo: origin.repo,
+          branch: gitHubConfigs.primary,
+        }),
+      {
+        retries: options.retry,
+        factor: 2.8411, // https://www.wolframalpha.com/input/?i=Sum%5B3000*x%5Ek%2C+%7Bk%2C+0%2C+4%7D%5D+%3D+5+*+60+*+1000
+        minTimeout: 3000,
+        randomize: false,
+        onRetry: (e, attempt) => {
+          e.message = `Error creating syncing upstream: ${e.message}`;
+          logger.error(e);
+          logger.info(`Retry attempt #${attempt}...`);
+        },
+      }
+    );
+  }
   const originBranch: BranchDomain = {
     ...origin,
     branch: gitHubConfigs.branch,
