@@ -61,7 +61,7 @@ export async function run(): Promise<void> {
   }
 }
 
-function parseRepository(): {owner: string, repo: string} {
+function parseRepository(): {owner: string; repo: string} {
   let owner: string = core.getInput('upstream_owner');
   if (!owner) {
     owner = process.env['GITHUB_REPOSITORY']?.split('/')[0] || '';
