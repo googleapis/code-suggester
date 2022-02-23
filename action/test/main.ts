@@ -93,6 +93,33 @@ describe('pr', () => {
       .args[2] as codeSuggesterModule.CreatePullRequestUserOptions;
     assert.deepStrictEqual(options.labels, ['foo', 'bar']);
   });
+  it('parses default repository', async () => {
+    createPullRequestStub.resolves(123);
+    await withEnv({
+      GITHUB_REPOSITORY: 'testOwner/testRepo',
+    }, async () => {
+      await withInputs(
+        {
+          command: 'pr',
+          message: 'test message',
+          title: 'test title',
+          description: 'test description',
+          branch: 'test-branch',
+          force: 'true',
+          fork: 'true',
+          maintainers_can_modify: 'true',
+        },
+        main
+      );
+    });
+
+    sinon.assert.calledOnceWithMatch(createPullRequestStub);
+    sinon.assert.calledOnceWithExactly(setOutputStub, 'pull', 123);
+    const options = createPullRequestStub.firstCall
+      .args[2] as codeSuggesterModule.CreatePullRequestUserOptions;
+    assert.strictEqual(options.upstreamOwner, 'testOwner');
+    assert.strictEqual(options.upstreamRepo, 'testRepo');
+  });
 });
 
 describe('review', () => {
@@ -128,19 +155,52 @@ describe('review', () => {
     assert.strictEqual(options.repo, 'testRepo');
     assert.strictEqual(options.pullNumber, 123);
   });
+  it('parses default repository', async () => {
+    reviewPullRequestStub.resolves(234);
+    await withEnv({
+      GITHUB_REPOSITORY: 'testOwner/testRepo',
+    }, async () => {
+      await withInputs(
+        {
+          command: 'review',
+          pull_number: '123',
+        },
+        main
+      );
+    });
+
+    sinon.assert.calledOnceWithMatch(reviewPullRequestStub);
+    sinon.assert.calledOnceWithExactly(setOutputStub, 'review', 234);
+    const options = reviewPullRequestStub.firstCall
+      .args[2] as codeSuggesterModule.CreateReviewCommentUserOptions;
+    assert.strictEqual(options.owner, 'testOwner');
+    assert.strictEqual(options.repo, 'testRepo');
+    assert.strictEqual(options.pullNumber, 123);
+  });
 });
 
-async function withInputs(
-  inputs: Record<string, string>,
+async function withEnv(
+  variables: Record<string, string>,
   callback: () => Promise<void>
 ) {
   const originalEnv = Object.assign({}, process.env);
   try {
-    for (const key in inputs) {
-      process.env['INPUT_' + key.toUpperCase()] = inputs[key];
+    for (const key in variables) {
+      process.env[key] = variables[key];
     }
     await callback();
   } finally {
     process.env = originalEnv;
   }
+}
+
+async function withInputs(
+  inputs: Record<string, string>,
+  callback: () => Promise<void>
+) {
+  const variables: Record<string, string> = {}
+  for (const key in inputs) {
+    variables['INPUT_' + key.toUpperCase()] = inputs[key];
+  }
+  await withEnv(variables, callback);
 }

@@ -61,10 +61,23 @@ export async function run(): Promise<void> {
   }
 }
 
+function parseRepository(): {owner: string, repo: string} {
+  let owner: string = core.getInput('upstream_owner');
+  if (!owner) {
+    owner = process.env['GITHUB_REPOSITORY']?.split('/')[0] || '';
+  }
+  let repo = core.getInput('upstream_repo');
+  if (!repo) {
+    repo = process.env['GITHUB_REPOSITORY']?.split('/')[1] || '';
+  }
+  return {owner, repo};
+}
+
 function parsePullRequestOptions(): CreatePullRequestUserOptions {
+  const {owner, repo} = parseRepository();
   return {
-    upstreamOwner: core.getInput('upstream_owner'),
-    upstreamRepo: core.getInput('upstream_repo'),
+    upstreamOwner: owner,
+    upstreamRepo: repo,
     message: core.getInput('message', {required: true}),
     description: core.getInput('description', {required: true}),
     title: core.getInput('title', {required: true}),
@@ -79,9 +92,10 @@ function parsePullRequestOptions(): CreatePullRequestUserOptions {
 }
 
 function parseReviewOptions(): CreateReviewCommentUserOptions {
+  const {owner, repo} = parseRepository();
   return {
-    owner: core.getInput('upstream_owner'),
-    repo: core.getInput('upstream_repo'),
+    owner,
+    repo,
     pullNumber: parseInt(core.getInput('pull_number', {required: true})),
     logger: console,
   };
