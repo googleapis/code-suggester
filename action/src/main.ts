@@ -23,7 +23,7 @@ import {
 } from 'code-suggester';
 import {Octokit} from '@octokit/rest';
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   try {
     const command = core.getInput('command', {required: true});
     const gitDir = core.getInput('git_dir');
@@ -87,4 +87,6 @@ function parseReviewOptions(): CreateReviewCommentUserOptions {
   };
 }
 
-run();
+if (require.main === module) {
+  run();
+}
