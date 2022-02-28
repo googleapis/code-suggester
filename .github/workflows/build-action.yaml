@@ -30,7 +30,8 @@ jobs:
           pushd action
           npm ci
           npm run package
-      - name: googleapis/code-suggester@v2
+      - name: open-pull-request
+        uses: googleapis/code-suggester@v2
         env:
           ACCESS_TOKEN: ${{ secrets.YOSHI_CODE_BOT_TOKEN }}
         with:
