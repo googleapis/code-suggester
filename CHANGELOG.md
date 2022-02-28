@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/googleapis/code-suggester/compare/v2.1.4...v2.2.0) (2022-02-28)
+
+
+### Features
+
+* **action:** build as an javascript action ([#331](https://github.com/googleapis/code-suggester/issues/331)) ([257305d](https://github.com/googleapis/code-suggester/commit/257305dda334af0e9c54b4617df5ec02485ab83e)), closes [#141](https://github.com/googleapis/code-suggester/issues/141)
+
 ### [2.1.4](https://github.com/googleapis/code-suggester/compare/v2.1.3...v2.1.4) (2022-02-23)
 
 
