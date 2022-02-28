@@ -42,7 +42,7 @@ describe('Forking function', () => {
       status: 202,
       url: 'http://fake-url.com',
       data: responseData,
-    } as CreateRefResponse;
+    } as unknown as CreateRefResponse;
     // setup
     const stub = sandbox
       .stub(octokit.repos, 'createFork')
@@ -61,7 +61,7 @@ describe('Forking function', () => {
       status: 202,
       url: 'http://fake-url.com',
       data: responseData,
-    } as CreateRefResponse;
+    } as unknown as CreateRefResponse;
     // setup
     sandbox.stub(octokit.repos, 'createFork').resolves(createRefResponse);
     // tests

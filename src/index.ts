@@ -36,6 +36,7 @@ import {fork} from './github/fork';
 import {commitAndPush} from './github/commit-and-push';
 import {openPullRequest} from './github/open-pull-request';
 import {addLabels} from './github/labels';
+export {getChanges, getDiffString} from './bin/handle-git-dir-change';
 
 /**
  * Given a set of suggestions, make all the multiline inline review comments on a given pull request given
@@ -250,4 +251,9 @@ function parseTextFiles(
   return changes;
 }
 
-export {createPullRequest, parseTextFiles};
+export {
+  createPullRequest,
+  parseTextFiles,
+  CreateReviewCommentUserOptions,
+  CreatePullRequestUserOptions,
+};

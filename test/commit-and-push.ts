@@ -136,13 +136,13 @@ describe('Push', () => {
       status: 200,
       url: 'http://fake-url.com',
       data: commitResponseData,
-    } as GetCommitResponse;
+    } as unknown as GetCommitResponse;
     const createTreeResponse = {
       headers: {},
       status: 201,
       url: 'http://fake-url.com',
       data: createTreeResponseData,
-    } as CreateTreeResponse;
+    } as unknown as CreateTreeResponse;
     // setup
     const stubGetCommit = sandbox
       .stub(octokit.git, 'getCommit')
@@ -189,7 +189,7 @@ describe('Commit', () => {
       status: 201,
       url: 'http://fake-url.com',
       data: createCommitResponseData,
-    } as CreateCommitResponse;
+    } as unknown as CreateCommitResponse;
     const stubCreateCommit = sandbox
       .stub(octokit.git, 'createCommit')
       .resolves(createCommitResponse);
@@ -264,13 +264,13 @@ describe('Commit and push function', async () => {
     status: 200,
     url: 'http://fake-url.com',
     data: commitResponseData,
-  } as GetCommitResponse;
+  } as unknown as GetCommitResponse;
   const createTreeResponse = {
     headers: {},
     status: 201,
     url: 'http://fake-url.com',
     data: createTreeResponseData,
-  } as CreateTreeResponse;
+  } as unknown as CreateTreeResponse;
 
   const createCommitResponseData = await import(
     './fixtures/create-commit-response.json'
@@ -280,7 +280,7 @@ describe('Commit and push function', async () => {
     status: 201,
     url: 'http://fake-url.com',
     data: createCommitResponseData,
-  } as CreateCommitResponse;
+  } as unknown as CreateCommitResponse;
   afterEach(() => {
     sandbox.restore();
   });
