@@ -352,7 +352,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: <YOUR CHANGES> # the physical changes you want to make to your repository
         run: (curl http://www.apache.org/licenses/LICENSE-2.0.txt) > LICENSE # For example adding LICENSE file
-      - uses: googleapis/code-suggester@v1 # takes the changes from git directory
+      - uses: googleapis/code-suggester@v2 # takes the changes from git directory
         with:
           command: pr
           upstream_owner: Octocat
@@ -417,7 +417,7 @@ jobs:
           repository: ${{github.event.pull_request.head.repo.full_name}}
       - name: format
         run: go fmt
-      - uses: googleapis/code-suggester@v1 # takes the changes from git directory
+      - uses: googleapis/code-suggester@v2 # takes the changes from git directory
         with:
           command: review
           pull_number: ${{ github.event.pull_request.number }}
