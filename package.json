@@ -51,7 +51,7 @@
     "@octokit/types": "^6.12.2",
     "@types/async-retry": "^1.4.2",
     "@types/diff": "^5.0.0",
-    "@types/mocha": "^8.0.0",
+    "@types/mocha": "^9.0.0",
     "@types/node": "^16.0.0",
     "@types/sinon": "^10.0.0",
     "c8": "^7.0.1",
