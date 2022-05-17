@@ -73,7 +73,7 @@ export async function existsBranchWithName(
     ).data;
     return data.ref ? true : false;
   } catch (err) {
-    if (err.status === 404) return false;
+    if ((err as {status: number}).status === 404) return false;
     else throw err;
   }
 }
