@@ -48,7 +48,7 @@ async function fork(
     return origin;
   } catch (err) {
     logger.error('Error when forking');
-    throw Error(err.toString());
+    throw err;
   }
 }
 
