@@ -8196,7 +8196,7 @@ exports.resolvePath = resolvePath;
  */
 function findRepoRoot(dir) {
     try {
-        return child_process_1.execSync('git rev-parse --show-toplevel', { cwd: dir })
+        return (0, child_process_1.execSync)('git rev-parse --show-toplevel', { cwd: dir })
             .toString()
             .trimRight(); // remove the trailing \n
     }
@@ -8244,7 +8244,7 @@ function getGitFileData(gitRootDir, gitDiffPattern) {
             }
             else {
                 // else read the file
-                fs_1.readFile(gitRootDir + '/' + relativePath, {
+                (0, fs_1.readFile)(gitRootDir + '/' + relativePath, {
                     encoding: 'utf-8',
                 }, (err, content) => {
                     if (err) {
@@ -8271,15 +8271,15 @@ exports.getGitFileData = getGitFileData;
  * @returns {string[]} a list of git diffs
  */
 function getAllDiffs(gitRootDir) {
-    child_process_1.execSync('git add -A', { cwd: gitRootDir });
-    const diffs = child_process_1.execSync('git diff --raw --staged --no-renames', {
+    (0, child_process_1.execSync)('git add -A', { cwd: gitRootDir });
+    const diffs = (0, child_process_1.execSync)('git diff --raw --staged --no-renames', {
         cwd: gitRootDir,
     })
         .toString() // strictly return buffer for mocking purposes. sinon ts doesn't infer {encoding: 'utf-8'}
         .trimRight() // remove the trailing new line
         .split('\n')
         .filter(line => !!line.trim());
-    child_process_1.execSync('git reset .', { cwd: gitRootDir });
+    (0, child_process_1.execSync)('git reset .', { cwd: gitRootDir });
     return diffs;
 }
 exports.getAllDiffs = getAllDiffs;
@@ -8318,7 +8318,7 @@ exports.parseChanges = parseChanges;
  */
 function validateGitInstalled() {
     try {
-        child_process_1.execSync('git --version');
+        (0, child_process_1.execSync)('git --version');
     }
     catch (err) {
         logger_1.logger.error('git not installed');
@@ -8359,13 +8359,13 @@ function getDiffString(dir) {
         validateGitInstalled();
         const absoluteDir = resolvePath(dir);
         const gitRootDir = findRepoRoot(absoluteDir);
-        child_process_1.execSync('git add -A', { cwd: gitRootDir });
-        const diff = child_process_1.execSync('git diff --staged --no-renames', {
+        (0, child_process_1.execSync)('git add -A', { cwd: gitRootDir });
+        const diff = (0, child_process_1.execSync)('git diff --staged --no-renames', {
             cwd: gitRootDir,
         })
             .toString() // strictly return buffer for mocking purposes. sinon ts doesn't infer {encoding: 'utf-8'}
             .trimRight(); // remove the trailing new line
-        child_process_1.execSync('git reset .', { cwd: gitRootDir });
+        (0, child_process_1.execSync)('git reset .', { cwd: gitRootDir });
         return diff;
     }
     catch (err) {
@@ -8776,7 +8776,7 @@ async function fork(octokit, upstream) {
     }
     catch (err) {
         logger_1.logger.error('Error when forking');
-        throw Error(err.toString());
+        throw err;
     }
 }
 exports.fork = fork;
@@ -9034,10 +9034,10 @@ async function createPullRequestReview(octokit, remote, pullNumber, pageSize, di
         const pullRequestHunks = await exports.getPullRequestHunks(octokit, remote, pullNumber, pageSize);
         // get the hunks from the suggested change
         const allSuggestedHunks = typeof diffContents === 'string'
-            ? diff_utils_1.parseAllHunks(diffContents)
-            : hunk_utils_1.getRawSuggestionHunks(diffContents);
+            ? (0, diff_utils_1.parseAllHunks)(diffContents)
+            : (0, hunk_utils_1.getRawSuggestionHunks)(diffContents);
         // split hunks by commentable and uncommentable
-        const { validHunks, invalidHunks } = hunk_utils_1.partitionSuggestedHunksByScope(pullRequestHunks, allSuggestedHunks);
+        const { validHunks, invalidHunks } = (0, hunk_utils_1.partitionSuggestedHunksByScope)(pullRequestHunks, allSuggestedHunks);
         // create pull request review
         const reviewNumber = await exports.makeInlineSuggestions(octokit, validHunks, invalidHunks, remote, pullNumber);
         return reviewNumber;
@@ -9115,7 +9115,7 @@ async function getPullRequestHunks(octokit, remote, pullNumber, pageSize) {
             logger_1.logger.warn(`File ${file.filename} may have a patch that is too large to display patch object.`);
         }
         else {
-            const hunks = diff_utils_1.parsePatch(file.patch);
+            const hunks = (0, diff_utils_1.parsePatch)(file.patch);
             pullRequestHunks.set(file.filename, hunks);
         }
     });
@@ -9148,7 +9148,7 @@ exports.getPullRequestHunks = getPullRequestHunks;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseTextFiles = exports.createPullRequest = exports.reviewPullRequest = void 0;
+exports.parseTextFiles = exports.createPullRequest = exports.reviewPullRequest = exports.getDiffString = exports.getChanges = void 0;
 const types_1 = __nccwpck_require__(9449);
 const logger_1 = __nccwpck_require__(5563);
 const default_options_handler_1 = __nccwpck_require__(5843);
@@ -9179,7 +9179,7 @@ Object.defineProperty(exports, "getDiffString", ({ enumerable: true, get: functi
  * @returns the created review's id number, or null if there are no changes to be made.
  */
 async function reviewPullRequest(octokit, diffContents, options) {
-    logger_1.setupLogger(options.logger);
+    (0, logger_1.setupLogger)(options.logger);
     // if null undefined, or the empty map then no changes have been provided.
     // Do not execute GitHub workflow
     if (diffContents === null ||
@@ -9188,12 +9188,12 @@ async function reviewPullRequest(octokit, diffContents, options) {
         logger_1.logger.info('Empty changes provided. No suggestions to be made. Cancelling workflow.');
         return null;
     }
-    const gitHubConfigs = default_options_handler_1.addReviewCommentsDefaults(options);
+    const gitHubConfigs = (0, default_options_handler_1.addReviewCommentsDefaults)(options);
     const remote = {
         owner: gitHubConfigs.owner,
         repo: gitHubConfigs.repo,
     };
-    const reviewNumber = await review_pull_request_1.createPullRequestReview(octokit, remote, gitHubConfigs.pullNumber, gitHubConfigs.pageSize, diffContents);
+    const reviewNumber = await (0, review_pull_request_1.createPullRequestReview)(octokit, remote, gitHubConfigs.pullNumber, gitHubConfigs.pageSize, diffContents);
     return reviewNumber;
 }
 exports.reviewPullRequest = reviewPullRequest;
@@ -9220,20 +9220,20 @@ exports.reviewPullRequest = reviewPullRequest;
  * @returns {Promise<number>} the pull request number. Returns 0 if unsuccessful.
  */
 async function createPullRequest(octokit, changes, options) {
-    logger_1.setupLogger(options.logger);
+    (0, logger_1.setupLogger)(options.logger);
     // if null undefined, or the empty map then no changes have been provided.
     // Do not execute GitHub workflow
     if (changes === null || changes === undefined || changes.size === 0) {
         logger_1.logger.info('Empty change set provided. No changes need to be made. Cancelling workflow.');
         return 0;
     }
-    const gitHubConfigs = default_options_handler_1.addPullRequestDefaults(options);
+    const gitHubConfigs = (0, default_options_handler_1.addPullRequestDefaults)(options);
     logger_1.logger.info('Starting GitHub PR workflow...');
     const upstream = {
         owner: gitHubConfigs.upstreamOwner,
         repo: gitHubConfigs.upstreamRepo,
     };
-    const origin = options.fork === false ? upstream : await fork_1.fork(octokit, upstream);
+    const origin = options.fork === false ? upstream : await (0, fork_1.fork)(octokit, upstream);
     if (options.fork) {
         // try to sync the fork
         await retry(async () => await octokit.repos.mergeUpstream({
@@ -9258,7 +9258,7 @@ async function createPullRequest(octokit, changes, options) {
     };
     // The `retry` flag defaults to `5` to maintain compatibility
     options.retry = options.retry === undefined ? 5 : options.retry;
-    const refHeadSha = await retry(async () => await branch_1.branch(octokit, origin, upstream, originBranch.branch, gitHubConfigs.primary), {
+    const refHeadSha = await retry(async () => await (0, branch_1.branch)(octokit, origin, upstream, originBranch.branch, gitHubConfigs.primary), {
         retries: options.retry,
         factor: 2.8411,
         minTimeout: 3000,
@@ -9269,15 +9269,15 @@ async function createPullRequest(octokit, changes, options) {
             logger_1.logger.info(`Retry attempt #${attempt}...`);
         },
     });
-    await commit_and_push_1.commitAndPush(octokit, refHeadSha, changes, originBranch, gitHubConfigs.message, gitHubConfigs.force);
+    await (0, commit_and_push_1.commitAndPush)(octokit, refHeadSha, changes, originBranch, gitHubConfigs.message, gitHubConfigs.force);
     const description = {
         body: gitHubConfigs.description,
         title: gitHubConfigs.title,
     };
-    const prNumber = await open_pull_request_1.openPullRequest(octokit, upstream, originBranch, description, gitHubConfigs.maintainersCanModify, gitHubConfigs.primary, options.draft);
+    const prNumber = await (0, open_pull_request_1.openPullRequest)(octokit, upstream, originBranch, description, gitHubConfigs.maintainersCanModify, gitHubConfigs.primary, options.draft);
     logger_1.logger.info(`Successfully opened pull request: ${prNumber}.`);
     // addLabels will no-op if options.labels is undefined or empty.
-    await labels_1.addLabels(octokit, upstream, originBranch, prNumber, options.labels);
+    await (0, labels_1.addLabels)(octokit, upstream, originBranch, prNumber, options.labels);
     return prNumber;
 }
 exports.createPullRequest = createPullRequest;
@@ -9514,7 +9514,7 @@ exports.parseAllHunks = parseAllHunks;
  * @returns Hunk[]
  */
 function getSuggestedHunks(oldContent, newContent) {
-    const diff = diff_1.createPatch('unused', oldContent, newContent);
+    const diff = (0, diff_1.createPatch)('unused', oldContent, newContent);
     return parseAllHunks(diff).get('unused') || [];
 }
 exports.getSuggestedHunks = getSuggestedHunks;
@@ -9596,7 +9596,7 @@ function getRawSuggestionHunks(diffContents) {
         if (fileDiffContent.oldContent === fileDiffContent.newContent) {
             return;
         }
-        const hunks = diff_utils_1.getSuggestedHunks(fileDiffContent.oldContent, fileDiffContent.newContent);
+        const hunks = (0, diff_utils_1.getSuggestedHunks)(fileDiffContent.oldContent, fileDiffContent.newContent);
         fileHunks.set(fileName, hunks);
     });
     logger_1.logger.info('Parsed ranges of old and new patch');
