@@ -18,7 +18,7 @@ import {describe, it, before, afterEach} from 'mocha';
 import * as assert from 'assert';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
-import * as fsp from 'fs/promises';
+import {promises as fsp} from 'fs';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import {getBranchHead, branch, createRef} from '../src/github/branch';
 
