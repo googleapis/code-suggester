@@ -18,6 +18,7 @@ import {describe, it, before, afterEach} from 'mocha';
 import * as assert from 'assert';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
+import * as fsp from 'fs/promises';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import {getBranchHead, branch, createRef} from '../src/github/branch';
 
@@ -48,7 +49,11 @@ describe('Branch', () => {
   });
   it('invokes octokit get branch with correct parameters, invokes octokit correctly, and returns the HEAD sha', async () => {
     // setup
-    const branchResponseBody = require('./fixtures/get-branch-response.json');
+    const branchResponseBody = JSON.parse(
+      (
+        await fsp.readFile('./test/fixtures/get-branch-response.json')
+      ).toString()
+    );
     const branchResponse = {
       headers: {},
       status: 200,
@@ -71,7 +76,11 @@ describe('Branch', () => {
 
   it('The create branch function returns the primary SHA when create branching is successful', async () => {
     // setup
-    const branchResponseBody = require('./fixtures/get-branch-response.json');
+    const branchResponseBody = JSON.parse(
+      (
+        await fsp.readFile('./test/fixtures/get-branch-response.json')
+      ).toString()
+    );
     const branchResponse = {
       headers: {},
       status: 200,
@@ -127,14 +136,20 @@ describe('Branch', () => {
 
   it('When there is an existing branch the primary HEAD sha is still returned and no new branch is created', async () => {
     // setup
-    const branchResponseBody = require('./fixtures/get-branch-response.json');
+    const branchResponseBody = JSON.parse(
+      (
+        await fsp.readFile('./test/fixtures/get-branch-response.json')
+      ).toString()
+    );
     const branchResponse = {
       headers: {},
       status: 200,
       url: 'http://fake-url.com',
       data: branchResponseBody,
     } as GetBranchResponse;
-    const getRefResponseBody = await import('./fixtures/get-ref-response.json');
+    const getRefResponseBody = JSON.parse(
+      (await fsp.readFile('./test/fixtures/get-ref-response.json')).toString()
+    );
     const getRefResponse = {
       headers: {},
       status: 404,
@@ -179,7 +194,11 @@ describe('Branch', () => {
     );
   });
   it('Branching fails when Octokit list branch fails', async () => {
-    const branchResponseBody = require('./fixtures/get-branch-response.json');
+    const branchResponseBody = JSON.parse(
+      (
+        await fsp.readFile('./test/fixtures/get-branch-response.json')
+      ).toString()
+    );
     const branchResponse = {
       headers: {},
       status: 200,
@@ -195,7 +214,11 @@ describe('Branch', () => {
     );
   });
   it('Branching fails when Octokit create ref fails', async () => {
-    const branchResponseBody = require('./fixtures/get-branch-response.json');
+    const branchResponseBody = JSON.parse(
+      (
+        await fsp.readFile('./test/fixtures/get-branch-response.json')
+      ).toString()
+    );
     const branchResponse = {
       headers: {},
       status: 200,
@@ -214,7 +237,11 @@ describe('Branch', () => {
     );
   });
   it('Branching fails when primary branch specified did not match any of the branches returned', async () => {
-    const branchResponseBody = require('./fixtures/get-branch-response.json');
+    const branchResponseBody = JSON.parse(
+      (
+        await fsp.readFile('./test/fixtures/get-branch-response.json')
+      ).toString()
+    );
     const branchResponse = {
       headers: {},
       status: 200,
