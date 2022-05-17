@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/googleapis/code-suggester/compare/v2.2.0...v3.0.0) (2022-05-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* update library to use Node 12 (#372)
+
+### Build System
+
+* update library to use Node 12 ([#372](https://github.com/googleapis/code-suggester/issues/372)) ([e9dc15b](https://github.com/googleapis/code-suggester/commit/e9dc15bcdb5c538382236a1dba9792c1df968a35))
+
 ## [2.2.0](https://github.com/googleapis/code-suggester/compare/v2.1.4...v2.2.0) (2022-02-28)
 
 
