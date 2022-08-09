@@ -1,5 +1,24 @@
 # Changelog
 
+## [4.0.0](https://github.com/googleapis/code-suggester/compare/v3.0.0...v4.0.0) (2022-08-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* drop Node 12 support
+* **action:** upgrade to Node 14
+* update @octokit/rest to v19 (#385)
+
+### deps
+
+* update @octokit/rest to v19 ([#385](https://github.com/googleapis/code-suggester/issues/385)) ([aa1b768](https://github.com/googleapis/code-suggester/commit/aa1b768c34af2e8c7f717d8ef66030cdb20bea3e))
+
+
+### Build System
+
+* **action:** upgrade to Node 14 ([aa1b768](https://github.com/googleapis/code-suggester/commit/aa1b768c34af2e8c7f717d8ef66030cdb20bea3e))
+* drop Node 12 support ([aa1b768](https://github.com/googleapis/code-suggester/commit/aa1b768c34af2e8c7f717d8ef66030cdb20bea3e))
+
 ## [3.0.0](https://github.com/googleapis/code-suggester/compare/v2.2.0...v3.0.0) (2022-05-17)
 
 
