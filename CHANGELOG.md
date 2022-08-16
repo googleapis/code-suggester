@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.1](https://github.com/googleapis/code-suggester/compare/v4.0.0...v4.0.1) (2022-08-16)
+
+
+### Bug Fixes
+
+* **action:** run on node16, node14 does not exist ([#392](https://github.com/googleapis/code-suggester/issues/392)) ([a6296cc](https://github.com/googleapis/code-suggester/commit/a6296cc20801720f7e806b9b65fac7854cf59241))
+
 ## [4.0.0](https://github.com/googleapis/code-suggester/compare/v3.0.0...v4.0.0) (2022-08-09)
 
 
