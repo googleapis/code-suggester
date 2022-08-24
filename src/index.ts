@@ -124,7 +124,6 @@ async function createPullRequest(
     return 0;
   }
   const gitHubConfigs = addPullRequestDefaults(options);
-  console.log(gitHubConfigs);
   logger.info('Starting GitHub PR workflow...');
   const upstream: RepoDomain = {
     owner: gitHubConfigs.upstreamOwner,

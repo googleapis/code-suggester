@@ -62,7 +62,6 @@ async function createCommand() {
   const options = coerceUserCreatePullRequestOptions();
   const changes = await git.getChanges(yargs.argv['git-dir'] as string);
   const octokit = new Octokit({auth: process.env.ACCESS_TOKEN});
-  console.log(options);
   await createPullRequest(octokit, changes, options);
 }
 
