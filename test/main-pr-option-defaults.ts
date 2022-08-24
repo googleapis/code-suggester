@@ -48,6 +48,7 @@ describe('addPullRequestDefaults', () => {
       message: 'chore: custom description',
       primary: 'main',
       maintainersCanModify: true,
+      filesPerCommit: undefined,
     });
     const upstreamAndPrimary: CreatePullRequestUserOptions = {
       upstreamOwner: 'owner',
@@ -68,6 +69,7 @@ describe('addPullRequestDefaults', () => {
       message: 'chore: custom description',
       primary: 'non-default-primary-branch',
       maintainersCanModify: true,
+      filesPerCommit: undefined,
     });
     const upstreamAndPrDescription: CreatePullRequestUserOptions = {
       upstreamOwner: 'owner',
@@ -87,6 +89,7 @@ describe('addPullRequestDefaults', () => {
       message: 'chore: custom code suggestions message',
       primary: 'main',
       maintainersCanModify: true,
+      filesPerCommit: undefined,
     });
   });
   it("Uses all of user's provided options", () => {
@@ -100,6 +103,7 @@ describe('addPullRequestDefaults', () => {
       message: 'chore: code suggestions custom commit message',
       primary: 'non-default-primary-branch',
       maintainersCanModify: false,
+      filesPerCommit: 10,
     };
     const gitHubPr = addPullRequestDefaults(options);
     assert.deepStrictEqual(gitHubPr, options);

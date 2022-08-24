@@ -101,6 +101,8 @@ export interface CreatePullRequestUserOptions {
   draft?: boolean;
   // Optional logger to set
   logger?: Logger;
+  // Optional number of files per commit
+  filesPerCommit?: number;
 }
 
 /**
@@ -125,6 +127,8 @@ export interface CreatePullRequest {
   primary: string;
   // Whether or not maintainers can modify the PR.
   maintainersCanModify: boolean;
+  // Optional number of files per commit
+  filesPerCommit?: number;
 }
 
 /**

@@ -20,7 +20,9 @@ import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import * as handler from '../src/github/commit-and-push';
+import * as createCommitModule from '../src/github/create-commit';
 import {Changes, FileData, TreeObject, RepoDomain} from '../src/types';
+import {createCommit} from '../src/github/create-commit';
 
 type GetCommitResponse = GetResponseTypeFromEndpointMethod<
   typeof octokit.git.getCommit
@@ -194,13 +196,7 @@ describe('Commit', () => {
       .stub(octokit.git, 'createCommit')
       .resolves(createCommitResponse);
     // tests
-    const sha = await handler.createCommit(
-      octokit,
-      origin,
-      head,
-      treeSha,
-      message
-    );
+    const sha = await createCommit(octokit, origin, head, treeSha, message);
     assert.strictEqual(sha, createCommitResponse.data.sha);
     sandbox.assert.calledOnceWithExactly(stubCreateCommit, {
       owner: origin.owner,
@@ -285,6 +281,10 @@ describe('Commit and push function', async () => {
     sandbox.restore();
   });
   it('When everything works it calls functions with correct parameter values', async () => {
+    changes.set('foo.txt', {
+      mode: '100755',
+      content: 'some file content',
+    });
     // setup
     const stubGetCommit = sandbox
       .stub(octokit.git, 'getCommit')
@@ -313,7 +313,14 @@ describe('Commit and push function', async () => {
     sandbox.assert.calledWithExactly(stubCreateTree, {
       owner: origin.owner,
       repo: origin.repo,
-      tree: [],
+      tree: [
+        {
+          path: 'foo.txt',
+          mode: '100755',
+          type: 'blob',
+          content: 'some file content',
+        },
+      ],
       base_tree: getCommitResponse.data.tree.sha,
     });
     sandbox.assert.calledOnceWithExactly(stubCreateCommit, {
@@ -342,6 +349,57 @@ describe('Commit and push function', async () => {
     sandbox.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
     sandbox.stub(octokit.git, 'createTree').rejects(error);
     // tests
-    await assert.rejects(handler.createTree(octokit, origin, '', []), error);
+    await assert.rejects(
+      handler.createTree(octokit, origin, '', [
+        {path: 'foo.txt', type: 'blob', mode: '100755'},
+      ]),
+      error
+    );
+  });
+  it('groups files into batches', async () => {
+    for (let i = 0; i < 10; i++) {
+      changes.set(`path${i}`, {
+        mode: '100755',
+        content: 'some file content',
+      });
+    }
+    sandbox.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
+    const createCommitStub = sandbox
+      .stub(createCommitModule, 'createCommit')
+      .resolves('commitsha1')
+      .onSecondCall()
+      .resolves('commitsha2');
+    const createTreeStub = sandbox.stub(octokit.git, 'createTree').resolves({
+      data: {
+        sha: 'createdsha1',
+        url: 'unused',
+        truncated: false,
+        tree: [
+          {
+            path: 'path1',
+            type: 'blob',
+            mode: '100755',
+          },
+        ],
+      },
+      headers: {},
+      status: 201,
+      url: 'unused',
+    });
+    const updateRefStub = sandbox.stub(octokit.git, 'updateRef').resolves();
+
+    await handler.commitAndPush(
+      octokit,
+      oldHeadSha,
+      changes,
+      {branch: branchName, ...origin},
+      message,
+      true,
+      6
+    );
+
+    sinon.assert.calledTwice(createTreeStub);
+    sinon.assert.calledTwice(createCommitStub);
+    sinon.assert.calledOnce(updateRefStub);
   });
 });
