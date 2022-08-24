@@ -9484,6 +9484,7 @@ function addPullRequestDefaults(options) {
             ? options.primary
             : DEFAULT_PRIMARY_BRANCH,
         maintainersCanModify: options.maintainersCanModify === false ? false : true,
+        filesPerCommit: options.filesPerCommit,
     };
     return pullRequestSettings;
 }
@@ -9654,8 +9655,10 @@ exports.branch = branch;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.commitAndPush = exports.updateRef = exports.createCommit = exports.createTree = exports.generateTreeObjects = void 0;
+exports.commitAndPush = exports.updateRef = exports.createTree = exports.generateTreeObjects = void 0;
 const logger_1 = __nccwpck_require__(5563);
+const create_commit_1 = __nccwpck_require__(6201);
+const DEFAULT_FILES_PER_COMMIT = 100;
 /**
  * Generate and return a GitHub tree object structure
  * containing the target change data
@@ -9688,6 +9691,11 @@ function generateTreeObjects(changes) {
     return tree;
 }
 exports.generateTreeObjects = generateTreeObjects;
+function* inGroupsOf(all, groupSize) {
+    for (let i = 0; i < all.length; i += groupSize) {
+        yield all.slice(i, i + groupSize);
+    }
+}
 /**
  * Upload and create a remote GitHub tree
  * and resolves with the new tree SHA.
@@ -9715,29 +9723,6 @@ async function createTree(octokit, origin, refHead, tree) {
     return treeSha;
 }
 exports.createTree = createTree;
-/**
- * Create a commit with a repo snapshot SHA on top of the reference HEAD
- * and resolves with the SHA of the commit.
- * Rejects if GitHub V3 API fails with the GitHub error response
- * @param {Octokit} octokit The authenticated octokit instance
- * @param {RepoDomain} origin the the remote repository to push changes to
- * @param {string} refHead the base of the new commit(s)
- * @param {string} treeSha the tree SHA that this commit will point to
- * @param {string} message the message of the new commit
- * @returns {Promise<string>} the new commit SHA
- */
-async function createCommit(octokit, origin, refHead, treeSha, message) {
-    const commitData = (await octokit.git.createCommit({
-        owner: origin.owner,
-        repo: origin.repo,
-        message,
-        tree: treeSha,
-        parents: [refHead],
-    })).data;
-    logger_1.logger.info(`Successfully created commit. See commit at ${commitData.url}`);
-    return commitData.sha;
-}
-exports.createCommit = createCommit;
 /**
  * Update a reference to a SHA
  * Rejects if GitHub V3 API fails with the GitHub error response
@@ -9771,12 +9756,14 @@ exports.updateRef = updateRef;
  * @param {boolean} force to force the commit changes given refHead
  * @returns {Promise<void>}
  */
-async function commitAndPush(octokit, refHead, changes, originBranch, commitMessage, force) {
+async function commitAndPush(octokit, refHead, changes, originBranch, commitMessage, force, filesPerCommit = DEFAULT_FILES_PER_COMMIT) {
     try {
         const tree = generateTreeObjects(changes);
-        const treeSha = await createTree(octokit, originBranch, refHead, tree);
-        const commitSha = await createCommit(octokit, originBranch, refHead, treeSha, commitMessage);
-        await updateRef(octokit, originBranch, commitSha, force);
+        for (const treeGroup of inGroupsOf(tree, filesPerCommit)) {
+            const treeSha = await createTree(octokit, originBranch, refHead, treeGroup);
+            refHead = await (0, create_commit_1.createCommit)(octokit, originBranch, refHead, treeSha, commitMessage);
+        }
+        await updateRef(octokit, originBranch, refHead, force);
     }
     catch (err) {
         err.message = `Error while creating a tree and updating the ref: ${err.message}`;
@@ -9786,6 +9773,54 @@ async function commitAndPush(octokit, refHead, changes, originBranch, commitMess
 }
 exports.commitAndPush = commitAndPush;
 //# sourceMappingURL=commit-and-push.js.map
+
+/***/ }),
+
+/***/ 6201:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createCommit = void 0;
+const logger_1 = __nccwpck_require__(5563);
+/**
+ * Create a commit with a repo snapshot SHA on top of the reference HEAD
+ * and resolves with the SHA of the commit.
+ * Rejects if GitHub V3 API fails with the GitHub error response
+ * @param {Octokit} octokit The authenticated octokit instance
+ * @param {RepoDomain} origin the the remote repository to push changes to
+ * @param {string} refHead the base of the new commit(s)
+ * @param {string} treeSha the tree SHA that this commit will point to
+ * @param {string} message the message of the new commit
+ * @returns {Promise<string>} the new commit SHA
+ */
+async function createCommit(octokit, origin, refHead, treeSha, message) {
+    const commitData = (await octokit.git.createCommit({
+        owner: origin.owner,
+        repo: origin.repo,
+        message,
+        tree: treeSha,
+        parents: [refHead],
+    })).data;
+    logger_1.logger.info(`Successfully created commit. See commit at ${commitData.url}`);
+    return commitData.sha;
+}
+exports.createCommit = createCommit;
+//# sourceMappingURL=create-commit.js.map
 
 /***/ }),
 
@@ -10329,7 +10364,7 @@ async function createPullRequest(octokit, changes, options) {
             logger_1.logger.info(`Retry attempt #${attempt}...`);
         },
     });
-    await (0, commit_and_push_1.commitAndPush)(octokit, refHeadSha, changes, originBranch, gitHubConfigs.message, gitHubConfigs.force);
+    await (0, commit_and_push_1.commitAndPush)(octokit, refHeadSha, changes, originBranch, gitHubConfigs.message, gitHubConfigs.force, gitHubConfigs.filesPerCommit);
     const description = {
         body: gitHubConfigs.description,
         title: gitHubConfigs.title,
