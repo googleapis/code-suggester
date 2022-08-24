@@ -42,6 +42,7 @@ export function coerceUserCreatePullRequestOptions(): CreatePullRequestUserOptio
     fork: yargs.argv.fork as boolean,
     labels: yargs.argv.labels as string[],
     logger,
+    filesPerCommit: yargs.argv.filesPerCommit as number,
   };
 }
 
@@ -61,6 +62,7 @@ async function createCommand() {
   const options = coerceUserCreatePullRequestOptions();
   const changes = await git.getChanges(yargs.argv['git-dir'] as string);
   const octokit = new Octokit({auth: process.env.ACCESS_TOKEN});
+  console.log(options);
   await createPullRequest(octokit, changes, options);
 }
 
