@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.0](https://github.com/googleapis/code-suggester/compare/v4.0.1...v4.1.0) (2022-08-24)
+
+
+### Features
+
+* group commit files into batches ([#398](https://github.com/googleapis/code-suggester/issues/398)) ([e3815d5](https://github.com/googleapis/code-suggester/commit/e3815d58648376d1acbad44dc5cd4637a27daace))
+
 ## [4.0.1](https://github.com/googleapis/code-suggester/compare/v4.0.0...v4.0.1) (2022-08-16)
 
 
