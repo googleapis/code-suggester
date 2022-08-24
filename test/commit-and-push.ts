@@ -246,6 +246,10 @@ describe('Commit and push function', async () => {
   const sandbox = sinon.createSandbox();
   const oldHeadSha = 'OLD-head-Sha-asdf1234';
   const changes: Changes = new Map();
+  changes.set('foo.txt', {
+    mode: '100755',
+    content: 'some file content',
+  });
   const origin: RepoDomain = {
     owner: 'Foo',
     repo: 'Bar',
@@ -313,7 +317,14 @@ describe('Commit and push function', async () => {
     sandbox.assert.calledWithExactly(stubCreateTree, {
       owner: origin.owner,
       repo: origin.repo,
-      tree: [],
+      tree: [
+        {
+          path: 'foo.txt',
+          mode: '100755',
+          type: 'blob',
+          content: 'some file content',
+        },
+      ],
       base_tree: getCommitResponse.data.tree.sha,
     });
     sandbox.assert.calledOnceWithExactly(stubCreateCommit, {
@@ -342,6 +353,62 @@ describe('Commit and push function', async () => {
     sandbox.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
     sandbox.stub(octokit.git, 'createTree').rejects(error);
     // tests
-    await assert.rejects(handler.createTree(octokit, origin, '', []), error);
+    await assert.rejects(
+      handler.createTree(octokit, origin, '', [
+        {path: 'foo.txt', type: 'blob', mode: '100755'},
+      ]),
+      error
+    );
+  });
+  it('groups files into batches', async () => {
+    const tree: TreeObject[] = [];
+    for (let i = 0; i < 10; i++) {
+      tree.push({
+        path: `path${i}`,
+        type: 'blob',
+        mode: '100755',
+      });
+    }
+    sandbox.stub(octokit.git, 'getCommit').resolves(getCommitResponse);
+    const createTreeStub = sandbox
+      .stub(octokit.git, 'createTree')
+      .resolves({
+        data: {
+          sha: 'createdsha1',
+          url: 'unused',
+          truncated: false,
+          tree: [
+            {
+              path: 'path1',
+              type: 'blob',
+              mode: '100755',
+            },
+          ],
+        },
+        headers: {},
+        status: 201,
+        url: 'unused',
+      })
+      .onSecondCall()
+      .resolves({
+        data: {
+          sha: 'createdsha2',
+          url: 'unused',
+          truncated: false,
+          tree: [
+            {
+              path: 'path1',
+              type: 'blob',
+              mode: '100755',
+            },
+          ],
+        },
+        headers: {},
+        status: 201,
+        url: 'unused',
+      });
+    const headTreeSha = await handler.createTree(octokit, origin, '', tree, 6);
+    assert.equal(headTreeSha, 'createdsha2');
+    sinon.assert.calledTwice(createTreeStub);
   });
 });

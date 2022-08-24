@@ -189,7 +189,8 @@ async function createPullRequest(
     changes,
     originBranch,
     gitHubConfigs.message,
-    gitHubConfigs.force
+    gitHubConfigs.force,
+    gitHubConfigs.filesPerCommit
   );
 
   const description: Description = {

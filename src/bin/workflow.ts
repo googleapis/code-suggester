@@ -42,6 +42,7 @@ export function coerceUserCreatePullRequestOptions(): CreatePullRequestUserOptio
     fork: yargs.argv.fork as boolean,
     labels: yargs.argv.labels as string[],
     logger,
+    filesPerCommit: yargs.argv.filesPerCommit as number,
   };
 }
 

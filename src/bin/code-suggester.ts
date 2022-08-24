@@ -97,6 +97,11 @@ yargs
       default: [],
       type: 'array',
     },
+    'files-per-commit': {
+      describe: 'Number of files per commit. Defaults to 100',
+      default: 100,
+      type: 'number',
+    },
   })
   .command(REVIEW_PR_COMMAND, 'Review an open pull request', {
     'upstream-repo': {
