@@ -22,6 +22,8 @@ import {
 import {Octokit} from '@octokit/rest';
 import {logger} from '../logger';
 
+const DEFAULT_FILES_PER_COMMIT = 100;
+
 /**
  * Generate and return a GitHub tree object structure
  * containing the target change data
@@ -53,6 +55,15 @@ export function generateTreeObjects(changes: Changes): TreeObject[] {
   return tree;
 }
 
+function* inGroupsOf<T>(
+  all: T[],
+  groupSize: number
+): Generator<T[], void, void> {
+  for (let i = 0; i < all.length; i += groupSize) {
+    yield all.slice(i, i + groupSize);
+  }
+}
+
 /**
  * Upload and create a remote GitHub tree
  * and resolves with the new tree SHA.
@@ -67,28 +78,33 @@ export async function createTree(
   octokit: Octokit,
   origin: RepoDomain,
   refHead: string,
-  tree: TreeObject[]
+  tree: TreeObject[],
+  filesPerCommit: number = DEFAULT_FILES_PER_COMMIT
 ): Promise<string> {
-  const oldTreeSha = (
+  let headTreeSha = (
     await octokit.git.getCommit({
       owner: origin.owner,
       repo: origin.repo,
       commit_sha: refHead,
     })
   ).data.tree.sha;
-  logger.info('Got the latest commit tree');
-  const treeSha = (
-    await octokit.git.createTree({
-      owner: origin.owner,
-      repo: origin.repo,
-      tree,
-      base_tree: oldTreeSha,
-    })
-  ).data.sha;
+  logger.info(`Creating tree with ${filesPerCommit} files per commit`);
+  logger.info(`Got the latest commit tree: ${headTreeSha}`);
+  for (const treeGroup of inGroupsOf(tree, filesPerCommit)) {
+    logger.debug(`Tree sha: ${headTreeSha}`);
+    headTreeSha = (
+      await octokit.git.createTree({
+        owner: origin.owner,
+        repo: origin.repo,
+        tree: treeGroup,
+        base_tree: headTreeSha,
+      })
+    ).data.sha;
+  }
   logger.info(
-    `Successfully created a tree with the desired changes with SHA ${treeSha}`
+    `Successfully created a tree with the desired changes with SHA ${headTreeSha}`
   );
-  return treeSha;
+  return headTreeSha;
 }
 
 /**
@@ -166,19 +182,37 @@ export async function commitAndPush(
   changes: Changes,
   originBranch: BranchDomain,
   commitMessage: string,
-  force: boolean
+  force: boolean,
+  filesPerCommit: number = DEFAULT_FILES_PER_COMMIT
 ) {
   try {
     const tree = generateTreeObjects(changes);
-    const treeSha = await createTree(octokit, originBranch, refHead, tree);
-    const commitSha = await createCommit(
-      octokit,
-      originBranch,
-      refHead,
-      treeSha,
-      commitMessage
-    );
-    await updateRef(octokit, originBranch, commitSha, force);
+    for (const treeGroup of inGroupsOf(tree, filesPerCommit)) {
+      const treeSha = await createTree(
+        octokit,
+        originBranch,
+        refHead,
+        treeGroup,
+      );
+      refHead = await createCommit(
+        octokit,
+        originBranch,
+        refHead,
+        treeSha,
+        commitMessage
+      );
+    }
+    // const treeSha = await createTree(
+    //   filesPerCommit
+    // );
+    // const commitSha = await createCommit(
+    //   octokit,
+    //   originBranch,
+    //   refHead,
+    //   treeSha,
+    //   commitMessage
+    // );
+    await updateRef(octokit, originBranch, refHead, force);
   } catch (err) {
     (
       err as Error
