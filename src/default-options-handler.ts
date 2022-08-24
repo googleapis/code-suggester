@@ -48,6 +48,7 @@ export function addPullRequestDefaults(
         ? options.primary
         : DEFAULT_PRIMARY_BRANCH,
     maintainersCanModify: options.maintainersCanModify === false ? false : true,
+    filesPerCommit: options.filesPerCommit,
   };
   return pullRequestSettings;
 }

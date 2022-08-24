@@ -21,6 +21,7 @@ import {
 } from '../types';
 import {Octokit} from '@octokit/rest';
 import {logger} from '../logger';
+import {createCommit} from './create-commit';
 
 const DEFAULT_FILES_PER_COMMIT = 100;
 
@@ -78,63 +79,28 @@ export async function createTree(
   octokit: Octokit,
   origin: RepoDomain,
   refHead: string,
-  tree: TreeObject[],
-  filesPerCommit: number = DEFAULT_FILES_PER_COMMIT
+  tree: TreeObject[]
 ): Promise<string> {
-  let headTreeSha = (
+  const oldTreeSha = (
     await octokit.git.getCommit({
       owner: origin.owner,
       repo: origin.repo,
       commit_sha: refHead,
     })
   ).data.tree.sha;
-  logger.info(`Got the latest commit tree: ${headTreeSha}`);
-  for (const treeGroup of inGroupsOf(tree, filesPerCommit)) {
-    logger.debug(`Tree sha: ${headTreeSha}`);
-    headTreeSha = (
-      await octokit.git.createTree({
-        owner: origin.owner,
-        repo: origin.repo,
-        tree: treeGroup,
-        base_tree: headTreeSha,
-      })
-    ).data.sha;
-  }
-  logger.info(
-    `Successfully created a tree with the desired changes with SHA ${headTreeSha}`
-  );
-  return headTreeSha;
-}
-
-/**
- * Create a commit with a repo snapshot SHA on top of the reference HEAD
- * and resolves with the SHA of the commit.
- * Rejects if GitHub V3 API fails with the GitHub error response
- * @param {Octokit} octokit The authenticated octokit instance
- * @param {RepoDomain} origin the the remote repository to push changes to
- * @param {string} refHead the base of the new commit(s)
- * @param {string} treeSha the tree SHA that this commit will point to
- * @param {string} message the message of the new commit
- * @returns {Promise<string>} the new commit SHA
- */
-export async function createCommit(
-  octokit: Octokit,
-  origin: RepoDomain,
-  refHead: string,
-  treeSha: string,
-  message: string
-): Promise<string> {
-  const commitData = (
-    await octokit.git.createCommit({
+  logger.info('Got the latest commit tree');
+  const treeSha = (
+    await octokit.git.createTree({
       owner: origin.owner,
       repo: origin.repo,
-      message,
-      tree: treeSha,
-      parents: [refHead],
+      tree,
+      base_tree: oldTreeSha,
     })
-  ).data;
-  logger.info(`Successfully created commit. See commit at ${commitData.url}`);
-  return commitData.sha;
+  ).data.sha;
+  logger.info(
+    `Successfully created a tree with the desired changes with SHA ${treeSha}`
+  );
+  return treeSha;
 }
 
 /**
@@ -186,21 +152,22 @@ export async function commitAndPush(
 ) {
   try {
     const tree = generateTreeObjects(changes);
-    const treeSha = await createTree(
-      octokit,
-      originBranch,
-      refHead,
-      tree,
-      filesPerCommit
-    );
-    const commitSha = await createCommit(
-      octokit,
-      originBranch,
-      refHead,
-      treeSha,
-      commitMessage
-    );
-    await updateRef(octokit, originBranch, commitSha, force);
+    for (const treeGroup of inGroupsOf(tree, filesPerCommit)) {
+      const treeSha = await createTree(
+        octokit,
+        originBranch,
+        refHead,
+        treeGroup
+      );
+      refHead = await createCommit(
+        octokit,
+        originBranch,
+        refHead,
+        treeSha,
+        commitMessage
+      );
+    }
+    await updateRef(octokit, originBranch, refHead, force);
   } catch (err) {
     (
       err as Error
