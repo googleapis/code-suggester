@@ -1,12 +1,22 @@
 {
   "extends": [
     "config:base",
-    "docker:disable"
+    "docker:disable",
+    "helpers:pinGitHubActionDigests"
   ],
+  "dependencyDashboard": true,
   "pinVersions": false,
   "rebaseStalePrs": true,
+  "packageRules": [
+      {
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "stabilityDays": 30
+    }
+  ]
   "lockFileMaintenance": {
-    "enabled": true,
+    "enabled": false,
     "recreateClosed": true
   },
   "gitAuthor": null,
