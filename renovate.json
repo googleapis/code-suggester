@@ -14,7 +14,7 @@
       ],
       "stabilityDays": 30
     }
-  ]
+  ],
   "lockFileMaintenance": {
     "enabled": false,
     "recreateClosed": true
