@@ -15,7 +15,7 @@ jobs:
       - run: |-
           set -ex
           npm --version
-          npm i
+          npm ci
           npm run compile
           pushd action
           npm ci
