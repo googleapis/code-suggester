@@ -21,7 +21,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3
       - name: build
         run: |-
           set -e
@@ -31,7 +31,7 @@ jobs:
           npm ci
           npm run package
       - name: open-pull-request
-        uses: googleapis/code-suggester@v4
+        uses: googleapis/code-suggester@212b0804e41c4f89edfefba37e1c39cdb9856e36 # tag=v4
         env:
           ACCESS_TOKEN: ${{ secrets.YOSHI_CODE_BOT_TOKEN }}
         with:

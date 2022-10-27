@@ -8,8 +8,8 @@ jobs:
   test-action:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3
+      - uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # tag=v1
         with:
           node-version: 14
       - run: |-
