@@ -14,9 +14,8 @@ jobs:
           node-version: 14
       - run: |-
           set -ex
-          npm i npm@8
           npm --version
-          npm i
+          npm ci
           npm run compile
           pushd action
           npm ci
