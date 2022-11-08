@@ -8,14 +8,16 @@ jobs:
   test-action:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3
+      - uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516 # tag=v3
         with:
           node-version: 14
+      - name: npm 8
+        run: npm i -g npm@8 --registry=https://registry.npmjs.org
       - run: |-
           set -ex
           npm --version
-          npm i
+          npm ci
           npm run compile
           pushd action
           npm ci

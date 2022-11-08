@@ -27,7 +27,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@actions/core": "^1.6.0",
-    "@octokit/rest": "^19.0.0",
+    "@octokit/rest": "^19.0.5",
     "code-suggester": "file:.."
   },
   "devDependencies": {
