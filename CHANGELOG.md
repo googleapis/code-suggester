@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.1](https://github.com/googleapis/code-suggester/compare/v4.1.0...v4.1.1) (2022-11-09)
+
+
+### Bug Fixes
+
+* Update dependencies ([#424](https://github.com/googleapis/code-suggester/issues/424)) ([32e35df](https://github.com/googleapis/code-suggester/commit/32e35df373977615805b4ad405eea4818c82f274))
+
 ## [4.1.0](https://github.com/googleapis/code-suggester/compare/v4.0.1...v4.1.0) (2022-08-24)
 
 
