@@ -22,6 +22,7 @@ import {
 import {Octokit} from '@octokit/rest';
 import {logger} from '../logger';
 import {createCommit} from './create-commit';
+import {CommitError} from '../errors';
 
 const DEFAULT_FILES_PER_COMMIT = 100;
 
@@ -74,6 +75,7 @@ function* inGroupsOf<T>(
  * @param {string} refHead the base of the new commit(s)
  * @param {TreeObject[]} tree the set of GitHub changes to upload
  * @returns {Promise<string>} the GitHub tree SHA
+ * @throws {CommitError}
  */
 export async function createTree(
   octokit: Octokit,
@@ -89,18 +91,22 @@ export async function createTree(
     })
   ).data.tree.sha;
   logger.info('Got the latest commit tree');
-  const treeSha = (
-    await octokit.git.createTree({
-      owner: origin.owner,
-      repo: origin.repo,
-      tree,
-      base_tree: oldTreeSha,
-    })
-  ).data.sha;
-  logger.info(
-    `Successfully created a tree with the desired changes with SHA ${treeSha}`
-  );
-  return treeSha;
+  try {
+    const treeSha = (
+      await octokit.git.createTree({
+        owner: origin.owner,
+        repo: origin.repo,
+        tree,
+        base_tree: oldTreeSha,
+      })
+    ).data.sha;
+    logger.info(
+      `Successfully created a tree with the desired changes with SHA ${treeSha}`
+    );
+    return treeSha;
+  } catch (e) {
+    throw new CommitError(`Error adding to tree: ${refHead}`, e as Error);
+  }
 }
 
 /**
@@ -119,14 +125,21 @@ export async function updateRef(
   force: boolean
 ): Promise<void> {
   logger.info(`Updating reference heads/${origin.branch} to ${newSha}`);
-  await octokit.git.updateRef({
-    owner: origin.owner,
-    repo: origin.repo,
-    ref: `heads/${origin.branch}`,
-    sha: newSha,
-    force,
-  });
-  logger.info(`Successfully updated reference ${origin.branch} to ${newSha}`);
+  try {
+    await octokit.git.updateRef({
+      owner: origin.owner,
+      repo: origin.repo,
+      ref: `heads/${origin.branch}`,
+      sha: newSha,
+      force,
+    });
+    logger.info(`Successfully updated reference ${origin.branch} to ${newSha}`);
+  } catch (e) {
+    throw new CommitError(
+      `Error updating ref heads/${origin.branch} to ${newSha}`,
+      e as Error
+    );
+  }
 }
 
 /**
@@ -140,6 +153,7 @@ export async function updateRef(
  * @param {string} commitMessage the message of the new commit
  * @param {boolean} force to force the commit changes given refHead
  * @returns {Promise<void>}
+ * @throws {CommitError}
  */
 export async function commitAndPush(
   octokit: Octokit,
@@ -150,31 +164,16 @@ export async function commitAndPush(
   force: boolean,
   filesPerCommit: number = DEFAULT_FILES_PER_COMMIT
 ) {
-  try {
-    const tree = generateTreeObjects(changes);
-    for (const treeGroup of inGroupsOf(tree, filesPerCommit)) {
-      const treeSha = await createTree(
-        octokit,
-        originBranch,
-        refHead,
-        treeGroup
-      );
-      refHead = await createCommit(
-        octokit,
-        originBranch,
-        refHead,
-        treeSha,
-        commitMessage
-      );
-    }
-    await updateRef(octokit, originBranch, refHead, force);
-  } catch (err) {
-    (
-      err as Error
-    ).message = `Error while creating a tree and updating the ref: ${
-      (err as Error).message
-    }`;
-    logger.error(err as Error);
-    throw err;
+  const tree = generateTreeObjects(changes);
+  for (const treeGroup of inGroupsOf(tree, filesPerCommit)) {
+    const treeSha = await createTree(octokit, originBranch, refHead, treeGroup);
+    refHead = await createCommit(
+      octokit,
+      originBranch,
+      refHead,
+      treeSha,
+      commitMessage
+    );
   }
+  await updateRef(octokit, originBranch, refHead, force);
 }
