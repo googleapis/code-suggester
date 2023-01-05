@@ -15,6 +15,7 @@
 import {Octokit} from '@octokit/rest';
 import {RepoDomain} from '../types';
 import {logger} from '../logger';
+import {CommitError} from '../errors';
 
 /**
  * Create a commit with a repo snapshot SHA on top of the reference HEAD
@@ -34,15 +35,19 @@ export async function createCommit(
   treeSha: string,
   message: string
 ): Promise<string> {
-  const commitData = (
-    await octokit.git.createCommit({
+  try {
+    const {
+      data: {sha, url},
+    } = await octokit.git.createCommit({
       owner: origin.owner,
       repo: origin.repo,
       message,
       tree: treeSha,
       parents: [refHead],
-    })
-  ).data;
-  logger.info(`Successfully created commit. See commit at ${commitData.url}`);
-  return commitData.sha;
+    });
+    logger.info(`Successfully created commit. See commit at ${url}`);
+    return sha;
+  } catch (e) {
+    throw new CommitError(`Error creating commit for: ${treeSha}`, e as Error);
+  }
 }

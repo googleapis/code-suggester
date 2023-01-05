@@ -23,6 +23,7 @@ import * as handler from '../src/github/commit-and-push';
 import * as createCommitModule from '../src/github/create-commit';
 import {Changes, FileData, TreeObject, RepoDomain} from '../src/types';
 import {createCommit} from '../src/github/create-commit';
+import {CommitError} from '../src/errors';
 
 type GetCommitResponse = GetResponseTypeFromEndpointMethod<
   typeof octokit.git.getCommit
@@ -353,7 +354,7 @@ describe('Commit and push function', async () => {
       handler.createTree(octokit, origin, '', [
         {path: 'foo.txt', type: 'blob', mode: '100755'},
       ]),
-      error
+      e => e instanceof CommitError && e.cause === error
     );
   });
   it('groups files into batches', async () => {
