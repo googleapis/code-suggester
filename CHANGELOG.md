@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.2.0](https://github.com/googleapis/code-suggester/compare/v4.1.1...v4.2.0) (2023-01-05)
+
+
+### Features
+
+* Throw new CommitError if an API error occurs during commit process ([#434](https://github.com/googleapis/code-suggester/issues/434)) ([5ee7f2a](https://github.com/googleapis/code-suggester/commit/5ee7f2ad547a6181aba0f4e8b892335700bf9571))
+
+
+### Bug Fixes
+
+* **deps:** Update dependency parse-diff to ^0.10.0 ([#430](https://github.com/googleapis/code-suggester/issues/430)) ([06638c2](https://github.com/googleapis/code-suggester/commit/06638c26298a3f948864b8fa18664b540ddc576a))
+
 ## [4.1.1](https://github.com/googleapis/code-suggester/compare/v4.1.0...v4.1.1) (2022-11-09)
 
 
