@@ -37,6 +37,7 @@ import {commitAndPush} from './github/commit-and-push';
 import {openPullRequest} from './github/open-pull-request';
 import {addLabels} from './github/labels';
 export {getChanges, getDiffString} from './bin/handle-git-dir-change';
+export {CommitError} from './errors';
 
 /**
  * Given a set of suggestions, make all the multiline inline review comments on a given pull request given
@@ -108,6 +109,7 @@ export async function reviewPullRequest(
  * @param {Changes | null | undefined} changes A set of changes. The changes may be empty
  * @param {CreatePullRequestUserOptions} options The configuration for interacting with GitHub provided by the user.
  * @returns {Promise<number>} the pull request number. Returns 0 if unsuccessful.
+ * @throws {CommitError} on failure during commit process
  */
 async function createPullRequest(
   octokit: Octokit,
