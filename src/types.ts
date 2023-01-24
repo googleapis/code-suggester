@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {CreateCommitOptions} from "./github/create-commit";
+
 export type FileMode = '100644' | '100755' | '040000' | '160000' | '120000';
 
 /**
@@ -72,7 +74,7 @@ export interface Description {
 /**
  * The user options for creating GitHub PRs
  */
-export interface CreatePullRequestUserOptions {
+export interface CreatePullRequestUserOptions extends CreateCommitOptions {
   // the owner of the target fork repository
   upstreamOwner: string;
   // the name of the target fork repository
@@ -199,4 +201,21 @@ export interface Logger {
   info: LogFn;
   debug: LogFn;
   trace: LogFn;
+}
+
+export interface UserData {
+  name: string;
+  email: string;
+}
+
+export interface CommitData {
+  message: string;
+  tree: string;
+  parents: string[];
+  author?: UserData;
+  committer?: UserData;
+}
+
+export interface CommitSigner {
+  generateSignature(commit: CommitData): Promise<string>;
 }

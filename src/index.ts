@@ -22,7 +22,7 @@ import {
   FileDiffContent,
   CreateReviewCommentUserOptions,
 } from './types';
-export {Changes} from './types';
+export {Changes, CommitData, CommitSigner} from './types';
 import {Octokit} from '@octokit/rest';
 import {logger, setupLogger} from './logger';
 import {
@@ -192,7 +192,7 @@ async function createPullRequest(
     originBranch,
     gitHubConfigs.message,
     gitHubConfigs.force,
-    gitHubConfigs.filesPerCommit
+    options,
   );
 
   const description: Description = {

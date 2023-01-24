@@ -21,7 +21,7 @@ import {
 } from '../types';
 import {Octokit} from '@octokit/rest';
 import {logger} from '../logger';
-import {createCommit} from './create-commit';
+import {createCommit, CreateCommitOptions} from './create-commit';
 import {CommitError} from '../errors';
 
 const DEFAULT_FILES_PER_COMMIT = 100;
@@ -142,6 +142,10 @@ export async function updateRef(
   }
 }
 
+interface CommitAndPushOptions extends CreateCommitOptions {
+  filesPerCommit?: number;
+}
+
 /**
  * Given a set of changes, apply the commit(s) on top of the given branch's head and upload it to GitHub
  * Rejects if GitHub V3 API fails with the GitHub error response
@@ -162,8 +166,9 @@ export async function commitAndPush(
   originBranch: BranchDomain,
   commitMessage: string,
   force: boolean,
-  filesPerCommit: number = DEFAULT_FILES_PER_COMMIT
+  options?: CommitAndPushOptions,
 ) {
+  const filesPerCommit = options?.filesPerCommit ?? DEFAULT_FILES_PER_COMMIT;
   const tree = generateTreeObjects(changes);
   for (const treeGroup of inGroupsOf(tree, filesPerCommit)) {
     const treeSha = await createTree(octokit, originBranch, refHead, treeGroup);
@@ -172,7 +177,8 @@ export async function commitAndPush(
       originBranch,
       refHead,
       treeSha,
-      commitMessage
+      commitMessage,
+      options,
     );
   }
   await updateRef(octokit, originBranch, refHead, force);
