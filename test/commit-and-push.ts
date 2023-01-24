@@ -21,7 +21,14 @@ import * as sinon from 'sinon';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import * as handler from '../src/github/commit-and-push';
 import * as createCommitModule from '../src/github/create-commit';
-import {Changes, FileData, TreeObject, RepoDomain, CommitData, CommitSigner} from '../src/types';
+import {
+  Changes,
+  FileData,
+  TreeObject,
+  RepoDomain,
+  CommitData,
+  CommitSigner,
+} from '../src/types';
 import {createCommit} from '../src/github/create-commit';
 import {CommitError} from '../src/errors';
 
@@ -382,7 +389,7 @@ describe('Commit and push function', async () => {
       {branch: branchName, ...origin},
       message,
       true,
-      options,
+      options
     );
     sandbox.assert.calledOnceWithExactly(stubGetCommit, {
       owner: origin.owner,
@@ -412,7 +419,7 @@ describe('Commit and push function', async () => {
       author: {
         name: 'Test Committer',
         email: 'test-committer@example.com',
-      }
+      },
     });
     sandbox.assert.calledOnceWithExactly(stubUpdateRef, {
       owner: origin.owner,
@@ -429,7 +436,7 @@ describe('Commit and push function', async () => {
         name: 'Test Committer',
         email: 'test-committer@example.com',
       },
-    })
+    });
   });
   it('Forwards GitHub error if getCommit fails', async () => {
     const error = new Error('Error committing');
@@ -488,7 +495,7 @@ describe('Commit and push function', async () => {
       {branch: branchName, ...origin},
       message,
       true,
-      {filesPerCommit: 6},
+      {filesPerCommit: 6}
     );
 
     sinon.assert.calledTwice(createTreeStub);

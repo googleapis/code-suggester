@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CreateCommitOptions} from "./github/create-commit";
+import {CreateCommitOptions} from './github/create-commit';
 
 export type FileMode = '100644' | '100755' | '040000' | '160000' | '120000';
 

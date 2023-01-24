@@ -166,7 +166,7 @@ export async function commitAndPush(
   originBranch: BranchDomain,
   commitMessage: string,
   force: boolean,
-  options?: CommitAndPushOptions,
+  options?: CommitAndPushOptions
 ) {
   const filesPerCommit = options?.filesPerCommit ?? DEFAULT_FILES_PER_COMMIT;
   const tree = generateTreeObjects(changes);
@@ -178,7 +178,7 @@ export async function commitAndPush(
       refHead,
       treeSha,
       commitMessage,
-      options,
+      options
     );
   }
   await updateRef(octokit, originBranch, refHead, force);

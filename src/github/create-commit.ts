@@ -40,16 +40,18 @@ export async function createCommit(
   refHead: string,
   treeSha: string,
   message: string,
-  options: CreateCommitOptions = {},
+  options: CreateCommitOptions = {}
 ): Promise<string> {
   try {
-    const signature = options.signer ? await options.signer.generateSignature({
-      message,
-      tree: treeSha,
-      parents: [refHead],
-      author: options.author,
-      committer: options.committer,
-    }) : undefined;
+    const signature = options.signer
+      ? await options.signer.generateSignature({
+          message,
+          tree: treeSha,
+          parents: [refHead],
+          author: options.author,
+          committer: options.committer,
+        })
+      : undefined;
     const {
       data: {sha, url},
     } = await octokit.git.createCommit({

@@ -192,7 +192,7 @@ async function createPullRequest(
     originBranch,
     gitHubConfigs.message,
     gitHubConfigs.force,
-    options,
+    options
   );
 
   const description: Description = {
