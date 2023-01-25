@@ -20,5 +20,6 @@ node.owlbot_main(templates_excludes=[
     '.github/release-please.yml',
     'renovate.json',
     '.eslintignore',
+    '.eslintrc.json',
     '.prettierignore',
 ])

@@ -21,7 +21,14 @@ import * as sinon from 'sinon';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
 import * as handler from '../src/github/commit-and-push';
 import * as createCommitModule from '../src/github/create-commit';
-import {Changes, FileData, TreeObject, RepoDomain} from '../src/types';
+import {
+  Changes,
+  FileData,
+  TreeObject,
+  RepoDomain,
+  CommitData,
+  CommitSigner,
+} from '../src/types';
 import {createCommit} from '../src/github/create-commit';
 import {CommitError} from '../src/errors';
 
@@ -36,6 +43,17 @@ type CreateTreeResponse = GetResponseTypeFromEndpointMethod<
 type CreateCommitResponse = GetResponseTypeFromEndpointMethod<
   typeof octokit.git.createCommit
 >;
+
+class FakeCommitSigner implements CommitSigner {
+  signature: string;
+  constructor(signature: string) {
+    this.signature = signature;
+  }
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  async generateSignature(_commit: CommitData): Promise<string> {
+    return this.signature;
+  }
+}
 
 before(() => {
   setup();
@@ -199,7 +217,7 @@ describe('Commit', () => {
     // tests
     const sha = await createCommit(octokit, origin, head, treeSha, message);
     assert.strictEqual(sha, createCommitResponse.data.sha);
-    sandbox.assert.calledOnceWithExactly(stubCreateCommit, {
+    sandbox.assert.calledOnceWithMatch(stubCreateCommit, {
       owner: origin.owner,
       repo: origin.repo,
       message,
@@ -324,7 +342,7 @@ describe('Commit and push function', async () => {
       ],
       base_tree: getCommitResponse.data.tree.sha,
     });
-    sandbox.assert.calledOnceWithExactly(stubCreateCommit, {
+    sandbox.assert.calledOnceWithMatch(stubCreateCommit, {
       owner: origin.owner,
       repo: origin.repo,
       message,
@@ -337,6 +355,88 @@ describe('Commit and push function', async () => {
       sha: createCommitResponse.data.sha,
       ref: 'heads/test-branch-name',
       force: true,
+    });
+  });
+  it('allows configuring a commit signer', async () => {
+    changes.set('foo.txt', {
+      mode: '100755',
+      content: 'some file content',
+    });
+    // setup
+    const stubGetCommit = sandbox
+      .stub(octokit.git, 'getCommit')
+      .resolves(getCommitResponse);
+    const stubCreateTree = sandbox
+      .stub(octokit.git, 'createTree')
+      .resolves(createTreeResponse);
+    const stubCreateCommit = sandbox
+      .stub(octokit.git, 'createCommit')
+      .resolves(createCommitResponse);
+    const stubUpdateRef = sandbox.stub(octokit.git, 'updateRef');
+    const fakeSigner = new FakeCommitSigner('fake-signature');
+    const options = {
+      author: {
+        name: 'Test Committer',
+        email: 'test-committer@example.com',
+      },
+      signer: fakeSigner,
+    };
+    const signatureSpy = sandbox.spy(fakeSigner, 'generateSignature');
+    // tests
+    await handler.commitAndPush(
+      octokit,
+      oldHeadSha,
+      changes,
+      {branch: branchName, ...origin},
+      message,
+      true,
+      options
+    );
+    sandbox.assert.calledOnceWithExactly(stubGetCommit, {
+      owner: origin.owner,
+      repo: origin.repo,
+      commit_sha: oldHeadSha,
+    });
+    sandbox.assert.calledWithExactly(stubCreateTree, {
+      owner: origin.owner,
+      repo: origin.repo,
+      tree: [
+        {
+          path: 'foo.txt',
+          mode: '100755',
+          type: 'blob',
+          content: 'some file content',
+        },
+      ],
+      base_tree: getCommitResponse.data.tree.sha,
+    });
+    sandbox.assert.calledOnceWithMatch(stubCreateCommit, {
+      owner: origin.owner,
+      repo: origin.repo,
+      message,
+      tree: createTreeResponse.data.sha,
+      parents: [oldHeadSha],
+      signature: 'fake-signature',
+      author: {
+        name: 'Test Committer',
+        email: 'test-committer@example.com',
+      },
+    });
+    sandbox.assert.calledOnceWithExactly(stubUpdateRef, {
+      owner: origin.owner,
+      repo: origin.repo,
+      sha: createCommitResponse.data.sha,
+      ref: 'heads/test-branch-name',
+      force: true,
+    });
+    sandbox.assert.calledOnceWithMatch(signatureSpy, {
+      message,
+      tree: createTreeResponse.data.sha,
+      parents: [oldHeadSha],
+      author: {
+        name: 'Test Committer',
+        email: 'test-committer@example.com',
+      },
     });
   });
   it('Forwards GitHub error if getCommit fails', async () => {
@@ -396,7 +496,7 @@ describe('Commit and push function', async () => {
       {branch: branchName, ...origin},
       message,
       true,
-      6
+      {filesPerCommit: 6}
     );
 
     sinon.assert.calledTwice(createTreeStub);

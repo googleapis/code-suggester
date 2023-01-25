@@ -13,9 +13,15 @@
 // limitations under the License.
 
 import {Octokit} from '@octokit/rest';
-import {RepoDomain} from '../types';
+import {RepoDomain, CommitSigner, UserData} from '../types';
 import {logger} from '../logger';
 import {CommitError} from '../errors';
+
+export interface CreateCommitOptions {
+  signer?: CommitSigner;
+  author?: UserData;
+  committer?: UserData;
+}
 
 /**
  * Create a commit with a repo snapshot SHA on top of the reference HEAD
@@ -27,15 +33,26 @@ import {CommitError} from '../errors';
  * @param {string} treeSha the tree SHA that this commit will point to
  * @param {string} message the message of the new commit
  * @returns {Promise<string>} the new commit SHA
+ * @see https://docs.github.com/en/rest/git/commits?apiVersion=2022-11-28#create-a-commit
  */
 export async function createCommit(
   octokit: Octokit,
   origin: RepoDomain,
   refHead: string,
   treeSha: string,
-  message: string
+  message: string,
+  options: CreateCommitOptions = {}
 ): Promise<string> {
   try {
+    const signature = options.signer
+      ? await options.signer.generateSignature({
+          message,
+          tree: treeSha,
+          parents: [refHead],
+          author: options.author,
+          committer: options.committer,
+        })
+      : undefined;
     const {
       data: {sha, url},
     } = await octokit.git.createCommit({
@@ -44,6 +61,9 @@ export async function createCommit(
       message,
       tree: treeSha,
       parents: [refHead],
+      signature,
+      author: options.author,
+      committer: options.committer,
     });
     logger.info(`Successfully created commit. See commit at ${url}`);
     return sha;
