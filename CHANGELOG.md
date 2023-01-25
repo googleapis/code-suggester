@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.0](https://github.com/googleapis/code-suggester/compare/v4.2.0...v4.3.0) (2023-01-25)
+
+
+### Features
+
+* Introduce CommitSigner interface ([#442](https://github.com/googleapis/code-suggester/issues/442)) ([4801592](https://github.com/googleapis/code-suggester/commit/4801592be9546b207cae9ec6030b2a2d35f5098c))
+
 ## [4.2.0](https://github.com/googleapis/code-suggester/compare/v4.1.1...v4.2.0) (2023-01-05)
 
 
