@@ -9817,11 +9817,13 @@ exports.updateRef = updateRef;
  * @returns {Promise<void>}
  * @throws {CommitError}
  */
-async function commitAndPush(octokit, refHead, changes, originBranch, commitMessage, force, filesPerCommit = DEFAULT_FILES_PER_COMMIT) {
+async function commitAndPush(octokit, refHead, changes, originBranch, commitMessage, force, options) {
+    var _a;
+    const filesPerCommit = (_a = options === null || options === void 0 ? void 0 : options.filesPerCommit) !== null && _a !== void 0 ? _a : DEFAULT_FILES_PER_COMMIT;
     const tree = generateTreeObjects(changes);
     for (const treeGroup of inGroupsOf(tree, filesPerCommit)) {
         const treeSha = await createTree(octokit, originBranch, refHead, treeGroup);
-        refHead = await (0, create_commit_1.createCommit)(octokit, originBranch, refHead, treeSha, commitMessage);
+        refHead = await (0, create_commit_1.createCommit)(octokit, originBranch, refHead, treeSha, commitMessage, options);
     }
     await updateRef(octokit, originBranch, refHead, force);
 }
@@ -9862,15 +9864,28 @@ const errors_1 = __nccwpck_require__(2640);
  * @param {string} treeSha the tree SHA that this commit will point to
  * @param {string} message the message of the new commit
  * @returns {Promise<string>} the new commit SHA
+ * @see https://docs.github.com/en/rest/git/commits?apiVersion=2022-11-28#create-a-commit
  */
-async function createCommit(octokit, origin, refHead, treeSha, message) {
+async function createCommit(octokit, origin, refHead, treeSha, message, options = {}) {
     try {
+        const signature = options.signer
+            ? await options.signer.generateSignature({
+                message,
+                tree: treeSha,
+                parents: [refHead],
+                author: options.author,
+                committer: options.committer,
+            })
+            : undefined;
         const { data: { sha, url }, } = await octokit.git.createCommit({
             owner: origin.owner,
             repo: origin.repo,
             message,
             tree: treeSha,
             parents: [refHead],
+            signature,
+            author: options.author,
+            committer: options.committer,
         });
         logger_1.logger.info(`Successfully created commit. See commit at ${url}`);
         return sha;
@@ -10427,7 +10442,7 @@ async function createPullRequest(octokit, changes, options) {
             logger_1.logger.info(`Retry attempt #${attempt}...`);
         },
     });
-    await (0, commit_and_push_1.commitAndPush)(octokit, refHeadSha, changes, originBranch, gitHubConfigs.message, gitHubConfigs.force, gitHubConfigs.filesPerCommit);
+    await (0, commit_and_push_1.commitAndPush)(octokit, refHeadSha, changes, originBranch, gitHubConfigs.message, gitHubConfigs.force, options);
     const description = {
         body: gitHubConfigs.description,
         title: gitHubConfigs.title,
