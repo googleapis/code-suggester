@@ -49,6 +49,7 @@ class FakeCommitSigner implements CommitSigner {
   constructor(signature: string) {
     this.signature = signature;
   }
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   async generateSignature(_commit: CommitData): Promise<string> {
     return this.signature;
   }

@@ -33,6 +33,7 @@ export interface CreateCommitOptions {
  * @param {string} treeSha the tree SHA that this commit will point to
  * @param {string} message the message of the new commit
  * @returns {Promise<string>} the new commit SHA
+ * @see https://docs.github.com/en/rest/git/commits?apiVersion=2022-11-28#create-a-commit
  */
 export async function createCommit(
   octokit: Octokit,
