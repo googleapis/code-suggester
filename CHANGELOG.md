@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.1](https://github.com/googleapis/code-suggester/compare/v4.3.0...v4.3.1) (2023-02-24)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency parse-diff to ^0.11.0 ([#451](https://github.com/googleapis/code-suggester/issues/451)) ([da26e41](https://github.com/googleapis/code-suggester/commit/da26e41dc51083a1dc1142e66d0a277534416da9))
+
 ## [4.3.0](https://github.com/googleapis/code-suggester/compare/v4.2.0...v4.3.0) (2023-01-25)
 
 
