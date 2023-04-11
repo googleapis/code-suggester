@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.2](https://github.com/googleapis/code-suggester/compare/v4.3.1...v4.3.2) (2023-04-11)
+
+
+### Bug Fixes
+
+* Configure NullLogger as default logger ([#472](https://github.com/googleapis/code-suggester/issues/472)) ([a5dd35e](https://github.com/googleapis/code-suggester/commit/a5dd35e266dee111006d32314014631242ab95a8))
+
 ## [4.3.1](https://github.com/googleapis/code-suggester/compare/v4.3.0...v4.3.1) (2023-02-24)
 
 
