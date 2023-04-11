@@ -10507,8 +10507,6 @@ exports.parseTextFiles = parseTextFiles;
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupLogger = exports.logger = void 0;
-let logger;
-exports.logger = logger;
 class NullLogger {
     constructor() {
         this.error = () => { };
@@ -10518,6 +10516,8 @@ class NullLogger {
         this.trace = () => { };
     }
 }
+let logger = new NullLogger();
+exports.logger = logger;
 function setupLogger(userLogger) {
     if (userLogger) {
         exports.logger = logger = userLogger;
