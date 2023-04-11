@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Logger} from './types';
-let logger: Logger;
 
 class NullLogger implements Logger {
   error = () => {};
@@ -22,6 +21,8 @@ class NullLogger implements Logger {
   debug = () => {};
   trace = () => {};
 }
+
+let logger: Logger = new NullLogger();
 
 function setupLogger(userLogger?: Logger) {
   if (userLogger) {
