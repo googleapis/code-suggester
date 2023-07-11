@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.3](https://github.com/googleapis/code-suggester/compare/v4.3.2...v4.3.3) (2023-07-11)
+
+
+### Bug Fixes
+
+* **deps:** Update word-wrap dependency to 1.2.6 ([#477](https://github.com/googleapis/code-suggester/issues/477)) ([4946260](https://github.com/googleapis/code-suggester/commit/4946260e430ad597db6b4b8779b45394fd8e5a84))
+
 ## [4.3.2](https://github.com/googleapis/code-suggester/compare/v4.3.1...v4.3.2) (2023-04-11)
 
 
