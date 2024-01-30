@@ -15,7 +15,7 @@
 /* eslint-disable node/no-unsupported-features/node-builtins */
 
 import * as assert from 'assert';
-import {describe, it, before, afterEach} from 'mocha';
+import {describe, it, before, afterEach, beforeEach} from 'mocha';
 import {octokit, setup} from './util';
 import * as sinon from 'sinon';
 import {GetResponseTypeFromEndpointMethod} from '@octokit/types';
@@ -31,6 +31,7 @@ import {
 } from '../src/types';
 import {createCommit} from '../src/github/create-commit';
 import {CommitError} from '../src/errors';
+import {SinonFakeTimers} from 'sinon';
 
 type GetCommitResponse = GetResponseTypeFromEndpointMethod<
   typeof octokit.git.getCommit
@@ -190,8 +191,13 @@ describe('Push', () => {
 
 describe('Commit', () => {
   const sandbox = sinon.createSandbox();
+  let clock: SinonFakeTimers;
+  beforeEach(() => {
+    clock = sinon.useFakeTimers();
+  });
   afterEach(() => {
     sandbox.restore();
+    clock.restore();
   });
   const origin: RepoDomain = {
     owner: 'Foo',
@@ -223,6 +229,43 @@ describe('Commit', () => {
       message,
       tree: treeSha,
       parents: [head],
+    });
+  });
+  it('Uses current date when date in author/committer is undefined and commit signing is enabled', async () => {
+    // setup
+    const createCommitResponseData = await import(
+      './fixtures/create-commit-response.json'
+    );
+    const createCommitResponse = {
+      headers: {},
+      status: 201,
+      url: 'http://fake-url.com',
+      data: createCommitResponseData,
+    } as unknown as CreateCommitResponse;
+    const stubCreateCommit = sandbox
+      .stub(octokit.git, 'createCommit')
+      .resolves(createCommitResponse);
+    // tests
+    const sha = await createCommit(octokit, origin, head, treeSha, message, {
+      author: {
+        name: 'Fake Author',
+        email: 'fake.email@example.com',
+      },
+      signer: new FakeCommitSigner('fake-signature'),
+    });
+    assert.strictEqual(sha, createCommitResponse.data.sha);
+    sandbox.assert.calledOnceWithMatch(stubCreateCommit, {
+      owner: origin.owner,
+      repo: origin.repo,
+      message,
+      tree: treeSha,
+      parents: [head],
+      author: {
+        name: 'Fake Author',
+        email: 'fake.email@example.com',
+        date: new Date(clock.now).toISOString(),
+      },
+      signature: 'fake-signature',
     });
   });
 });
