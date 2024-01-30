@@ -47,20 +47,27 @@ export async function createCommit(
     let signature: string | undefined;
     if (options.signer) {
       const commitDate = new Date();
+      let author, committer: Required<UserData> | undefined = undefined;
       // Attach author/commit date.
-      if (options.author && !options.author?.date) {
-        options.author.date = commitDate;
+      if (options.author) {
+        author = {
+          ...options.author,
+          date: options.author.date ?? commitDate,
+        };
       }
-      if (options.committer && !options.committer?.date) {
-        options.committer.date = commitDate;
+      if (options.committer) {
+        committer = {
+          ...options.committer,
+          date: options.committer.date ?? commitDate,
+        }
       }
 
       signature = await options.signer.generateSignature({
         message,
         tree: treeSha,
         parents: [refHead],
-        author: options.author,
-        committer: options.committer,
+        author,
+        committer,
       });
     } else {
       signature = undefined;

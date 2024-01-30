@@ -217,6 +217,11 @@ export interface CommitData {
   committer?: UserData;
 }
 
+export interface CommitDataWithRequiredDate extends CommitData {
+  author?: Required<UserData>;
+  committer?: Required<UserData>;
+}
+
 export interface CommitSigner {
-  generateSignature(commit: CommitData): Promise<string>;
+  generateSignature(commit: CommitDataWithRequiredDate): Promise<string>;
 }
