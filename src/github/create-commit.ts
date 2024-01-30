@@ -44,15 +44,28 @@ export async function createCommit(
   options: CreateCommitOptions = {}
 ): Promise<string> {
   try {
-    const signature = options.signer
-      ? await options.signer.generateSignature({
-          message,
-          tree: treeSha,
-          parents: [refHead],
-          author: options.author,
-          committer: options.committer,
-        })
-      : undefined;
+    let signature: string | undefined;
+    if (options.signer) {
+      const commitDate = new Date();
+      // Attach author/commit date.
+      if (options.author && !options.author?.date) {
+        options.author.date = commitDate;
+      }
+      if (options.committer && !options.committer?.date) {
+        options.committer.date = commitDate;
+      }
+
+      signature = await options.signer.generateSignature({
+        message,
+        tree: treeSha,
+        parents: [refHead],
+        author: options.author,
+        committer: options.committer,
+      });
+    } else {
+      signature = undefined;
+    }
+
     const {
       data: {sha, url},
     } = await octokit.git.createCommit({
@@ -62,8 +75,12 @@ export async function createCommit(
       tree: treeSha,
       parents: [refHead],
       signature,
-      author: options.author,
-      committer: options.committer,
+      author: options.author
+        ? {...options.author, date: options.author.date?.toISOString()}
+        : undefined,
+      committer: options.committer
+        ? {...options.committer, date: options.committer.date?.toISOString()}
+        : undefined,
     });
     logger.info(`Successfully created commit. See commit at ${url}`);
     return sha;

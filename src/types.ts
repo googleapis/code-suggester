@@ -206,6 +206,7 @@ export interface Logger {
 export interface UserData {
   name: string;
   email: string;
+  date?: Date;
 }
 
 export interface CommitData {
