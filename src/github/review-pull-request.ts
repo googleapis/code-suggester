@@ -39,10 +39,16 @@ export function buildSummaryComment(invalidHunks: Map<string, Hunk[]>): string {
     return '';
   }
   return (
+    '<details>' +
+    '<summary>' +
     'Some suggestions could not be made:\n' +
+    '</summary>' +
+    '\n\n' + //a blank line is required to display markdown in html
     Array.from(invalidHunks, ([filename, hunks]) =>
       fileErrorMessage(filename, hunks)
-    ).join('\n')
+    ).join('\n') +
+    '\n\n' +
+    '</details>'
   );
 }
 
