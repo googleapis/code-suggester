@@ -406,7 +406,7 @@ on:
       - main
 name: ci
 jobs:
-  add-license:
+  review-pr:
     runs-on: ubuntu-latest
     env:
       ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
