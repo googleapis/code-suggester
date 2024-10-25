@@ -58,7 +58,7 @@ then
   docker run --entrypoint=gcloud \
       --volume="${KOKORO_GFILE_DIR}:${KOKORO_GFILE_DIR}" \
       gcr.io/google.com/cloudsdktool/cloud-sdk \
-      gcloud auth configure-docker "${TRAMPOLINE_HOST}"
+      auth configure-docker "${TRAMPOLINE_HOST}"
   if docker pull "${TRAMPOLINE_IMAGE}"; then
       log_green "Finished pulling the Docker image: ${TRAMPOLINE_IMAGE}."
       has_image="true"
