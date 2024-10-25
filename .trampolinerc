@@ -55,10 +55,10 @@ then
   echo "TRAMPOLINE_HOST: ${TRAMPOLINE_HOST}"
   # gcloud components install auth
   # gcloud auth configure-docker "${TRAMPOLINE_HOST}"
-  docker run --entrypoint=gcloud \
-      --volume="${KOKORO_GFILE_DIR}:${KOKORO_GFILE_DIR}" \
-      gcr.io/google.com/cloudsdktool/cloud-sdk \
-      auth configure-docker "${TRAMPOLINE_HOST}"
+#  docker run --entrypoint=gcloud \
+ #     --volume="${KOKORO_GFILE_DIR}:${KOKORO_GFILE_DIR}" \
+  #    gcr.io/google.com/cloudsdktool/cloud-sdk \
+   #   auth configure-docker "${TRAMPOLINE_HOST}"
   pwd
   gcloud auth configure-docker
   if docker pull "${TRAMPOLINE_IMAGE}"; then
