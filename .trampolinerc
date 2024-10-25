@@ -60,7 +60,7 @@ then
   more ~/.docker/config.json
   echo ~
   docker run --entrypoint=gcloud \
-      --mount type=bind,source=~/.docker,target=/home/.docker \
+      --mount type=bind,source=/home/kbuilder/.docker,target=/home/.docker \
       gcr.io/google.com/cloudsdktool/cloud-sdk \
       auth configure-docker "${TRAMPOLINE_HOST}"
   echo "contents of docker config 2"
