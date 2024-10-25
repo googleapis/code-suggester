@@ -56,7 +56,7 @@ then
   # gcloud components install auth
   # gcloud auth configure-docker "${TRAMPOLINE_HOST}"
   docker run --entrypoint=gcloud \
-      -v /:/ \
+      --volume="${KOKORO_GFILE_DIR}:${KOKORO_GFILE_DIR}" \
       gcr.io/google.com/cloudsdktool/cloud-sdk \
       auth configure-docker "${TRAMPOLINE_HOST}"
   pwd
