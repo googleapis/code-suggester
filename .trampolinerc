@@ -57,14 +57,17 @@ then
   # gcloud auth configure-docker "${TRAMPOLINE_HOST}"
   gcloud auth configure-docker
   echo "contents of docker config 1"
+  ls -la /home/kbuilder/.docker/
+  #sudo ls -la /home/kbuilder/.docker/
+  #
   more ~/.docker/config.json
-  echo ~
   docker run --entrypoint=gcloud \
       --mount type=bind,source=/home/kbuilder/.docker,target=/root/.docker \
       gcr.io/google.com/cloudsdktool/cloud-sdk \
       auth configure-docker "${TRAMPOLINE_HOST}"
   echo "contents of docker config 2"
   more ~/.docker/config.json
+  sudo chmod 666 /home/kbuilder/.docker/config.json
   if docker pull "${TRAMPOLINE_IMAGE}"; then
       log_green "Finished pulling the Docker image: ${TRAMPOLINE_IMAGE}."
       has_image="true"
