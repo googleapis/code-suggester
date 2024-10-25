@@ -53,7 +53,18 @@ TRAMPOLINE_HOST=$(echo "${TRAMPOLINE_IMAGE}" | cut -d/ -f1)
 if [[ ! "${TRAMPOLINE_HOST}" =~ "gcr.io" ]]
 then
   echo "TRAMPOLINE_HOST: ${TRAMPOLINE_HOST}"
-  gcloud components install auth
-  gcloud auth configure-docker "${TRAMPOLINE_HOST}"
+  # gcloud components install auth
+  # gcloud auth configure-docker "${TRAMPOLINE_HOST}"
+  docker run --entrypoint=gcloud \
+      --volume="${KOKORO_GFILE_DIR}:${KOKORO_GFILE_DIR}" \
+      gcr.io/google.com/cloudsdktool/cloud-sdk \
+      gcloud auth configure-docker "${TRAMPOLINE_HOST}"
+  if docker pull "${TRAMPOLINE_IMAGE}"; then
+      log_green "Finished pulling the Docker image: ${TRAMPOLINE_IMAGE}."
+      has_image="true"
+    else
+      log_red "Failed pulling the Docker image: ${TRAMPOLINE_IMAGE}."
+      has_image="false"
+  fi
 fi
-source ${PROJECT_ROOT}/.kokoro/populate-secrets.sh
+
