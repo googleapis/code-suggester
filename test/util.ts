@@ -16,7 +16,7 @@ import {setupLogger, logger} from '../src/logger';
 import {Octokit} from '@octokit/rest';
 import {disableNetConnect} from 'nock';
 
-const octokit = new Octokit();
+const octokit: Octokit = new Octokit();
 
 /**
  * setup tests
