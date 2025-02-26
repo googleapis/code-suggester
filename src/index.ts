@@ -147,7 +147,7 @@ async function createPullRequest(
         factor: 2.8411, // https://www.wolframalpha.com/input/?i=Sum%5B3000*x%5Ek%2C+%7Bk%2C+0%2C+4%7D%5D+%3D+5+*+60+*+1000
         minTimeout: 3000,
         randomize: false,
-        onRetry: (e, attempt) => {
+        onRetry: (e: Error, attempt) => {
           e.message = `Error creating syncing upstream: ${e.message}`;
           logger.error(e);
           logger.info(`Retry attempt #${attempt}...`);
@@ -177,7 +177,7 @@ async function createPullRequest(
       factor: 2.8411, // https://www.wolframalpha.com/input/?i=Sum%5B3000*x%5Ek%2C+%7Bk%2C+0%2C+4%7D%5D+%3D+5+*+60+*+1000
       minTimeout: 3000,
       randomize: false,
-      onRetry: (e, attempt) => {
+      onRetry: (e: Error, attempt) => {
         e.message = `Error creating Pull Request: ${e.message}`;
         logger.error(e);
         logger.info(`Retry attempt #${attempt}...`);
