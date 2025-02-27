@@ -16,6 +16,8 @@ import {CreateCommitOptions} from './github/create-commit';
 
 export type FileMode = '100644' | '100755' | '040000' | '160000' | '120000';
 
+export type FileEncoding = 'base64' | 'utf-8';
+
 /**
  * GitHub definition of tree
  */
@@ -25,6 +27,7 @@ export interface TreeObject {
   type: 'blob' | 'tree' | 'commit';
   sha?: string | null;
   content?: string;
+  encoding?: FileEncoding;
 }
 
 /**
@@ -36,9 +39,11 @@ export interface TreeObject {
 export class FileData {
   readonly mode: FileMode;
   readonly content: string | null;
-  constructor(content: string | null, mode: FileMode = '100644') {
+  readonly encoding?: FileEncoding;
+  constructor(content: string | null, mode: FileMode = '100644', encoding: FileEncoding = 'utf-8') {
     this.mode = mode;
     this.content = content;
+    this.encoding = encoding;
   }
 }
 

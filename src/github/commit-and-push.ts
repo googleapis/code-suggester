@@ -51,6 +51,7 @@ export function generateTreeObjects(changes: Changes): TreeObject[] {
         mode: fileData.mode,
         type: 'blob',
         content: fileData.content,
+        encoding: fileData.encoding,
       });
     }
   });
@@ -83,6 +84,20 @@ export async function createTree(
   refHead: string,
   tree: TreeObject[]
 ): Promise<string> {
+  for (const obj of tree) {
+      if (obj.content && obj.encoding === 'base64') {
+          let sha = (
+            await octokit.git.createBlob({
+                owner: origin.owner,
+                repo: origin.repo,
+                content: obj.content,
+                encoding: "base64",
+            })
+          ).data.sha;
+          obj.sha = sha;
+          obj.content = undefined;
+      }
+  }
   const oldTreeSha = (
     await octokit.git.getCommit({
       owner: origin.owner,
