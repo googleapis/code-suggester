@@ -4014,17 +4014,17 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // pkg/dist-src/index.js
-var dist_src_exports = {};
-__export(dist_src_exports, {
+var index_exports = {};
+__export(index_exports, {
   composePaginateRest: () => composePaginateRest,
   isPaginatingEndpoint: () => isPaginatingEndpoint,
   paginateRest: () => paginateRest,
   paginatingEndpoints: () => paginatingEndpoints
 });
-module.exports = __toCommonJS(dist_src_exports);
+module.exports = __toCommonJS(index_exports);
 
 // pkg/dist-src/version.js
-var VERSION = "11.3.1";
+var VERSION = "11.4.4-cjs.2";
 
 // pkg/dist-src/normalize-paginated-list-response.js
 function normalizePaginatedListResponse(response) {
@@ -4035,8 +4035,7 @@ function normalizePaginatedListResponse(response) {
     };
   }
   const responseNeedsNormalization = "total_count" in response.data && !("url" in response.data);
-  if (!responseNeedsNormalization)
-    return response;
+  if (!responseNeedsNormalization) return response;
   const incompleteResults = response.data.incomplete_results;
   const repositorySelection = response.data.repository_selection;
   const totalCount = response.data.total_count;
@@ -4066,18 +4065,16 @@ function iterator(octokit, route, parameters) {
   return {
     [Symbol.asyncIterator]: () => ({
       async next() {
-        if (!url)
-          return { done: true };
+        if (!url) return { done: true };
         try {
           const response = await requestMethod({ method, url, headers });
           const normalizedResponse = normalizePaginatedListResponse(response);
           url = ((normalizedResponse.headers.link || "").match(
-            /<([^>]+)>;\s*rel="next"/
+            /<([^<>]+)>;\s*rel="next"/
           ) || [])[1];
           return { value: normalizedResponse };
         } catch (error) {
-          if (error.status !== 409)
-            throw error;
+          if (error.status !== 409) throw error;
           url = "";
           return {
             value: {
@@ -4138,7 +4135,8 @@ var paginatingEndpoints = [
   "GET /assignments/{assignment_id}/accepted_assignments",
   "GET /classrooms",
   "GET /classrooms/{classroom_id}/assignments",
-  "GET /enterprises/{enterprise}/copilot/usage",
+  "GET /enterprises/{enterprise}/code-security/configurations",
+  "GET /enterprises/{enterprise}/code-security/configurations/{configuration_id}/repositories",
   "GET /enterprises/{enterprise}/dependabot/alerts",
   "GET /enterprises/{enterprise}/secret-scanning/alerts",
   "GET /events",
@@ -4160,17 +4158,24 @@ var paginatingEndpoints = [
   "GET /organizations",
   "GET /orgs/{org}/actions/cache/usage-by-repository",
   "GET /orgs/{org}/actions/permissions/repositories",
+  "GET /orgs/{org}/actions/runner-groups",
+  "GET /orgs/{org}/actions/runner-groups/{runner_group_id}/repositories",
+  "GET /orgs/{org}/actions/runner-groups/{runner_group_id}/runners",
   "GET /orgs/{org}/actions/runners",
   "GET /orgs/{org}/actions/secrets",
   "GET /orgs/{org}/actions/secrets/{secret_name}/repositories",
   "GET /orgs/{org}/actions/variables",
   "GET /orgs/{org}/actions/variables/{name}/repositories",
+  "GET /orgs/{org}/attestations/{subject_digest}",
   "GET /orgs/{org}/blocks",
   "GET /orgs/{org}/code-scanning/alerts",
+  "GET /orgs/{org}/code-security/configurations",
+  "GET /orgs/{org}/code-security/configurations/{configuration_id}/repositories",
   "GET /orgs/{org}/codespaces",
   "GET /orgs/{org}/codespaces/secrets",
   "GET /orgs/{org}/codespaces/secrets/{secret_name}/repositories",
   "GET /orgs/{org}/copilot/billing/seats",
+  "GET /orgs/{org}/copilot/metrics",
   "GET /orgs/{org}/copilot/usage",
   "GET /orgs/{org}/dependabot/alerts",
   "GET /orgs/{org}/dependabot/secrets",
@@ -4179,6 +4184,9 @@ var paginatingEndpoints = [
   "GET /orgs/{org}/failed_invitations",
   "GET /orgs/{org}/hooks",
   "GET /orgs/{org}/hooks/{hook_id}/deliveries",
+  "GET /orgs/{org}/insights/api/route-stats/{actor_type}/{actor_id}",
+  "GET /orgs/{org}/insights/api/subject-stats",
+  "GET /orgs/{org}/insights/api/user-stats/{user_id}",
   "GET /orgs/{org}/installations",
   "GET /orgs/{org}/invitations",
   "GET /orgs/{org}/invitations/{invitation_id}/teams",
@@ -4196,6 +4204,7 @@ var paginatingEndpoints = [
   "GET /orgs/{org}/personal-access-token-requests/{pat_request_id}/repositories",
   "GET /orgs/{org}/personal-access-tokens",
   "GET /orgs/{org}/personal-access-tokens/{pat_id}/repositories",
+  "GET /orgs/{org}/private-registries",
   "GET /orgs/{org}/projects",
   "GET /orgs/{org}/properties/values",
   "GET /orgs/{org}/public_members",
@@ -4204,6 +4213,7 @@ var paginatingEndpoints = [
   "GET /orgs/{org}/rulesets/rule-suites",
   "GET /orgs/{org}/secret-scanning/alerts",
   "GET /orgs/{org}/security-advisories",
+  "GET /orgs/{org}/team/{team_slug}/copilot/metrics",
   "GET /orgs/{org}/team/{team_slug}/copilot/usage",
   "GET /orgs/{org}/teams",
   "GET /orgs/{org}/teams/{team_slug}/discussions",
@@ -4233,6 +4243,7 @@ var paginatingEndpoints = [
   "GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
   "GET /repos/{owner}/{repo}/activity",
   "GET /repos/{owner}/{repo}/assignees",
+  "GET /repos/{owner}/{repo}/attestations/{subject_digest}",
   "GET /repos/{owner}/{repo}/branches",
   "GET /repos/{owner}/{repo}/check-runs/{check_run_id}/annotations",
   "GET /repos/{owner}/{repo}/check-suites/{check_suite_id}/check-runs",
@@ -4275,6 +4286,7 @@ var paginatingEndpoints = [
   "GET /repos/{owner}/{repo}/issues/{issue_number}/events",
   "GET /repos/{owner}/{repo}/issues/{issue_number}/labels",
   "GET /repos/{owner}/{repo}/issues/{issue_number}/reactions",
+  "GET /repos/{owner}/{repo}/issues/{issue_number}/sub_issues",
   "GET /repos/{owner}/{repo}/issues/{issue_number}/timeline",
   "GET /repos/{owner}/{repo}/keys",
   "GET /repos/{owner}/{repo}/labels",
@@ -4350,6 +4362,7 @@ var paginatingEndpoints = [
   "GET /user/subscriptions",
   "GET /user/teams",
   "GET /users",
+  "GET /users/{username}/attestations/{subject_digest}",
   "GET /users/{username}/events",
   "GET /users/{username}/events/orgs/{org}",
   "GET /users/{username}/events/public",
@@ -4478,15 +4491,15 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // pkg/dist-src/index.js
-var dist_src_exports = {};
-__export(dist_src_exports, {
+var index_exports = {};
+__export(index_exports, {
   legacyRestEndpointMethods: () => legacyRestEndpointMethods,
   restEndpointMethods: () => restEndpointMethods
 });
-module.exports = __toCommonJS(dist_src_exports);
+module.exports = __toCommonJS(index_exports);
 
 // pkg/dist-src/version.js
-var VERSION = "13.2.2";
+var VERSION = "13.3.2-cjs.1";
 
 // pkg/dist-src/generated/endpoints.js
 var Endpoints = {
@@ -4496,6 +4509,9 @@ var Endpoints = {
     ],
     addCustomLabelsToSelfHostedRunnerForRepo: [
       "POST /repos/{owner}/{repo}/actions/runners/{runner_id}/labels"
+    ],
+    addRepoAccessToSelfHostedRunnerGroupInOrg: [
+      "PUT /orgs/{org}/actions/runner-groups/{runner_group_id}/repositories/{repository_id}"
     ],
     addSelectedRepoToOrgSecret: [
       "PUT /orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}"
@@ -4925,6 +4941,9 @@ var Endpoints = {
     getGithubActionsBillingUser: [
       "GET /users/{username}/settings/billing/actions"
     ],
+    getGithubBillingUsageReportOrg: [
+      "GET /organizations/{org}/settings/billing/usage"
+    ],
     getGithubPackagesBillingOrg: ["GET /orgs/{org}/settings/billing/packages"],
     getGithubPackagesBillingUser: [
       "GET /users/{username}/settings/billing/packages"
@@ -4961,8 +4980,20 @@ var Endpoints = {
     update: ["PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}"]
   },
   codeScanning: {
+    commitAutofix: [
+      "POST /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/autofix/commits"
+    ],
+    createAutofix: [
+      "POST /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/autofix"
+    ],
+    createVariantAnalysis: [
+      "POST /repos/{owner}/{repo}/code-scanning/codeql/variant-analyses"
+    ],
     deleteAnalysis: [
       "DELETE /repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}{?confirm_delete}"
+    ],
+    deleteCodeqlDatabase: [
+      "DELETE /repos/{owner}/{repo}/code-scanning/codeql/databases/{language}"
     ],
     getAlert: [
       "GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}",
@@ -4972,11 +5003,20 @@ var Endpoints = {
     getAnalysis: [
       "GET /repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}"
     ],
+    getAutofix: [
+      "GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/autofix"
+    ],
     getCodeqlDatabase: [
       "GET /repos/{owner}/{repo}/code-scanning/codeql/databases/{language}"
     ],
     getDefaultSetup: ["GET /repos/{owner}/{repo}/code-scanning/default-setup"],
     getSarif: ["GET /repos/{owner}/{repo}/code-scanning/sarifs/{sarif_id}"],
+    getVariantAnalysis: [
+      "GET /repos/{owner}/{repo}/code-scanning/codeql/variant-analyses/{codeql_variant_analysis_id}"
+    ],
+    getVariantAnalysisRepoTask: [
+      "GET /repos/{owner}/{repo}/code-scanning/codeql/variant-analyses/{codeql_variant_analysis_id}/repos/{repo_owner}/{repo_name}"
+    ],
     listAlertInstances: [
       "GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/instances"
     ],
@@ -4998,6 +5038,64 @@ var Endpoints = {
       "PATCH /repos/{owner}/{repo}/code-scanning/default-setup"
     ],
     uploadSarif: ["POST /repos/{owner}/{repo}/code-scanning/sarifs"]
+  },
+  codeSecurity: {
+    attachConfiguration: [
+      "POST /orgs/{org}/code-security/configurations/{configuration_id}/attach"
+    ],
+    attachEnterpriseConfiguration: [
+      "POST /enterprises/{enterprise}/code-security/configurations/{configuration_id}/attach"
+    ],
+    createConfiguration: ["POST /orgs/{org}/code-security/configurations"],
+    createConfigurationForEnterprise: [
+      "POST /enterprises/{enterprise}/code-security/configurations"
+    ],
+    deleteConfiguration: [
+      "DELETE /orgs/{org}/code-security/configurations/{configuration_id}"
+    ],
+    deleteConfigurationForEnterprise: [
+      "DELETE /enterprises/{enterprise}/code-security/configurations/{configuration_id}"
+    ],
+    detachConfiguration: [
+      "DELETE /orgs/{org}/code-security/configurations/detach"
+    ],
+    getConfiguration: [
+      "GET /orgs/{org}/code-security/configurations/{configuration_id}"
+    ],
+    getConfigurationForRepository: [
+      "GET /repos/{owner}/{repo}/code-security-configuration"
+    ],
+    getConfigurationsForEnterprise: [
+      "GET /enterprises/{enterprise}/code-security/configurations"
+    ],
+    getConfigurationsForOrg: ["GET /orgs/{org}/code-security/configurations"],
+    getDefaultConfigurations: [
+      "GET /orgs/{org}/code-security/configurations/defaults"
+    ],
+    getDefaultConfigurationsForEnterprise: [
+      "GET /enterprises/{enterprise}/code-security/configurations/defaults"
+    ],
+    getRepositoriesForConfiguration: [
+      "GET /orgs/{org}/code-security/configurations/{configuration_id}/repositories"
+    ],
+    getRepositoriesForEnterpriseConfiguration: [
+      "GET /enterprises/{enterprise}/code-security/configurations/{configuration_id}/repositories"
+    ],
+    getSingleConfigurationForEnterprise: [
+      "GET /enterprises/{enterprise}/code-security/configurations/{configuration_id}"
+    ],
+    setConfigurationAsDefault: [
+      "PUT /orgs/{org}/code-security/configurations/{configuration_id}/defaults"
+    ],
+    setConfigurationAsDefaultForEnterprise: [
+      "PUT /enterprises/{enterprise}/code-security/configurations/{configuration_id}/defaults"
+    ],
+    updateConfiguration: [
+      "PATCH /orgs/{org}/code-security/configurations/{configuration_id}"
+    ],
+    updateEnterpriseConfiguration: [
+      "PATCH /enterprises/{enterprise}/code-security/configurations/{configuration_id}"
+    ]
   },
   codesOfConduct: {
     getAllCodesOfConduct: ["GET /codes_of_conduct"],
@@ -5129,12 +5227,13 @@ var Endpoints = {
     cancelCopilotSeatAssignmentForUsers: [
       "DELETE /orgs/{org}/copilot/billing/selected_users"
     ],
+    copilotMetricsForOrganization: ["GET /orgs/{org}/copilot/metrics"],
+    copilotMetricsForTeam: ["GET /orgs/{org}/team/{team_slug}/copilot/metrics"],
     getCopilotOrganizationDetails: ["GET /orgs/{org}/copilot/billing"],
     getCopilotSeatDetailsForUser: [
       "GET /orgs/{org}/members/{username}/copilot"
     ],
     listCopilotSeats: ["GET /orgs/{org}/copilot/billing/seats"],
-    usageMetricsForEnterprise: ["GET /enterprises/{enterprise}/copilot/usage"],
     usageMetricsForOrg: ["GET /orgs/{org}/copilot/usage"],
     usageMetricsForTeam: ["GET /orgs/{org}/team/{team_slug}/copilot/usage"]
   },
@@ -5265,6 +5364,9 @@ var Endpoints = {
       "POST /repos/{owner}/{repo}/issues/{issue_number}/assignees"
     ],
     addLabels: ["POST /repos/{owner}/{repo}/issues/{issue_number}/labels"],
+    addSubIssue: [
+      "POST /repos/{owner}/{repo}/issues/{issue_number}/sub_issues"
+    ],
     checkUserCanBeAssigned: ["GET /repos/{owner}/{repo}/assignees/{assignee}"],
     checkUserCanBeAssignedToIssue: [
       "GET /repos/{owner}/{repo}/issues/{issue_number}/assignees/{assignee}"
@@ -5307,6 +5409,9 @@ var Endpoints = {
       "GET /repos/{owner}/{repo}/issues/{issue_number}/labels"
     ],
     listMilestones: ["GET /repos/{owner}/{repo}/milestones"],
+    listSubIssues: [
+      "GET /repos/{owner}/{repo}/issues/{issue_number}/sub_issues"
+    ],
     lock: ["PUT /repos/{owner}/{repo}/issues/{issue_number}/lock"],
     removeAllLabels: [
       "DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels"
@@ -5316,6 +5421,12 @@ var Endpoints = {
     ],
     removeLabel: [
       "DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}"
+    ],
+    removeSubIssue: [
+      "DELETE /repos/{owner}/{repo}/issues/{issue_number}/sub_issue"
+    ],
+    reprioritizeSubIssue: [
+      "PATCH /repos/{owner}/{repo}/issues/{issue_number}/sub_issues/priority"
     ],
     setLabels: ["PUT /repos/{owner}/{repo}/issues/{issue_number}/labels"],
     unlock: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/lock"],
@@ -5390,7 +5501,11 @@ var Endpoints = {
   },
   orgs: {
     addSecurityManagerTeam: [
-      "PUT /orgs/{org}/security-managers/teams/{team_slug}"
+      "PUT /orgs/{org}/security-managers/teams/{team_slug}",
+      {},
+      {
+        deprecated: "octokit.rest.orgs.addSecurityManagerTeam() is deprecated, see https://docs.github.com/rest/orgs/security-managers#add-a-security-manager-team"
+      }
     ],
     assignTeamToOrgRole: [
       "PUT /orgs/{org}/organization-roles/teams/{team_slug}/{role_id}"
@@ -5406,7 +5521,6 @@ var Endpoints = {
     convertMemberToOutsideCollaborator: [
       "PUT /orgs/{org}/outside_collaborators/{username}"
     ],
-    createCustomOrganizationRole: ["POST /orgs/{org}/organization-roles"],
     createInvitation: ["POST /orgs/{org}/invitations"],
     createOrUpdateCustomProperties: ["PATCH /orgs/{org}/properties/schema"],
     createOrUpdateCustomPropertiesValuesForRepos: [
@@ -5417,12 +5531,13 @@ var Endpoints = {
     ],
     createWebhook: ["POST /orgs/{org}/hooks"],
     delete: ["DELETE /orgs/{org}"],
-    deleteCustomOrganizationRole: [
-      "DELETE /orgs/{org}/organization-roles/{role_id}"
-    ],
     deleteWebhook: ["DELETE /orgs/{org}/hooks/{hook_id}"],
     enableOrDisableSecurityProductOnAllOrgRepos: [
-      "POST /orgs/{org}/{security_product}/{enablement}"
+      "POST /orgs/{org}/{security_product}/{enablement}",
+      {},
+      {
+        deprecated: "octokit.rest.orgs.enableOrDisableSecurityProductOnAllOrgRepos() is deprecated, see https://docs.github.com/rest/orgs/orgs#enable-or-disable-a-security-feature-for-an-organization"
+      }
     ],
     get: ["GET /orgs/{org}"],
     getAllCustomProperties: ["GET /orgs/{org}/properties/schema"],
@@ -5439,6 +5554,7 @@ var Endpoints = {
     ],
     list: ["GET /organizations"],
     listAppInstallations: ["GET /orgs/{org}/installations"],
+    listAttestations: ["GET /orgs/{org}/attestations/{subject_digest}"],
     listBlockedUsers: ["GET /orgs/{org}/blocks"],
     listCustomPropertiesValuesForRepos: ["GET /orgs/{org}/properties/values"],
     listFailedInvitations: ["GET /orgs/{org}/failed_invitations"],
@@ -5464,12 +5580,15 @@ var Endpoints = {
     listPatGrants: ["GET /orgs/{org}/personal-access-tokens"],
     listPendingInvitations: ["GET /orgs/{org}/invitations"],
     listPublicMembers: ["GET /orgs/{org}/public_members"],
-    listSecurityManagerTeams: ["GET /orgs/{org}/security-managers"],
+    listSecurityManagerTeams: [
+      "GET /orgs/{org}/security-managers",
+      {},
+      {
+        deprecated: "octokit.rest.orgs.listSecurityManagerTeams() is deprecated, see https://docs.github.com/rest/orgs/security-managers#list-security-manager-teams"
+      }
+    ],
     listWebhookDeliveries: ["GET /orgs/{org}/hooks/{hook_id}/deliveries"],
     listWebhooks: ["GET /orgs/{org}/hooks"],
-    patchCustomOrganizationRole: [
-      "PATCH /orgs/{org}/organization-roles/{role_id}"
-    ],
     pingWebhook: ["POST /orgs/{org}/hooks/{hook_id}/pings"],
     redeliverWebhookDelivery: [
       "POST /orgs/{org}/hooks/{hook_id}/deliveries/{delivery_id}/attempts"
@@ -5486,7 +5605,11 @@ var Endpoints = {
       "DELETE /orgs/{org}/public_members/{username}"
     ],
     removeSecurityManagerTeam: [
-      "DELETE /orgs/{org}/security-managers/teams/{team_slug}"
+      "DELETE /orgs/{org}/security-managers/teams/{team_slug}",
+      {},
+      {
+        deprecated: "octokit.rest.orgs.removeSecurityManagerTeam() is deprecated, see https://docs.github.com/rest/orgs/security-managers#remove-a-security-manager-team"
+      }
     ],
     reviewPatGrantRequest: [
       "POST /orgs/{org}/personal-access-token-requests/{pat_request_id}"
@@ -5610,6 +5733,18 @@ var Endpoints = {
     ],
     restorePackageVersionForUser: [
       "POST /users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}/restore"
+    ]
+  },
+  privateRegistries: {
+    createOrgPrivateRegistry: ["POST /orgs/{org}/private-registries"],
+    deleteOrgPrivateRegistry: [
+      "DELETE /orgs/{org}/private-registries/{secret_name}"
+    ],
+    getOrgPrivateRegistry: ["GET /orgs/{org}/private-registries/{secret_name}"],
+    getOrgPublicKey: ["GET /orgs/{org}/private-registries/public-key"],
+    listOrgPrivateRegistries: ["GET /orgs/{org}/private-registries"],
+    updateOrgPrivateRegistry: [
+      "PATCH /orgs/{org}/private-registries/{secret_name}"
     ]
   },
   projects: {
@@ -5814,6 +5949,7 @@ var Endpoints = {
     compareCommitsWithBasehead: [
       "GET /repos/{owner}/{repo}/compare/{basehead}"
     ],
+    createAttestation: ["POST /repos/{owner}/{repo}/attestations"],
     createAutolink: ["POST /repos/{owner}/{repo}/autolinks"],
     createCommitComment: [
       "POST /repos/{owner}/{repo}/commits/{commit_sha}/comments"
@@ -5849,7 +5985,6 @@ var Endpoints = {
     createPagesSite: ["POST /repos/{owner}/{repo}/pages"],
     createRelease: ["POST /repos/{owner}/{repo}/releases"],
     createRepoRuleset: ["POST /repos/{owner}/{repo}/rulesets"],
-    createTagProtection: ["POST /repos/{owner}/{repo}/tags/protection"],
     createUsingTemplate: [
       "POST /repos/{template_owner}/{template_repo}/generate"
     ],
@@ -5901,9 +6036,6 @@ var Endpoints = {
       "DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}"
     ],
     deleteRepoRuleset: ["DELETE /repos/{owner}/{repo}/rulesets/{ruleset_id}"],
-    deleteTagProtection: [
-      "DELETE /repos/{owner}/{repo}/tags/protection/{tag_protection_id}"
-    ],
     deleteWebhook: ["DELETE /repos/{owner}/{repo}/hooks/{hook_id}"],
     disableAutomatedSecurityFixes: [
       "DELETE /repos/{owner}/{repo}/automated-security-fixes"
@@ -6038,6 +6170,9 @@ var Endpoints = {
       "GET /repos/{owner}/{repo}/hooks/{hook_id}/deliveries/{delivery_id}"
     ],
     listActivities: ["GET /repos/{owner}/{repo}/activity"],
+    listAttestations: [
+      "GET /repos/{owner}/{repo}/attestations/{subject_digest}"
+    ],
     listAutolinks: ["GET /repos/{owner}/{repo}/autolinks"],
     listBranches: ["GET /repos/{owner}/{repo}/branches"],
     listBranchesForHeadCommit: [
@@ -6080,7 +6215,6 @@ var Endpoints = {
       "GET /repos/{owner}/{repo}/releases/{release_id}/assets"
     ],
     listReleases: ["GET /repos/{owner}/{repo}/releases"],
-    listTagProtection: ["GET /repos/{owner}/{repo}/tags/protection"],
     listTags: ["GET /repos/{owner}/{repo}/tags"],
     listTeams: ["GET /repos/{owner}/{repo}/teams"],
     listWebhookDeliveries: [
@@ -6195,9 +6329,13 @@ var Endpoints = {
     users: ["GET /search/users"]
   },
   secretScanning: {
+    createPushProtectionBypass: [
+      "POST /repos/{owner}/{repo}/secret-scanning/push-protection-bypasses"
+    ],
     getAlert: [
       "GET /repos/{owner}/{repo}/secret-scanning/alerts/{alert_number}"
     ],
+    getScanHistory: ["GET /repos/{owner}/{repo}/secret-scanning/scan-history"],
     listAlertsForEnterprise: [
       "GET /enterprises/{enterprise}/secret-scanning/alerts"
     ],
@@ -6351,6 +6489,7 @@ var Endpoints = {
     ],
     follow: ["PUT /user/following/{username}"],
     getAuthenticated: ["GET /user"],
+    getById: ["GET /user/{account_id}"],
     getByUsername: ["GET /users/{username}"],
     getContextForUser: ["GET /users/{username}/hovercard"],
     getGpgKeyForAuthenticated: [
@@ -6369,6 +6508,7 @@ var Endpoints = {
       "GET /user/ssh_signing_keys/{ssh_signing_key_id}"
     ],
     list: ["GET /users"],
+    listAttestations: ["GET /users/{username}/attestations/{subject_digest}"],
     listBlockedByAuthenticated: [
       "GET /user/blocks",
       {},
@@ -6926,18 +7066,18 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // pkg/dist-src/index.js
-var dist_src_exports = {};
-__export(dist_src_exports, {
+var index_exports = {};
+__export(index_exports, {
   Octokit: () => Octokit
 });
-module.exports = __toCommonJS(dist_src_exports);
+module.exports = __toCommonJS(index_exports);
 var import_core = __nccwpck_require__(6762);
 var import_plugin_request_log = __nccwpck_require__(8883);
 var import_plugin_paginate_rest = __nccwpck_require__(4193);
 var import_plugin_rest_endpoint_methods = __nccwpck_require__(3044);
 
 // pkg/dist-src/version.js
-var VERSION = "20.1.1";
+var VERSION = "20.1.2";
 
 // pkg/dist-src/index.js
 var Octokit = import_core.Octokit.plugin(
@@ -29744,7 +29884,13 @@ function wrappy (fn, cb) {
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getDiffString = exports.getChanges = exports.parseChanges = exports.getAllDiffs = exports.getGitFileData = exports.findRepoRoot = exports.resolvePath = void 0;
+exports.resolvePath = resolvePath;
+exports.findRepoRoot = findRepoRoot;
+exports.getGitFileData = getGitFileData;
+exports.getAllDiffs = getAllDiffs;
+exports.parseChanges = parseChanges;
+exports.getChanges = getChanges;
+exports.getDiffString = getDiffString;
 const child_process_1 = __nccwpck_require__(2081);
 const types_1 = __nccwpck_require__(9449);
 const logger_1 = __nccwpck_require__(5563);
@@ -29765,7 +29911,6 @@ function resolvePath(dir) {
     const absoluteDir = path.resolve(process.cwd(), dir);
     return absoluteDir;
 }
-exports.resolvePath = resolvePath;
 /**
  * Get the git root directory.
  * Errors if the directory provided is not a git directory.
@@ -29783,7 +29928,6 @@ function findRepoRoot(dir) {
         throw err;
     }
 }
-exports.findRepoRoot = findRepoRoot;
 /**
  * Returns the git diff old/new mode, status, and path. Given a git diff.
  * Errors if there is a parsing error
@@ -29841,7 +29985,6 @@ function getGitFileData(gitRootDir, gitDiffPattern) {
         }
     });
 }
-exports.getGitFileData = getGitFileData;
 /**
  * Get all the diffs using `git diff` of a git directory.
  * Errors if the git directory provided is not a git directory.
@@ -29860,7 +30003,6 @@ function getAllDiffs(gitRootDir) {
     (0, child_process_1.execSync)('git reset .', { cwd: gitRootDir });
     return diffs;
 }
-exports.getAllDiffs = getAllDiffs;
 /**
  * Get the git changes of the current project asynchronously.
  * Rejects if any of the files fails to load (if not deleted),
@@ -29889,7 +30031,6 @@ async function parseChanges(diffs, gitDir) {
         throw err;
     }
 }
-exports.parseChanges = parseChanges;
 /**
  * Throws an error if git is not installed
  * @returns {void} void if git is installed
@@ -29923,7 +30064,6 @@ function getChanges(dir) {
         throw err;
     }
 }
-exports.getChanges = getChanges;
 /**
  * Get the git changes of the current project asynchronously.
  * Rejects if any of the files fails to load (if not deleted),
@@ -29953,7 +30093,6 @@ function getDiffString(dir) {
         throw err;
     }
 }
-exports.getDiffString = getDiffString;
 //# sourceMappingURL=handle-git-dir-change.js.map
 
 /***/ }),
@@ -29977,7 +30116,8 @@ exports.getDiffString = getDiffString;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addReviewCommentsDefaults = exports.addPullRequestDefaults = void 0;
+exports.addPullRequestDefaults = addPullRequestDefaults;
+exports.addReviewCommentsDefaults = addReviewCommentsDefaults;
 const DEFAULT_BRANCH_NAME = 'code-suggestions';
 const DEFAULT_PRIMARY_BRANCH = 'main';
 const DEFAULT_PAGE_SIZE = 100;
@@ -30006,7 +30146,6 @@ function addPullRequestDefaults(options) {
     };
     return pullRequestSettings;
 }
-exports.addPullRequestDefaults = addPullRequestDefaults;
 /**
  * Format user input for pull request review comments
  * @param options The user's options input for review comments
@@ -30024,7 +30163,6 @@ function addReviewCommentsDefaults(options) {
     };
     return createReviewComment;
 }
-exports.addReviewCommentsDefaults = addReviewCommentsDefaults;
 //# sourceMappingURL=default-options-handler.js.map
 
 /***/ }),
@@ -30079,7 +30217,11 @@ exports.CommitError = CommitError;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.branch = exports.createBranch = exports.existsBranchWithName = exports.getBranchHead = exports.createRef = void 0;
+exports.createRef = createRef;
+exports.getBranchHead = getBranchHead;
+exports.existsBranchWithName = existsBranchWithName;
+exports.createBranch = createBranch;
+exports.branch = branch;
 const logger_1 = __nccwpck_require__(5563);
 const REF_PREFIX = 'refs/heads/';
 const DEFAULT_PRIMARY_BRANCH = 'main';
@@ -30090,7 +30232,6 @@ const DEFAULT_PRIMARY_BRANCH = 'main';
 function createRef(branchName) {
     return REF_PREFIX + branchName;
 }
-exports.createRef = createRef;
 /**
  * get branch commit HEAD SHA of a repository
  * Throws an error if the branch cannot be found
@@ -30108,7 +30249,6 @@ async function getBranchHead(octokit, origin, branch) {
     logger_1.logger.info(`Successfully found branch HEAD sha "${branchData.commit.sha}".`);
     return branchData.commit.sha;
 }
-exports.getBranchHead = getBranchHead;
 /**
  * Determine if there is a branch with the provided name in the remote GitHub repository
  * @param {Octokit} octokit The authenticated octokit instance
@@ -30132,7 +30272,6 @@ async function existsBranchWithName(octokit, remote, name) {
             throw err;
     }
 }
-exports.existsBranchWithName = existsBranchWithName;
 /**
  * Create a branch on the remote repository if there is not an existing branch
  * @param {Octokit} octokit The authenticated octokit instance
@@ -30156,7 +30295,6 @@ async function createBranch(octokit, remote, name, baseSha, duplicate) {
         logger_1.logger.info('Skipping branch creation step...');
     }
 }
-exports.createBranch = createBranch;
 /**
  * Create a GitHub branch given a remote origin.
  * Throws an exception if octokit fails, or if the base branch is invalid
@@ -30180,7 +30318,6 @@ async function branch(octokit, origin, upstream, name, baseBranch = DEFAULT_PRIM
         throw err;
     }
 }
-exports.branch = branch;
 //# sourceMappingURL=branch.js.map
 
 /***/ }),
@@ -30204,7 +30341,10 @@ exports.branch = branch;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.commitAndPush = exports.updateRef = exports.createTree = exports.generateTreeObjects = void 0;
+exports.generateTreeObjects = generateTreeObjects;
+exports.createTree = createTree;
+exports.updateRef = updateRef;
+exports.commitAndPush = commitAndPush;
 const logger_1 = __nccwpck_require__(5563);
 const create_commit_1 = __nccwpck_require__(6201);
 const errors_1 = __nccwpck_require__(2640);
@@ -30240,7 +30380,6 @@ function generateTreeObjects(changes) {
     });
     return tree;
 }
-exports.generateTreeObjects = generateTreeObjects;
 function* inGroupsOf(all, groupSize) {
     for (let i = 0; i < all.length; i += groupSize) {
         yield all.slice(i, i + groupSize);
@@ -30278,7 +30417,6 @@ async function createTree(octokit, origin, refHead, tree) {
         throw new errors_1.CommitError(`Error adding to tree: ${refHead}`, e);
     }
 }
-exports.createTree = createTree;
 /**
  * Update a reference to a SHA
  * Rejects if GitHub V3 API fails with the GitHub error response
@@ -30304,7 +30442,6 @@ async function updateRef(octokit, origin, newSha, force) {
         throw new errors_1.CommitError(`Error updating ref heads/${origin.branch} to ${newSha}`, e);
     }
 }
-exports.updateRef = updateRef;
 /**
  * Given a set of changes, apply the commit(s) on top of the given branch's head and upload it to GitHub
  * Rejects if GitHub V3 API fails with the GitHub error response
@@ -30328,7 +30465,6 @@ async function commitAndPush(octokit, refHead, changes, originBranch, commitMess
     }
     await updateRef(octokit, originBranch, refHead, force);
 }
-exports.commitAndPush = commitAndPush;
 //# sourceMappingURL=commit-and-push.js.map
 
 /***/ }),
@@ -30352,7 +30488,7 @@ exports.commitAndPush = commitAndPush;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createCommit = void 0;
+exports.createCommit = createCommit;
 const logger_1 = __nccwpck_require__(5563);
 const errors_1 = __nccwpck_require__(2640);
 /**
@@ -30395,7 +30531,6 @@ async function createCommit(octokit, origin, refHead, treeSha, message, options 
         throw new errors_1.CommitError(`Error creating commit for: ${treeSha}`, e);
     }
 }
-exports.createCommit = createCommit;
 //# sourceMappingURL=create-commit.js.map
 
 /***/ }),
@@ -30419,7 +30554,7 @@ exports.createCommit = createCommit;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fork = void 0;
+exports.fork = fork;
 const logger_1 = __nccwpck_require__(5563);
 /**
  * Fork the GitHub owner's repository.
@@ -30450,7 +30585,6 @@ async function fork(octokit, upstream) {
         throw err;
     }
 }
-exports.fork = fork;
 //# sourceMappingURL=fork.js.map
 
 /***/ }),
@@ -30474,7 +30608,7 @@ exports.fork = fork;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addLabels = void 0;
+exports.addLabels = addLabels;
 const logger_1 = __nccwpck_require__(5563);
 /**
  * Create a GitHub PR on the upstream organization's repo
@@ -30499,7 +30633,6 @@ async function addLabels(octokit, upstream, origin, issue_number, labels) {
     logger_1.logger.info(`Successfully added labels ${labels} to issue: ${issue_number}`);
     return labelsResponseData.map(l => l.name);
 }
-exports.addLabels = addLabels;
 //# sourceMappingURL=labels.js.map
 
 /***/ }),
@@ -30523,7 +30656,7 @@ exports.addLabels = addLabels;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.openPullRequest = void 0;
+exports.openPullRequest = openPullRequest;
 const logger_1 = __nccwpck_require__(5563);
 const DEFAULT_PRIMARY = 'main';
 /**
@@ -30562,7 +30695,6 @@ async function openPullRequest(octokit, upstream, origin, description, maintaine
     logger_1.logger.info(`Successfully opened pull request available at url: ${pullResponseData.url}.`);
     return pullResponseData.number;
 }
-exports.openPullRequest = openPullRequest;
 //# sourceMappingURL=open-pull-request.js.map
 
 /***/ }),
@@ -30586,7 +30718,12 @@ exports.openPullRequest = openPullRequest;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getPullRequestHunks = exports.getCurrentPullRequestPatches = exports.createPullRequestReview = exports.makeInlineSuggestions = exports.buildReviewComments = exports.buildSummaryComment = void 0;
+exports.buildSummaryComment = buildSummaryComment;
+exports.buildReviewComments = buildReviewComments;
+exports.makeInlineSuggestions = makeInlineSuggestions;
+exports.createPullRequestReview = createPullRequestReview;
+exports.getCurrentPullRequestPatches = getCurrentPullRequestPatches;
+exports.getPullRequestHunks = getPullRequestHunks;
 const logger_1 = __nccwpck_require__(5563);
 const diff_utils_1 = __nccwpck_require__(6364);
 const hunk_utils_1 = __nccwpck_require__(6501);
@@ -30608,7 +30745,6 @@ function buildSummaryComment(invalidHunks) {
     return ('Some suggestions could not be made:\n' +
         Array.from(invalidHunks, ([filename, hunks]) => fileErrorMessage(filename, hunks)).join('\n'));
 }
-exports.buildSummaryComment = buildSummaryComment;
 const COMFORT_PREVIEW_HEADER = 'application/vnd.github.comfort-fade-preview+json';
 /**
  * Convert the patch suggestions into GitHub parameter objects.
@@ -30646,7 +30782,6 @@ function buildReviewComments(suggestions) {
     });
     return fileComments;
 }
-exports.buildReviewComments = buildReviewComments;
 /**
  * Make a request to GitHub to make review comments
  * @param octokit an authenticated octokit instance
@@ -30689,7 +30824,6 @@ async function makeInlineSuggestions(octokit, suggestions, outOfScopeSuggestions
     logger_1.logger.info(`Successfully created a review on pull request: ${pullNumber}.`);
     return reviewNumber;
 }
-exports.makeInlineSuggestions = makeInlineSuggestions;
 /**
  * Comment on a Pull Request
  * @param {Octokit} octokit authenticated octokit isntance
@@ -30718,7 +30852,6 @@ async function createPullRequestReview(octokit, remote, pullNumber, pageSize, di
         throw err;
     }
 }
-exports.createPullRequestReview = createPullRequestReview;
 /**
  * For a pull request, get each remote file's patch text asynchronously
  * Also get the list of files whose patch data could not be returned
@@ -30758,7 +30891,6 @@ async function getCurrentPullRequestPatches(octokit, remote, pullNumber, pageSiz
     }
     return { patches, filesMissingPatch };
 }
-exports.getCurrentPullRequestPatches = getCurrentPullRequestPatches;
 /**
  * For a pull request, get each remote file's current patch range to identify the scope of each patch as a Map.
  * @param {Octokit} octokit the authenticated octokit instance
@@ -30795,7 +30927,6 @@ async function getPullRequestHunks(octokit, remote, pullNumber, pageSize) {
     }
     return pullRequestHunks;
 }
-exports.getPullRequestHunks = getPullRequestHunks;
 //# sourceMappingURL=review-pull-request.js.map
 
 /***/ }),
@@ -30819,7 +30950,10 @@ exports.getPullRequestHunks = getPullRequestHunks;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseTextFiles = exports.createPullRequest = exports.reviewPullRequest = exports.CommitError = exports.getDiffString = exports.getChanges = void 0;
+exports.CommitError = exports.getDiffString = exports.getChanges = void 0;
+exports.reviewPullRequest = reviewPullRequest;
+exports.createPullRequest = createPullRequest;
+exports.parseTextFiles = parseTextFiles;
 const types_1 = __nccwpck_require__(9449);
 const logger_1 = __nccwpck_require__(5563);
 const default_options_handler_1 = __nccwpck_require__(5843);
@@ -30869,7 +31003,6 @@ async function reviewPullRequest(octokit, diffContents, options) {
     const reviewNumber = await (0, review_pull_request_1.createPullRequestReview)(octokit, remote, gitHubConfigs.pullNumber, gitHubConfigs.pageSize, diffContents);
     return reviewNumber;
 }
-exports.reviewPullRequest = reviewPullRequest;
 /**
  * Make a new GitHub Pull Request with a set of changes applied on top of primary branch HEAD.
  * The changes are committed into a new branch based on the upstream repository options using the authenticated Octokit account.
@@ -30916,7 +31049,7 @@ async function createPullRequest(octokit, changes, options) {
             branch: gitHubConfigs.primary,
         }), {
             retries: options.retry,
-            factor: 2.8411,
+            factor: 2.8411, // https://www.wolframalpha.com/input/?i=Sum%5B3000*x%5Ek%2C+%7Bk%2C+0%2C+4%7D%5D+%3D+5+*+60+*+1000
             minTimeout: 3000,
             randomize: false,
             onRetry: (e, attempt) => {
@@ -30934,7 +31067,7 @@ async function createPullRequest(octokit, changes, options) {
     options.retry = options.retry === undefined ? 5 : options.retry;
     const refHeadSha = await retry(async () => await (0, branch_1.branch)(octokit, origin, upstream, originBranch.branch, gitHubConfigs.primary), {
         retries: options.retry,
-        factor: 2.8411,
+        factor: 2.8411, // https://www.wolframalpha.com/input/?i=Sum%5B3000*x%5Ek%2C+%7Bk%2C+0%2C+4%7D%5D+%3D+5+*+60+*+1000
         minTimeout: 3000,
         randomize: false,
         onRetry: (e, attempt) => {
@@ -30954,7 +31087,6 @@ async function createPullRequest(octokit, changes, options) {
     await (0, labels_1.addLabels)(octokit, upstream, originBranch, prNumber, options.labels);
     return prNumber;
 }
-exports.createPullRequest = createPullRequest;
 /**
  * Convert a Map<string,string> or {[path: string]: string}, where the key is the relative file path in the repository,
  * and the value is the text content. The files will be converted to a Map also containing the file mode information '100644'
@@ -30983,7 +31115,6 @@ function parseTextFiles(textFiles) {
     }
     return changes;
 }
-exports.parseTextFiles = parseTextFiles;
 //# sourceMappingURL=index.js.map
 
 /***/ }),
@@ -31007,7 +31138,8 @@ exports.parseTextFiles = parseTextFiles;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setupLogger = exports.logger = void 0;
+exports.logger = void 0;
+exports.setupLogger = setupLogger;
 class NullLogger {
     constructor() {
         this.error = () => { };
@@ -31027,7 +31159,6 @@ function setupLogger(userLogger) {
         exports.logger = logger = new NullLogger();
     }
 }
-exports.setupLogger = setupLogger;
 //# sourceMappingURL=logger.js.map
 
 /***/ }),
@@ -31095,7 +31226,9 @@ exports.PatchSyntaxError = PatchSyntaxError;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getSuggestedHunks = exports.parseAllHunks = exports.parsePatch = void 0;
+exports.parsePatch = parsePatch;
+exports.parseAllHunks = parseAllHunks;
+exports.getSuggestedHunks = getSuggestedHunks;
 const parseDiff = __nccwpck_require__(4126);
 const diff_1 = __nccwpck_require__(2954);
 // This header is ignored for calculating patch ranges, but is neccessary
@@ -31114,7 +31247,6 @@ index cac8fbc..87f387c 100644
 function parsePatch(patch) {
     return parseAllHunks(_DIFF_HEADER + patch).get('file.ext') || [];
 }
-exports.parsePatch = parsePatch;
 /**
  * Given a diff expressed in GNU diff format, return the range of lines
  * from the original content that are changed.
@@ -31180,7 +31312,6 @@ function parseAllHunks(diff) {
     });
     return hunksByFile;
 }
-exports.parseAllHunks = parseAllHunks;
 /**
  * Given two texts, return the range of lines that are changed.
  * @param oldContent The original content.
@@ -31191,7 +31322,6 @@ function getSuggestedHunks(oldContent, newContent) {
     const diff = (0, diff_1.createPatch)('unused', oldContent, newContent);
     return parseAllHunks(diff).get('unused') || [];
 }
-exports.getSuggestedHunks = getSuggestedHunks;
 //# sourceMappingURL=diff-utils.js.map
 
 /***/ }),
@@ -31215,7 +31345,10 @@ exports.getSuggestedHunks = getSuggestedHunks;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.partitionSuggestedHunksByScope = exports.getRawSuggestionHunks = exports.adjustHunkDown = exports.adjustHunkUp = void 0;
+exports.adjustHunkUp = adjustHunkUp;
+exports.adjustHunkDown = adjustHunkDown;
+exports.getRawSuggestionHunks = getRawSuggestionHunks;
+exports.partitionSuggestedHunksByScope = partitionSuggestedHunksByScope;
 const diff_utils_1 = __nccwpck_require__(6364);
 const logger_1 = __nccwpck_require__(5563);
 /**
@@ -31235,7 +31368,6 @@ function adjustHunkUp(hunk) {
         newContent: [hunk.previousLine, ...hunk.newContent],
     };
 }
-exports.adjustHunkUp = adjustHunkUp;
 /**
  * Shift a Hunk up one line so it ends one line later.
  * @param {Hunk} hunk
@@ -31253,7 +31385,6 @@ function adjustHunkDown(hunk) {
         newContent: hunk.newContent.concat(hunk.nextLine),
     };
 }
-exports.adjustHunkDown = adjustHunkDown;
 /**
  * Given a map where the key is the file name and the value is the
  * old content and new content of the file
@@ -31276,7 +31407,6 @@ function getRawSuggestionHunks(diffContents) {
     logger_1.logger.info('Parsed ranges of old and new patch');
     return fileHunks;
 }
-exports.getRawSuggestionHunks = getRawSuggestionHunks;
 function hunkOverlaps(validHunk, suggestedHunk) {
     return (suggestedHunk.oldStart >= validHunk.newStart &&
         suggestedHunk.oldEnd <= validHunk.newEnd);
@@ -31348,7 +31478,6 @@ function partitionSuggestedHunksByScope(pullRequestHunks, allSuggestedHunks) {
     });
     return { validHunks, invalidHunks };
 }
-exports.partitionSuggestedHunksByScope = partitionSuggestedHunksByScope;
 //# sourceMappingURL=hunk-utils.js.map
 
 /***/ }),
@@ -36461,7 +36590,7 @@ var exports = __webpack_exports__;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = void 0;
+exports.run = run;
 const core = __nccwpck_require__(2186);
 const code_suggester_1 = __nccwpck_require__(7335);
 const rest_1 = __nccwpck_require__(5375);
@@ -36500,7 +36629,6 @@ async function run() {
             core.setFailed(error.message);
     }
 }
-exports.run = run;
 function parseRepository() {
     var _a, _b;
     let owner = core.getInput('upstream_owner');
