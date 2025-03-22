@@ -39,66 +39,100 @@ export function parsePatch(patch: string): Hunk[] {
  * from the original content that are changed.
  * @param diff Diff expressed in GNU diff format.
  * @returns Map<string, Hunk[]>
- */
-export function parseAllHunks(diff: string): Map<string, Hunk[]> {
+ */export function parseAllHunks(diff: string): Map<string, Hunk[]> {
   const hunksByFile: Map<string, Hunk[]> = new Map();
+  
   parseDiff(diff).forEach(file => {
     const filename = file.to ? file.to : file.from!;
-    const chunks = file.chunks.map(chunk => {
-      let oldStart = chunk.oldStart;
-      let newStart = chunk.newStart;
-      let normalLines = 0;
-      let changeSeen = false;
-      const newLines: string[] = [];
-      let previousLine: string | null = null;
-      let nextLine: string | null = null;
-
+    
+    file.chunks.forEach(chunk => {
+      // Find the first and last modified lines
+      let firstModifiedLine = -1;
+      let lastModifiedLine = -1;
+      
+      // Track normal lines by their line numbers
+      const normalLinesByNumber = new Map<number, string>();
+      
+      // First pass: identify modified range and catalog normal lines
       chunk.changes.forEach(change => {
-        // strip off leading '+', '-', or ' ' and trailing carriage return
-        const content = change.content.substring(1).replace(/[\n\r]+$/g, '');
-        if (change.type === 'normal') {
-          normalLines++;
-          if (changeSeen) {
-            if (nextLine === null) {
-              nextLine = content;
-            }
-          } else {
-            previousLine = content;
+        if (change.content.includes('No newline at end of file')) {
+          return;
+        }
+        
+        if (change.type === 'add' || change.type === 'del') {
+          const lineNum = (change as any).ln || 0;
+          if (firstModifiedLine === -1 || lineNum < firstModifiedLine) {
+            firstModifiedLine = lineNum;
           }
-        } else {
-          if (change.type === 'add') {
-            // strip off leading '+' and trailing carriage return
-            newLines.push(content);
+          if (lineNum > lastModifiedLine) {
+            lastModifiedLine = lineNum;
           }
-          if (!changeSeen) {
-            oldStart += normalLines;
-            newStart += normalLines;
-            changeSeen = true;
-          }
+        } else if (change.type === 'normal') {
+          // Store normal lines by their line number
+          const lineNum = (change as any).ln1 || (change as any).ln || 0;
+          normalLinesByNumber.set(lineNum, change.content.substring(1));
         }
       });
-      const newEnd = newStart + chunk.newLines - normalLines - 1;
-      const oldEnd = oldStart + chunk.oldLines - normalLines - 1;
-      let hunk: Hunk = {
-        oldStart: oldStart,
-        oldEnd: oldEnd,
-        newStart: newStart,
-        newEnd: newEnd,
-        newContent: newLines,
+      
+      // If no modifications, skip
+      if (firstModifiedLine === -1) return;
+      
+      // Collect all added lines
+      const addedLines: {ln: number, content: string}[] = [];
+      chunk.changes.forEach(change => {
+        if (change.type === 'add') {
+          addedLines.push({
+            ln: (change as any).ln || 0,
+            content: change.content.substring(1)
+          });
+        }
+      });
+      
+      // Sort added lines by line number
+      addedLines.sort((a, b) => a.ln - b.ln);
+      
+      // Now build the new content, including both added lines and necessary normal lines
+      const newContent: string[] = [];
+      let currentLine = firstModifiedLine;
+      
+      while (currentLine <= lastModifiedLine) {
+        // Check if this is an added line
+        const addedLine = addedLines.find(line => line.ln === currentLine);
+        
+        if (addedLine) {
+          // Include the added line
+          newContent.push(addedLine.content);
+        } else {
+          // This must be a normal line within the modified range
+          // Include it to maintain code structure
+          const normalLine = normalLinesByNumber.get(currentLine);
+          if (normalLine) {
+            newContent.push(normalLine);
+          }
+        }
+        
+        currentLine++;
+      }
+      
+      // Create the hunk with the exact modified range
+      const hunk: Hunk = {
+        oldStart: firstModifiedLine,
+        oldEnd: lastModifiedLine,
+        newStart: firstModifiedLine,
+        newEnd: firstModifiedLine + newContent.length - 1,
+        newContent
       };
-      if (previousLine) {
-        hunk = {...hunk, previousLine: previousLine};
+      
+      // Add the hunk
+      if (!hunksByFile.has(filename)) {
+        hunksByFile.set(filename, []);
       }
-      if (nextLine) {
-        hunk = {...hunk, nextLine: nextLine};
-      }
-      return hunk;
+      hunksByFile.get(filename)!.push(hunk);
     });
-    hunksByFile.set(filename, chunks);
   });
+  
   return hunksByFile;
 }
-
 /**
  * Given two texts, return the range of lines that are changed.
  * @param oldContent The original content.
@@ -109,6 +143,16 @@ export function getSuggestedHunks(
   oldContent: string,
   newContent: string
 ): Hunk[] {
+  debugger;
+  console.log("===== getSuggestedHunks called =====");
+  console.log("Original content:\n", oldContent);
+  console.log("New content:\n", newContent);
+
   const diff = createPatch('unused', oldContent, newContent);
-  return parseAllHunks(diff).get('unused') || [];
+  console.log("Generated patch:\n", diff);
+
+  const hunks = parseAllHunks(diff).get('unused') || [];
+  console.log("Parsed hunks:", JSON.stringify(hunks, null, 2));
+
+  return hunks;
 }
