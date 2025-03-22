@@ -39,12 +39,11 @@ export function parsePatch(patch: string): Hunk[] {
  * from the original content that are changed.
  * @param diff Diff expressed in GNU diff format.
  * @returns Map<string, Hunk[]>
- */export function parseAllHunks(diff: string): Map<string, Hunk[]> {
+ */
+export function parseAllHunks(diff: string): Map<string, Hunk[]> {
   const hunksByFile: Map<string, Hunk[]> = new Map();
-  
   parseDiff(diff).forEach(file => {
     const filename = file.to ? file.to : file.from!;
-    
     file.chunks.forEach(chunk => {
       // Find the first and last modified lines
       let firstModifiedLine = -1;
@@ -143,16 +142,6 @@ export function getSuggestedHunks(
   oldContent: string,
   newContent: string
 ): Hunk[] {
-  debugger;
-  console.log("===== getSuggestedHunks called =====");
-  console.log("Original content:\n", oldContent);
-  console.log("New content:\n", newContent);
-
   const diff = createPatch('unused', oldContent, newContent);
-  console.log("Generated patch:\n", diff);
-
-  const hunks = parseAllHunks(diff).get('unused') || [];
-  console.log("Parsed hunks:", JSON.stringify(hunks, null, 2));
-
-  return hunks;
+  return parseAllHunks(diff).get('unused') || [];
 }
