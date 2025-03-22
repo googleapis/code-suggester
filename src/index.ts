@@ -22,7 +22,12 @@ import {
   FileDiffContent,
   CreateReviewCommentUserOptions,
 } from './types';
-export {Changes, CommitData, CommitDataWithRequiredDate, CommitSigner} from './types';
+export {
+  Changes,
+  CommitData,
+  CommitDataWithRequiredDate,
+  CommitSigner,
+} from './types';
 import {Octokit} from '@octokit/rest';
 import {logger, setupLogger} from './logger';
 import {

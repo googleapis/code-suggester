@@ -32,6 +32,7 @@ export interface CreateCommitOptions {
  * @param {string} refHead the base of the new commit(s)
  * @param {string} treeSha the tree SHA that this commit will point to
  * @param {string} message the message of the new commit
+ * @param {CreateCommitOptions} options additional options like author or commit signer
  * @returns {Promise<string>} the new commit SHA
  * @see https://docs.github.com/en/rest/git/commits?apiVersion=2022-11-28#create-a-commit
  */
@@ -45,23 +46,25 @@ export async function createCommit(
 ): Promise<string> {
   try {
     let signature: string | undefined;
-    if (options.signer) {
-      const commitDate = new Date();
-      let author, committer: Required<UserData> | undefined = undefined;
-      // Attach author/commit date.
-      if (options.author) {
-        author = {
-          ...options.author,
-          date: options.author.date ?? commitDate,
-        };
-      }
-      if (options.committer) {
-        committer = {
-          ...options.committer,
-          date: options.committer.date ?? commitDate,
-        }
-      }
+    let author: Required<UserData> | undefined = undefined;
+    let committer: Required<UserData> | undefined = undefined;
 
+    const commitDate = new Date();
+    // Attach author/commit date.
+    if (options.author) {
+      author = {
+        ...options.author,
+        date: options.author.date ?? commitDate,
+      };
+    }
+    if (options.committer) {
+      committer = {
+        ...options.committer,
+        date: options.committer.date ?? commitDate,
+      };
+    }
+
+    if (options.signer) {
       signature = await options.signer.generateSignature({
         message,
         tree: treeSha,
@@ -82,12 +85,10 @@ export async function createCommit(
       tree: treeSha,
       parents: [refHead],
       signature,
-      author: options.author
-        ? {...options.author, date: options.author.date?.toISOString()}
-        : undefined,
-      committer: options.committer
-        ? {...options.committer, date: options.committer.date?.toISOString()}
-        : undefined,
+      author: author ? {...author, date: author.date.toISOString()} : author,
+      committer: committer
+        ? {...committer, date: committer.date.toISOString()}
+        : committer,
     });
     logger.info(`Successfully created commit. See commit at ${url}`);
     return sha;
