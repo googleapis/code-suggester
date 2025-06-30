@@ -1,5 +1,29 @@
 # Changelog
 
+## [5.0.0](https://github.com/googleapis/code-suggester/compare/v4.3.4...v5.0.0) (2025-02-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* require node 18+ ([#510](https://github.com/googleapis/code-suggester/issues/510))
+
+### Features
+
+* Require node 18+ ([#510](https://github.com/googleapis/code-suggester/issues/510)) ([7872278](https://github.com/googleapis/code-suggester/commit/7872278e587c3779a9b47de6535b1f2cde277520))
+
+
+### Bug Fixes
+
+* **action:** Run action on node 20 ([#513](https://github.com/googleapis/code-suggester/issues/513)) ([bc25927](https://github.com/googleapis/code-suggester/commit/bc259277494046e72c637797bda26212b2f191ea))
+* **deps:** Update octokit/rest to v20 ([#512](https://github.com/googleapis/code-suggester/issues/512)) ([64a2445](https://github.com/googleapis/code-suggester/commit/64a2445daaec7d1465c387299f55de34350dd597))
+
+## [4.3.4](https://github.com/googleapis/code-suggester/compare/v4.3.3...v4.3.4) (2024-10-25)
+
+
+### Bug Fixes
+
+* **release:** Update release scripts ([#501](https://github.com/googleapis/code-suggester/issues/501)) ([711565f](https://github.com/googleapis/code-suggester/commit/711565fc6b279e2bcc037ab635bd76d18e1fe234))
+
 ## [4.3.3](https://github.com/googleapis/code-suggester/compare/v4.3.2...v4.3.3) (2023-07-11)
 
 

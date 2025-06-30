@@ -54,5 +54,5 @@ inputs:
   labels:
     description: Labels to add to the pull request being opened.
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'action/dist/index.js'
