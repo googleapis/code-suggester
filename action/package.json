@@ -42,5 +42,8 @@
     "sinon": "^15.0.0",
     "ts-jest": "^29.2.6",
     "typescript": "^5.7.3"
+  },
+  "overrides": {
+    "tmp": "0.2.5"
   }
 }
