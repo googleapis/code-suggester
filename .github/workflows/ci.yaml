@@ -4,6 +4,10 @@ on:
       - main
   pull_request:
 name: ci
+
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
