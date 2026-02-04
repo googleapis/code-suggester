@@ -206,6 +206,7 @@ export interface Logger {
 export interface UserData {
   name: string;
   email: string;
+  date?: Date;
 }
 
 export interface CommitData {
@@ -216,6 +217,11 @@ export interface CommitData {
   committer?: UserData;
 }
 
+export interface CommitDataWithRequiredDate extends CommitData {
+  author?: Required<UserData>;
+  committer?: Required<UserData>;
+}
+
 export interface CommitSigner {
-  generateSignature(commit: CommitData): Promise<string>;
+  generateSignature(commit: CommitDataWithRequiredDate): Promise<string>;
 }
