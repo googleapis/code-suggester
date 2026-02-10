@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.2](https://github.com/googleapis/code-suggester/compare/v5.0.1...v5.0.2) (2026-02-10)
+
+
+### Bug Fixes
+
+* **action:** Update actions/core to v2 ([#531](https://github.com/googleapis/code-suggester/issues/531)) ([a2f3799](https://github.com/googleapis/code-suggester/commit/a2f3799ce60148a2bc5ab1ab04938f009e62ce16))
+
 ## [5.0.1](https://github.com/googleapis/code-suggester/compare/v5.0.0...v5.0.1) (2026-01-16)
 
 
