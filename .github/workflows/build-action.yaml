@@ -17,6 +17,10 @@ on:
     branches:
       - main
 name: build-action
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
