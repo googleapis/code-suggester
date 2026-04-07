@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.1.0](https://github.com/googleapis/code-suggester/compare/v5.0.1...v5.1.0) (2026-04-07)
+
+
+### Features
+
+* Drop Node 18 support and fix security alerts ([#542](https://github.com/googleapis/code-suggester/issues/542)) ([04b98fd](https://github.com/googleapis/code-suggester/commit/04b98fd82748b1faf0f42dc7be18a9027e904755))
+
+
+### Bug Fixes
+
+* **action:** Update actions/core to v2 ([#531](https://github.com/googleapis/code-suggester/issues/531)) ([a2f3799](https://github.com/googleapis/code-suggester/commit/a2f3799ce60148a2bc5ab1ab04938f009e62ce16))
+* **action:** Update undici to 6.24.1 to resolve Dependabot alerts ([#543](https://github.com/googleapis/code-suggester/issues/543)) ([34fcd9d](https://github.com/googleapis/code-suggester/commit/34fcd9dea7ff09fdf1c7989cf2df43d86545188d))
+* **deps:** Bump picomatch from 2.3.1 to 2.3.2 in /action ([#545](https://github.com/googleapis/code-suggester/issues/545)) ([fa73e51](https://github.com/googleapis/code-suggester/commit/fa73e51e88ea00653e48ee5a0fec6fb645345f83))
+
 ## [5.0.1](https://github.com/googleapis/code-suggester/compare/v5.0.0...v5.0.1) (2026-01-16)
 
 
