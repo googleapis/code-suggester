@@ -7,6 +7,10 @@
 [![release level](https://img.shields.io/badge/release%20level-alpha-orange.svg?style=flat)](https://cloud.google.com/terms/launch-stages)
 [![npm version](https://img.shields.io/npm/v/@google-cloud/code-suggester.svg)](https://www.npmjs.org/package/@google-cloud/code-suggester)
 
+# ⚠️ DEPRECATION NOTICE ⚠️
+
+This repository has been formally archived and is no longer actively maintained. The library provided here is provided "as-is" without
+support or guarantees of future updates.
 
 ## Description
 Code-suggester automates the steps involved in making code changes or code suggestions to your [GitHub](https://github.com/) repository! Code-suggester
